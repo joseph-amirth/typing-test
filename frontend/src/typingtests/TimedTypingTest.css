@@ -1,0 +1,18 @@
+.TimedTypingTest {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.Progress {
+    color: white;
+    align-self: flex-start;
+}
+
+.Hide {
+    position: fixed;
+    left: 0;
+    top: -999em;
+}

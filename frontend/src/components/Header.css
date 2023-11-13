@@ -1,0 +1,20 @@
+.Header {
+    position: relative;
+    color: green;
+    height: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Login {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.UserDetails {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

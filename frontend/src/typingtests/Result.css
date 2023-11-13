@@ -1,0 +1,11 @@
+.Result {
+    width: 100%;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.Stat > .Value {
+    font-size: 2em;
+}

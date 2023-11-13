@@ -1,0 +1,32 @@
+.Diff {
+    text-align: left;
+}
+
+.Line {
+    white-space: pre;
+}
+
+.Letter {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.Letter.Normal {
+    color: white;
+}
+
+.Letter.Correct {
+    color: green;
+}
+
+.Letter.Wrong {
+    color: red;
+}
+
+.Letter.Extra {
+    color: rgb(128, 0, 0);
+}
+
+.Letter.Skipped {
+    color: rgb(128, 128, 128);
+    /* text-decoration: red wavy underline; */
+}
