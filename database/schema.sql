@@ -6,18 +6,18 @@ DROP TABLE IF EXISTS user;
 CREATE TABLE user (
   id INT UNSIGNED auto_increment PRIMARY KEY,
   username VARCHAR(30) NOT NULL UNIQUE,
-  email VARCHAR(256) UNIQUE CHECK(email REGEXP '^.+\@.+$'),
-  salt VARBINARY(32) NOT NULL CHECK(length(salt) = 32),
-  password_hash VARBINARY(32) NOT NULL CHECK(length(password_hash) = 32),
+  email VARCHAR(256) UNIQUE,
+  salt VARBINARY(32) NOT NULL,
+  password_hash VARBINARY(32) NOT NULL,
   preferences JSON NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE result (
   id INT UNSIGNED auto_increment PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
   test_params JSON NOT NULL,
-  test_completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  test_completed_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   wpm FLOAT UNSIGNED NOT NULL,
   raw_wpm FLOAT UNSIGNED NOT NULL,
   accuracy FLOAT UNSIGNED NOT NULL,

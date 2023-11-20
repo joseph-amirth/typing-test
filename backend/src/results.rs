@@ -10,17 +10,17 @@ pub async fn post_result(
     auth_token: AuthToken,
     Json(TestResult {
         test_params,
-        test_completed_at,
+        test_completed_timestamp,
         wpm,
         raw_wpm,
         accuracy,
     }): Json<TestResult>,
 ) -> Result<(), AppError> {
     sqlx::query!(
-        "INSERT INTO result (user_id, test_params, test_completed_at, wpm, raw_wpm, accuracy) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO result (user_id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy) VALUES (?, ?, ?, ?, ?, ?)",
         auth_token.user_id,
         serde_json::to_string(&test_params)?,
-        test_completed_at,
+        test_completed_timestamp,
         wpm,
         raw_wpm,
         accuracy,
@@ -37,7 +37,7 @@ pub async fn get_results(
 ) -> Result<Json<Vec<TestResult>>, AppError> {
     let results = sqlx::query_as!(
         TestResult,
-        "SELECT test_params, test_completed_at, wpm, raw_wpm, accuracy FROM result WHERE user_id = ?",
+        "SELECT test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ?",
         auth_token.user_id,
     )
     .fetch_all(&pool)
@@ -52,7 +52,7 @@ pub struct TestResult {
     test_params: RandomTestParams,
 
     #[serde(with = "ts_seconds")]
-    test_completed_at: DateTime<Utc>,
+    test_completed_timestamp: DateTime<Utc>,
 
     wpm: f32,
     raw_wpm: f32,

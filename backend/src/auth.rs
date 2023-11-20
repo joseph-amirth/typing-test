@@ -196,7 +196,7 @@ impl IntoResponse for SignInError {
 
 impl AuthToken {
     const VALIDITY_DURATION: Duration = Duration::from_secs(60 * 60 * 24 * 1); // 1 day
-    const COOKIE_NAME: &str = "signintoken";
+    const COOKIE_NAME: &'static str = "signintoken";
 
     fn new(user_id: u32, username: String, email: Option<String>) -> Self {
         let unix_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
