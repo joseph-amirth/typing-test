@@ -114,7 +114,12 @@ export const updatePreferences = (preferences) => {
 };
 
 const get = (path, options = {}) => {
-  return fetch(`${backendUrl}${path}`, options);
+  return fetchNonThrowing(`${backendUrl}${path}`, options).catch(() => {
+    return new Response(null, {
+      status: 500,
+      statusText: "Server not found",
+    });
+  });
 };
 
 const getJson = (path, options = {}) => {
@@ -122,12 +127,21 @@ const getJson = (path, options = {}) => {
 };
 
 const postJson = (path, obj, options = {}) => {
-  return fetch(`${backendUrl}${path}`, {
+  return fetchNonThrowing(`${backendUrl}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(obj),
     ...options,
+  });
+};
+
+const fetchNonThrowing = (path, options = {}) => {
+  return fetch(path, options).catch(() => {
+    return new Response(null, {
+      status: 500,
+      statusText: "Server not found",
+    });
   });
 };
