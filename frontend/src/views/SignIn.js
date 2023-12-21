@@ -1,71 +1,79 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/Input";
 import { UserDetailsContext } from "../userDetails";
-import { signInWithEmail, signInWithUsername } from "../utils/backend";
-import { isValidEmail, isValidUsername } from "../utils/signup";
 import "./SignIn.css";
+import { PreferencesContext } from "../preferences";
+import { useForm } from "react-hook-form";
+import { RE_EMAIL, RE_USERNAME } from "../utils/validation";
+import { signInWithEmail, signInWithUsername } from "../utils/backend";
 
 const SignIn = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const navigate = useNavigate();
+
   const { setUserDetails } = useContext(UserDetailsContext);
+  const { receivePreferences } = useContext(PreferencesContext);
 
-  const [id, setId] = useState("");
-  const [idError, setIdError] = useState("");
-
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  const [error, setError] = useState("");
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    (isValidUsername(id) === ""
-      ? signInWithUsername(id, password)
-      : signInWithEmail(id, password)
-    ).then((json) => {
-      if ("error" in json) {
-        setError(json.error);
-      } else {
-        setUserDetails(json.userDetails);
-        navigate("/");
-      }
-    });
-  };
+  const [serverError, setServerError] = useState("");
 
   return (
-    <form className="SignIn" onSubmit={handleSubmit}>
-      <Input
-        label="Username/email"
-        type="text"
-        value={id}
-        setValue={setId}
-        error={idError}
-        setError={setIdError}
-        isValid={(id) => {
-          if (isValidUsername(id) !== "" && isValidEmail(id) !== "") {
-            return "Enter a valid username/email";
+    <form
+      className="SignIn"
+      onSubmit={handleSubmit(({ usernameOrEmail, password }) => {
+        (RE_USERNAME.test(usernameOrEmail)
+          ? signInWithUsername(usernameOrEmail, password)
+          : signInWithEmail(usernameOrEmail, password)
+        ).then((json) => {
+          if ("error" in json) {
+            setServerError(json.error);
+          } else {
+            let { username, email } = json;
+            setUserDetails({ username, email });
+            receivePreferences(json.preferences);
+            navigate("/");
           }
-          return "";
-        }}
-      />
-      <Input
-        label="Password"
-        type="password"
-        value={password}
-        setValue={setPassword}
-        error={passwordError}
-        setError={setPasswordError}
-        isValid={(password) => {
-          if (password === "") {
-            return "Enter the password";
-          }
-          return "";
-        }}
-      />
-      <input type="submit" value="Submit" />
-      {error !== "" && <span className="Error">{error}</span>}
+        });
+      })}
+    >
+      <label>
+        Username/Email
+        <input
+          type="text"
+          {...register("usernameOrEmail", {
+            required: {
+              value: true,
+              message: "Username/email is required",
+            },
+            pattern: {
+              value: new RegExp(`(${RE_USERNAME.source})|(${RE_EMAIL.source})`),
+              message: "Invalid username/email",
+            },
+          })}
+        />
+      </label>
+      {errors.usernameOrEmail && <p>{errors.usernameOrEmail.message}</p>}
+      <br />
+      <label>
+        Password
+        <input
+          type="password"
+          {...register("password", {
+            required: {
+              value: true,
+              message: "Password is required",
+            },
+          })}
+        />
+      </label>
+      {errors.password && <p>{errors.password.message}</p>}
+      <br />
+      {serverError !== "" && <p>{serverError}</p>}
+      <input type="submit" value="Sign up" />
     </form>
   );
 };

@@ -1,5 +1,5 @@
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use http::StatusCode;
 
 pub struct AppError(anyhow::Error);
 

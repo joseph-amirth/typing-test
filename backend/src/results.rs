@@ -1,4 +1,4 @@
-use axum::{extract::State, Json};
+use axum::Json;
 use chrono::{serde::ts_seconds, DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::MySqlPool;
@@ -6,7 +6,7 @@ use sqlx::MySqlPool;
 use crate::{auth::AuthToken, common::RandomTestParams, utils::AppError};
 
 pub async fn post_result(
-    State(pool): State<MySqlPool>,
+    pool: MySqlPool,
     auth_token: AuthToken,
     Json(TestResult {
         test_params,
@@ -32,7 +32,7 @@ pub async fn post_result(
 }
 
 pub async fn get_results(
-    State(pool): State<MySqlPool>,
+    pool: MySqlPool,
     auth_token: AuthToken,
 ) -> Result<Json<Vec<TestResult>>, AppError> {
     let results = sqlx::query_as!(

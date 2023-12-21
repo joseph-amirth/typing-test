@@ -1,4 +1,5 @@
-import { getOrInitItem, setItem } from "./localStorage";
+import { defaultPreferences } from "../preferences";
+import { getOrInitItem } from "./localStorage";
 
 const backendUrl = "http://localhost:8080";
 
@@ -31,10 +32,6 @@ export const signUp = (username, email, password, preferences) => {
   });
 };
 
-export const signUpWithoutEmail = (username, password, preferences) => {
-  return signUp(username, null, password, preferences);
-};
-
 export const signInWithEmail = (email, password) => {
   return signIn({ email }, password);
 };
@@ -44,10 +41,10 @@ export const signInWithUsername = (username, password) => {
 };
 
 // Returned promise resolves to user details and settings on success.
-const signIn = (id, password, preferences = []) => {
+const signIn = (usernameOrEmail, password) => {
   return postJson(
     "/signin",
-    { id, password, preferences },
+    { usernameOrEmail, password },
     { credentials: "include" },
   ).then((response) => {
     if (response.status !== 200) {
@@ -65,8 +62,7 @@ export const currentUser = () => {
   return get("/current", { credentials: "include" }).then((response) => {
     if (response.status !== 200) {
       return {
-        userDetails: {},
-        preferences: getOrInitItem("preferences", {}),
+        preferences: getOrInitItem("preferences", defaultPreferences),
       };
     }
     return response.json();
@@ -79,14 +75,14 @@ export const logout = () => {
 
 export const postResult = (
   testParams,
-  testCompletedAt,
+  testCompletedTimestamp,
   wpm,
   rawWpm,
   accuracy,
 ) => {
   return postJson(
     "/result",
-    { testParams, testCompletedAt, wpm, rawWpm, accuracy },
+    { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
     { credentials: "include" },
   ).then((response) => {
     if (response.status !== 200) {
@@ -109,7 +105,6 @@ export const getResults = () => {
 };
 
 export const updatePreferences = (preferences) => {
-  setItem("preferences", preferences);
   return postJson("/prefs", preferences, { credentials: "include" });
 };
 

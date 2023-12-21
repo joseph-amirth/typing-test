@@ -1,14 +1,11 @@
-use axum::{
-    extract::{Path, State},
-    Json,
-};
+use axum::{extract::Path, Json};
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::{common::SeededTestParams, utils::AppError};
 
 pub async fn post_test(
-    State(pool): State<MySqlPool>,
+    pool: MySqlPool,
     Json(seeded_test_params): Json<SeededTestParams>,
 ) -> Result<String, AppError> {
     let id = Uuid::new_v4().to_string();
@@ -24,7 +21,7 @@ pub async fn post_test(
 }
 
 pub async fn get_test(
-    State(pool): State<MySqlPool>,
+    pool: MySqlPool,
     Path(id): Path<String>,
 ) -> Result<Json<SeededTestParams>, AppError> {
     let seeded_test_params_json =

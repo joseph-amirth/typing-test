@@ -48,53 +48,43 @@ impl From<SeededTestParams> for RandomTestParams {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Preferences {
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    current_mode: Option<TypingTestMode>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    words_mode_language: Option<String>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    words_mode_length: Option<u32>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    time_mode_language: Option<String>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    time_mode_duration: Option<u32>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    quote_mode_length: Option<QuoteModeLength>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    max_chars_in_line: Option<u32>,
-
-    #[serde(default)]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    show_all_lines: Option<bool>,
+    current_mode: TypingTestMode,
+    words_mode_language: String,
+    words_mode_length: u32,
+    time_mode_language: String,
+    time_mode_duration: u32,
+    quote_mode_length: QuoteModeLength,
+    max_chars_in_line: u32,
+    show_all_lines: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QuoteModeLength {
     min_length: u32,
     max_length: Option<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum TypingTestMode {
+    #[default]
     Words,
     Time,
     Quote,
+}
+
+impl From<String> for Preferences {
+    fn from(value: String) -> Self {
+        serde_json::from_str(&value).expect("no error")
+    }
+}
+
+impl ToString for Preferences {
+    fn to_string(&self) -> String {
+        serde_json::to_string(&self).expect("no error")
+    }
 }

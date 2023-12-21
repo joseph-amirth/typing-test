@@ -9,9 +9,9 @@ import { NotificationsContext, useNotificationsContext } from "./notifications";
 import "./App.css";
 
 const App = () => {
-  const { userDetails, preferences } = useLoaderData();
+  const { username, email, preferences } = useLoaderData();
 
-  const userDetailsContext = useUserDetailsContext(userDetails);
+  const userDetailsContext = useUserDetailsContext({ username, email });
 
   const preferencesContext = usePreferencesContext(preferences);
 
@@ -28,7 +28,6 @@ const App = () => {
             <div className="Body">
               <Outlet />
             </div>
-            <div className="Huh"></div>
             <Footer />
           </PreferencesContext.Provider>
         </UserDetailsContext.Provider>

@@ -9,10 +9,13 @@ export const UserDetailsContext = createContext({
 
 export const useUserDetailsContext = (initialUserDetails) => {
   const [userDetails, setUserDetails] = useState(initialUserDetails);
-  return { userDetails, setUserDetails };
+  return {
+    userDetails,
+    setUserDetails,
+  };
 };
 
 export const useIsSignedIn = () => {
   const { userDetails } = useContext(UserDetailsContext);
-  return "username" in userDetails;
+  return userDetails.username !== undefined;
 };

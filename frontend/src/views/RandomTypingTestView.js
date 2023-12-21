@@ -7,7 +7,7 @@ import HorizontalSpacer from "../components/HorizontalSpacer";
 import "./RandomTypingTestView.css";
 
 const RandomTypingTestView = () => {
-  const [mode, setCurrentMode] = usePreference("mode");
+  const [currentMode, setCurrentMode] = usePreference("currentMode");
 
   const handleCurrentModeChange = (event) => {
     const value = event.target.value;
@@ -17,14 +17,14 @@ const RandomTypingTestView = () => {
   return (
     <div className="TypingTestView">
       <div className="ModeChoice">
-        <select value={mode} onChange={handleCurrentModeChange}>
+        <select value={currentMode} onChange={handleCurrentModeChange}>
           <option value="words">Words</option>
           <option value="time">Time</option>
           <option value="quote">Quote</option>
         </select>
       </div>
       <VerticalSpacer />
-      {getTypingTest(mode)}
+      {getTypingTest(currentMode)}
     </div>
   );
 };

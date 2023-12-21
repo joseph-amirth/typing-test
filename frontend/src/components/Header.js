@@ -1,12 +1,12 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { UserDetailsContext } from "../userDetails";
+import { useIsSignedIn, UserDetailsContext } from "../userDetails";
 import { logout } from "../utils/backend";
 import "./Header.css";
 
 const Header = () => {
   const { userDetails, setUserDetails } = useContext(UserDetailsContext);
-  const isSignedIn = "username" in userDetails;
+  const isSignedIn = useIsSignedIn();
 
   const handleLogout = () => {
     logout().then((response) => {
@@ -31,7 +31,7 @@ const Header = () => {
       )}
       {isSignedIn && (
         <div className="UserDetails">
-          {userDetails.username} <Link onClick={handleLogout}>Log out</Link>
+          {userDetails.username} <button onClick={handleLogout}>Log out</button>
         </div>
       )}
     </div>
