@@ -21,6 +21,7 @@ pub async fn sign_up(
     validate_email(&email)?;
     validate_password(&password)?;
 
+    // TODO: Check that quality of randomness here is sufficient.
     let salt: Vec<u8> = (0..32).map(|_| rand::random()).collect();
     let password_hash = password_hash(&password, &salt);
     let preferences = preferences.to_string();

@@ -1,5 +1,8 @@
 # TODOs
 
+### Frontend & Backend TODOs
+- [ ] Merge language preferences for words and time mode into one.
+
 ### Frontend TODOs
 - [ ] Investigate Redux and see if it makes code better.
 - [ ] Figure out how to style stuff with CSS grid.

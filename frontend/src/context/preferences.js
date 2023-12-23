@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
-import { updatePreferences } from "./utils/backend";
-import { setItem } from "./utils/localStorage";
+import { updatePreferences } from "../util/backend";
+import { setItem } from "../util/localStorage";
 
 export const defaultPreferences = {
   currentMode: "words",
@@ -8,10 +8,8 @@ export const defaultPreferences = {
   wordsModeLength: 20,
   timeModeLanguage: "english",
   timeModeDuration: 30,
-  quoteModeLength: {
-    minLength: 0,
-    maxLength: 1000,
-  },
+  quoteModeMinLength: 0,
+  quoteModeMaxLength: undefined,
   maxCharsInLine: 60,
   showAllLines: false,
 };
@@ -37,7 +35,6 @@ export const usePreferencesContext = (initialPreferences) => {
           ...newPreferences,
         };
       });
-      console.log(preferences);
       setItem("preferences", preferences);
       updatePreferences(preferences);
     },

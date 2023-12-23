@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
-import { isTestDone } from "../utils/test";
+import { isTestDone } from "../util/test";
 import Diff from "./Diff";
 import Result from "./Result";
 import { useCharCounts } from "./useCharCounts";
 
 import "./BoundedTypingTest.css";
-import VerticalSpacer from "../components/VerticalSpacer";
+import VerticalSpacer from "../common/VerticalSpacer";
 
 const BoundedTypingTest = ({ test }) => {
   const [attempt, setAttempt] = useState("".split(" "));

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { copyTextToClipboard } from "../../utils/misc";
+import { copyTextToClipboard } from "../../util/misc";
 import Buttons from "./../Buttons";
 import SeededTypingTest from "./SeededTypingTest";
 import "./SpecificTypingTest.css";

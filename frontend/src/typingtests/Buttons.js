@@ -1,4 +1,4 @@
-import HorizontalSpacer from "../components/HorizontalSpacer";
+import HorizontalSpacer from "../common/HorizontalSpacer";
 import "./Buttons.css";
 
 const Buttons = ({ restart, next, share }) => {

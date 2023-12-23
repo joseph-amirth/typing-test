@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { postTest } from "../../utils/backend";
-import { copyTextToClipboard } from "../../utils/misc";
-import { generate32bitSeed } from "../../utils/prng";
+import { postTest } from "../../util/backend";
+import { copyTextToClipboard } from "../../util/misc";
+import { generate32bitSeed } from "../../util/prng";
 import Buttons from "../Buttons";
 import SeededTypingTest from "./SeededTypingTest";
 
 import "./RandomTypingTest.css";
-import VerticalSpacer from "../../components/VerticalSpacer";
+import VerticalSpacer from "../../common/VerticalSpacer";
 
 const RandomTypingTest = ({ language = "english", length = 100 }) => {
   const [id, setId] = useState("");

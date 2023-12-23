@@ -1,4 +1,4 @@
-import { usePreference } from "../preferences";
+import { usePreference } from "../context/preferences";
 import "./Diff.css";
 
 const Diff = ({ test, attempt, isTestBounded }) => {
@@ -154,6 +154,7 @@ const getFocusedLineNumber = (diffLines, focusedWordNumber) => {
 };
 
 // TODO: Use this to render a caret.
+// eslint-disable-next-line
 const getCaretPosition = (diffLines, focusedWordNumber) => {
   let currentWordNumber = 0;
   for (const [lineNumber, line] of diffLines.entries()) {

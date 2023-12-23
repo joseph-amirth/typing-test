@@ -1,8 +1,8 @@
-import { postResult } from "../utils/backend";
-import { useIsSignedIn } from "../userDetails";
-import { useTypingTestParams } from "../preferences";
-import { getAccuracy } from "../utils/test";
-import { roundToTwoDecimalPlaces, timestampInSecs } from "../utils/math";
+import { postResult } from "../util/backend";
+import { useIsSignedIn } from "../context/user";
+import { useTypingTestParams } from "../context/preferences";
+import { getAccuracy } from "../util/test";
+import { roundToTwoDecimalPlaces, timestampInSecs } from "../util/math";
 
 import "./Result.css";
 

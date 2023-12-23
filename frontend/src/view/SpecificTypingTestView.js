@@ -11,6 +11,7 @@ const SpecificTypingTestView = () => {
     case "time":
       return <TimeTypingTest {...params} />;
     default:
+      return null;
   }
 };
 

@@ -1,4 +1,4 @@
-import { defaultPreferences } from "../preferences";
+import { defaultPreferences } from "../context/preferences";
 import { getOrInitItem } from "./localStorage";
 
 const backendUrl = "http://localhost:8080";
@@ -109,12 +109,7 @@ export const updatePreferences = (preferences) => {
 };
 
 const get = (path, options = {}) => {
-  return fetchNonThrowing(`${backendUrl}${path}`, options).catch(() => {
-    return new Response(null, {
-      status: 500,
-      statusText: "Server not found",
-    });
-  });
+  return fetchNonThrowing(`${backendUrl}${path}`, options);
 };
 
 const getJson = (path, options = {}) => {
@@ -135,8 +130,8 @@ const postJson = (path, obj, options = {}) => {
 const fetchNonThrowing = (path, options = {}) => {
   return fetch(path, options).catch(() => {
     return new Response(null, {
-      status: 500,
-      statusText: "Server not found",
+      status: 503,
+      statusText: "Service unavailable",
     });
   });
 };

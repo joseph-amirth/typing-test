@@ -3,8 +3,8 @@ import Diff from "./Diff";
 import Result from "./Result";
 import { useCharCounts } from "./useCharCounts";
 import "./TimedTypingTest.css";
-import { usePreference } from "../preferences";
-import VerticalSpacer from "../components/VerticalSpacer";
+import { usePreference } from "../context/preferences";
+import VerticalSpacer from "../common/VerticalSpacer";
 
 const TimedTypingTest = ({ generateTest, duration }) => {
   const [maxCharsInLine] = usePreference("maxCharsInLine");

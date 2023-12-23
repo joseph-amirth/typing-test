@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router-dom";
-import VerticalSpacer from "../components/VerticalSpacer";
+import VerticalSpacer from "../common/VerticalSpacer";
 
 import "./Results.css";
 
@@ -9,8 +9,9 @@ const Results = () => {
 
   return (
     <div className="Results">
-      {!error && params.map((result, i) => <Result key={i} {...result} />)}
-      {error && <span className="Error">{error}</span>}
+      {error === undefined &&
+        params.map((result, i) => <Result key={i} {...result} />)}
+      {error !== undefined && <span className="Error">{error}</span>}
     </div>
   );
 };
@@ -23,9 +24,9 @@ const Result = ({ testParams, testCompletedAt, wpm, rawWpm, accuracy }) => {
     <>
       <div className="Result">
         <TypingTestParams mode={mode} params={Object.entries(params)} />
-        <Stat name="WPM" value={wpm} />
+        <Stat name="WPM" value={wpm.toString()} />
         <Stat name="Accuracy" value={accuracy + "%"} />
-        <Stat name="Raw WPM" value={rawWpm} />
+        <Stat name="Raw WPM" value={rawWpm.toString()} />
         <Stat
           name="Timestamp"
           value={

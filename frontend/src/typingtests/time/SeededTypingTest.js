@@ -1,5 +1,5 @@
 import languages from "../../languages";
-import * as prng from "../../utils/prng";
+import * as prng from "../../util/prng";
 import "./SeededTypingTest.css";
 import TimedTypingTest from "../TimedTypingTest";
 

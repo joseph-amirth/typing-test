@@ -1,10 +1,9 @@
 import "./Notifications.css";
 
-const Notification = ({ header, body, type }) => {
+const Notification = ({ type, content }) => {
   return (
     <div className={`Notification ${type}`}>
-      <h3>{header}</h3>
-      <p>{body}</p>
+      <h3>{content}</h3>
     </div>
   );
 };

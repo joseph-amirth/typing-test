@@ -2,23 +2,18 @@ import { createContext, useState } from "react";
 
 const NOTIFICATION_TIMEOUT = 2 * 1000;
 
-export const NotificationsContext = createContext({
-  notifications: [],
-  addInfoNotification: () => {
-    throw new Error("Not implemented");
-  },
-});
+export const NotificationsContext = createContext();
 
 export const useNotificationsContext = () => {
   const [notifications, setNotifications] = useState([]);
 
   return {
     notifications,
-    addNotification: (props) => {
+    addNotification: (content) => {
       const id = Date.now();
 
       setNotifications((notifications) => {
-        return [...notifications, { ...props, type: "Info", id }];
+        return [...notifications, { id, type: "info", content }];
       });
 
       setTimeout(() => {

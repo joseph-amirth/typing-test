@@ -1,7 +1,9 @@
-.SignIn {
+.SignUp {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     color: white;
+    width: 30%;
+    margin: 0 auto;
 }

@@ -1,18 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import SignIn from "./views/SignIn";
-import SignUp from "./views/SignUp";
-import { currentUser, getResults, getTest } from "./utils/backend";
 import App from "./App";
-import Results from "./views/Results";
-import SpecificTypingTestView from "./views/SpecificTypingTestView";
-import RandomTypingTestView from "./views/RandomTypingTestView";
+import "./index.css";
+import { currentUser, getResults, getTest } from "./util/backend";
+import RandomTypingTestView from "./view/RandomTypingTestView";
+import Results from "./view/Results";
+import SignIn from "./view/SignIn";
+import SignUp from "./view/SignUp";
+import SpecificTypingTestView from "./view/SpecificTypingTestView";
 
 const router = createBrowserRouter([
   {
-    route: "/",
+    path: "/",
     element: <App />,
     loader: async () => {
       return await currentUser();
