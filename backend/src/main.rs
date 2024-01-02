@@ -4,19 +4,14 @@ use axum::http::{HeaderValue, Method};
 use axum::middleware::map_response;
 use axum::routing::{get, post};
 use axum::Router;
+use common::state::AppState;
 use dotenv::dotenv;
 use lettre::Message;
-use state::AppState;
 use tower_http::cors::CorsLayer;
 
-mod common;
-mod state;
-mod utils;
-
-mod tests;
-use tests::*;
-
 mod auth;
+mod common;
+mod typing_test;
 
 mod results;
 use results::*;
@@ -43,8 +38,10 @@ async fn main() {
     dotenv().ok();
 
     let app = Router::new()
-        .route("/test/:id", get(get_test))
-        .route("/test", post(post_test))
+        .route("/test", post(typing_test::post_test))
+        .route("/test/:id", get(typing_test::get_test))
+        .route("/quote", get(typing_test::get_random_quote))
+        .route("/quote/:id", get(typing_test::get_quote))
         .route("/result", get(get_results).post(post_result))
         .route("/signup", post(auth::sign_up))
         .route("/signin", post(auth::sign_in))

@@ -1,14 +1,14 @@
 use axum::http::StatusCode;
 use axum::{response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
-use sqlx::MySqlPool;
 
 use super::AuthToken;
 use crate::auth::password_hash;
-use crate::common::Preferences;
+use crate::common::state::Db;
+use crate::preferences::Preferences;
 
 pub async fn sign_up(
-    pool: MySqlPool,
+    db: Db,
     Json(SignUpParams {
         username,
         email,
@@ -33,7 +33,7 @@ pub async fn sign_up(
             .bind(salt)
             .bind(password_hash)
             .bind(preferences)
-            .execute(&pool).await?.last_insert_id() as u32;
+            .execute(&db).await?.last_insert_id() as u32;
 
     let auth_token = AuthToken::new(user_id, &username, &email);
     Ok((auth_token, Json(SignUpResponse { username, email })))

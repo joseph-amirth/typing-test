@@ -1,14 +1,15 @@
 use axum::http::StatusCode;
 use axum::{response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
-use sqlx::{MySqlPool, Row};
+use sqlx::Row;
 
-use crate::common::Preferences;
+use crate::common::state::Db;
+use crate::preferences::Preferences;
 
 use super::AuthToken;
 
 pub async fn sign_in(
-    pool: MySqlPool,
+    db: Db,
     Json(SignInParams {
         username_or_email,
         password,
@@ -18,13 +19,13 @@ pub async fn sign_in(
         UsernameOrEmail::Email(email) => {
             sqlx::query("SELECT * FROM user WHERE email = ?")
                 .bind(email.to_owned())
-                .fetch_one(&pool)
+                .fetch_one(&db)
                 .await?
         }
         UsernameOrEmail::Username(username) => {
             sqlx::query("SELECT * FROM user WHERE username = ?")
                 .bind(username.to_owned())
-                .fetch_one(&pool)
+                .fetch_one(&db)
                 .await?
         }
     };

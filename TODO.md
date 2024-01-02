@@ -4,9 +4,9 @@
 - [ ] Merge language preferences for words and time mode into one.
 
 ### Frontend TODOs
-- [ ] Investigate Redux and see if it makes code better.
+- [ ] Add anti-cheat mechanisms.
 - [ ] Figure out how to style stuff with CSS grid.
-- [ ] Fix heading being a highlighted link and stuff.
+- [ ] Fix heading being a button.
 - [ ] Add fonts through javascript and not /public/index.html.
 - [ ] Add caret to tests.
 - [ ] Add guardrails to prevent users from typing too many wrong chars in a row.
@@ -14,6 +14,7 @@
 - [ ] Use a PRNG with larger seeds for generating tests.
 - [ ] Clean up the /public directory.
 - [ ] Use error notifications when internal server errors are encountered.
+- [ ] Figure out when to record results. Results of repeated tests shouldn't be recorded.
 
 ### Backend TODOs
 - [ ] Store random test params in Redis for 24 hrs.

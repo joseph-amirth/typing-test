@@ -59,7 +59,9 @@ impl AuthToken {
     const COOKIE_NAME: &'static str = "signintoken";
 
     fn new(user_id: u32, username: &str, email: &str) -> Self {
-        let unix_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let unix_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("now to be after UNIX_EPOCH");
         let expiry_time = unix_time + Self::VALIDITY_DURATION;
 
         Self {
@@ -71,7 +73,9 @@ impl AuthToken {
     }
 
     fn refresh(&mut self) {
-        let unix_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let unix_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("now to be after UNIX_EPOCH");
         let expiry_time = unix_time + Self::VALIDITY_DURATION;
         self.exp = expiry_time.as_secs();
     }

@@ -4,10 +4,9 @@ import { setItem } from "../util/localStorage";
 
 export const defaultPreferences = {
   currentMode: "words",
-  wordsModeLanguage: "english",
   wordsModeLength: 20,
-  timeModeLanguage: "english",
   timeModeDuration: 30,
+  language: "english",
   quoteModeMinLength: 0,
   quoteModeMaxLength: undefined,
   maxCharsInLine: 60,
@@ -25,18 +24,19 @@ export const usePreferencesContext = (initialPreferences) => {
     // To be used when preferences are received from the backend.
     receivePreferences: (newPreferences) => {
       setPreferences(newPreferences);
-      setItem("preferences", preferences);
+      setItem("preferences", newPreferences);
     },
     // To be used when preferences are updated in the frontend.
     addPreferences: (newPreferences) => {
       setPreferences((preferences) => {
-        return {
+        const updatedPreferences = {
           ...preferences,
           ...newPreferences,
         };
+        setItem("preferences", updatedPreferences);
+        updatePreferences(updatedPreferences);
+        return updatedPreferences;
       });
-      setItem("preferences", preferences);
-      updatePreferences(preferences);
     },
   };
 };
@@ -62,7 +62,7 @@ export const useTypingTestParams = () => {
       return {
         mode: currentMode,
         params: {
-          language: preferences.wordsModeLanguage,
+          language: preferences.language,
           length: preferences.wordsModeLength,
         },
       };
@@ -70,9 +70,13 @@ export const useTypingTestParams = () => {
       return {
         mode: currentMode,
         params: {
-          language: preferences.timeModeLanguage,
+          language: preferences.language,
           duration: preferences.timeModeDuration,
         },
+      };
+    case "quote":
+      return {
+        mode: currentMode,
       };
     default:
   }

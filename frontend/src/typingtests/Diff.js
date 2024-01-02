@@ -1,6 +1,13 @@
 import { usePreference } from "../context/preferences";
+import { disableCutCopyPasteProps } from "../util/component";
 import "./Diff.css";
 
+/**
+ * Shows the diff between a user's attempt and the test.
+ * @param {string[]} test
+ * @param {string[]} attempt
+ * @param {boolean} isTestBounded
+ */
 const Diff = ({ test, attempt, isTestBounded }) => {
   const [maxCharsInLine] = usePreference("maxCharsInLine");
   const [showAllLines] = usePreference("showAllLines");
@@ -24,7 +31,7 @@ const Diff = ({ test, attempt, isTestBounded }) => {
   } else {
     const focusedLineNumber = getFocusedLineNumber(
       diffLines,
-      /* focusedWordNumber = */ attempt.length - 1,
+      /* focusedWordNumber= */ attempt.length - 1,
     );
     const firstLineNumber = Math.max(0, focusedLineNumber - 1);
     const displayLines = diffLines.slice(firstLineNumber, firstLineNumber + 3);
@@ -35,7 +42,7 @@ const Diff = ({ test, attempt, isTestBounded }) => {
     }
 
     return (
-      <div className="Diff">
+      <div className="Diff" {...disableCutCopyPasteProps()}>
         {displayLines.map((words, i) => (
           <div key={i} className="Line">
             {words.map((letters, i) => (
@@ -62,6 +69,12 @@ const Letter = ({ letter, state = "Normal" }) => {
   return <span className={`Letter ${state}`}>{letter}</span>;
 };
 
+/**
+ * Computes diffs of matching words in a list.
+ * @param {string[]} test
+ * @param {string[]} attempt
+ * @returns {WordProps[]} diffs of matching words in a list.
+ */
 const getDiffWords = (test, attempt) => {
   const diffWords = [];
 
@@ -109,6 +122,12 @@ const getDiffWords = (test, attempt) => {
   return diffWords;
 };
 
+/**
+ * Groups the diff words into lines based on max chars allowed in a line.
+ * @param {WordProps[]} diffWords
+ * @param {number} maxCharsInLine
+ * @returns {WordProps[][]} diffWords grouped into lines
+ */
 const getDiffLines = (diffWords, maxCharsInLine) => {
   const lines = [];
 

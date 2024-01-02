@@ -6,7 +6,13 @@ import { useCharCounts } from "./useCharCounts";
 
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
+import { disableCutCopyPasteProps } from "../util/component";
 
+/**
+ * @component
+ * Shows a typing test that has a bounded number of words.
+ * @param {string[]} test
+ */
 const BoundedTypingTest = ({ test }) => {
   const [attempt, setAttempt] = useState("".split(" "));
 
@@ -55,6 +61,7 @@ const BoundedTypingTest = ({ test }) => {
         className="Hide"
         onInput={handleInput}
         autoFocus
+        {...disableCutCopyPasteProps()}
       />
       {end && (
         <>

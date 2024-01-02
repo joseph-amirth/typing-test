@@ -1,23 +1,13 @@
-import HorizontalSpacer from "../common/HorizontalSpacer";
+import { Button, ButtonGroup } from "@mui/material";
 import "./Buttons.css";
 
 const Buttons = ({ restart, next, share }) => {
   return (
-    <div className="Buttons">
-      <Button label="Restart" onClick={restart} />
-      <HorizontalSpacer />
-      <Button label="Next test" onClick={next} />
-      <HorizontalSpacer />
-      <Button label="Share link" onClick={share} />
-    </div>
-  );
-};
-
-const Button = ({ label, onClick }) => {
-  return (
-    <button className="Button" onClick={onClick}>
-      {label}
-    </button>
+    <ButtonGroup>
+      <Button onClick={restart}>Restart</Button>
+      <Button onClick={next}>Next test</Button>
+      <Button onClick={share}>Share link</Button>
+    </ButtonGroup>
   );
 };
 

@@ -20,6 +20,9 @@ const App = () => {
   const theme = createTheme({
     palette: {
       mode: "dark",
+      primary: {
+        main: "#00e980",
+      },
     },
     typography: {
       fontFamily: "JetBrains Mono",

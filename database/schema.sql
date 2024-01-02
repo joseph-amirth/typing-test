@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS random_test;
 DROP TABLE IF EXISTS result;
 DROP TABLE IF EXISTS user;
+
 CREATE TABLE user (
   id INT UNSIGNED auto_increment PRIMARY KEY,
   username VARCHAR(30) NOT NULL UNIQUE,
@@ -11,6 +12,7 @@ CREATE TABLE user (
   preferences JSON NOT NULL,
   created_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE result (
   id INT UNSIGNED auto_increment PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
@@ -21,6 +23,7 @@ CREATE TABLE result (
   accuracy FLOAT UNSIGNED NOT NULL,
   CONSTRAINT `fk_user_result` FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
+
 CREATE TABLE random_test (
   id UUID PRIMARY KEY,
   params JSON NOT NULL

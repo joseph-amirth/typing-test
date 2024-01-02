@@ -12,7 +12,19 @@ export const postTest = (mode, params) => {
 
 // Returned promise resolves to parameters of the test with given id.
 export const getTest = (id) => {
-  return getJson(`/test/${id}`);
+  return get(`/test/${id}`).then(extractJson);
+};
+
+export const getRandomQuote = (oldQuoteId) => {
+  let queryString = "";
+  if (oldQuoteId !== undefined) {
+    queryString += `oldQuoteId=${oldQuoteId}`;
+  }
+  return get(`/quote?${queryString}`).then(extractJson);
+};
+
+export const getQuote = (quoteId) => {
+  return get(`/quote/${quoteId}`).then(extractJson);
 };
 
 // Returned promise resolves to user details and settings on success.
@@ -21,15 +33,7 @@ export const signUp = (username, email, password, preferences) => {
     "/signup",
     { username, email, password, preferences },
     { credentials: "include" },
-  ).then((response) => {
-    if (response.status !== 200) {
-      return response.text().then((text) => {
-        return { error: text };
-      });
-    } else {
-      return response.json();
-    }
-  });
+  ).then(extractJson);
 };
 
 export const signInWithEmail = (email, password) => {
@@ -46,15 +50,7 @@ const signIn = (usernameOrEmail, password) => {
     "/signin",
     { usernameOrEmail, password },
     { credentials: "include" },
-  ).then((response) => {
-    if (response.status !== 200) {
-      return response.text().then((text) => {
-        return { error: text };
-      });
-    } else {
-      return response.json();
-    }
-  });
+  ).then(extractJson);
 };
 
 // Returned promise resolves to user details and preferences on success.
@@ -94,14 +90,7 @@ export const postResult = (
 };
 
 export const getResults = () => {
-  return get("/result", { credentials: "include" }).then((response) => {
-    if (response.status !== 200) {
-      return response.text().then((text) => {
-        return { error: text };
-      });
-    }
-    return response.json();
-  });
+  return get("/result", { credentials: "include" }).then(extractJson);
 };
 
 export const updatePreferences = (preferences) => {
@@ -112,8 +101,13 @@ const get = (path, options = {}) => {
   return fetchNonThrowing(`${backendUrl}${path}`, options);
 };
 
-const getJson = (path, options = {}) => {
-  return get(path, options).then((response) => response.json());
+const extractJson = (response) => {
+  if (response.status !== 200) {
+    return response.text().then((text) => {
+      return { error: text };
+    });
+  }
+  return response.json();
 };
 
 const postJson = (path, obj, options = {}) => {

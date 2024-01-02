@@ -16,9 +16,15 @@ const Results = () => {
   );
 };
 
-const Result = ({ testParams, testCompletedAt, wpm, rawWpm, accuracy }) => {
+const Result = ({
+  testParams,
+  testCompletedTimestamp,
+  wpm,
+  rawWpm,
+  accuracy,
+}) => {
   const { mode, params } = testParams;
-  const datetime = new Date(testCompletedAt * 1000);
+  const datetime = new Date(testCompletedTimestamp * 1000);
 
   return (
     <>

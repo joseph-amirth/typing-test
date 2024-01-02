@@ -1,12 +1,13 @@
 use axum::Json;
 use chrono::{serde::ts_seconds, DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::MySqlPool;
 
-use crate::{auth::AuthToken, common::RandomTestParams, utils::AppError};
+use crate::{
+    auth::AuthToken, common::error::AppError, common::state::Db, typing_test::RandomTestParams,
+};
 
 pub async fn post_result(
-    pool: MySqlPool,
+    db: Db,
     auth_token: AuthToken,
     Json(TestResult {
         test_params,
@@ -25,22 +26,19 @@ pub async fn post_result(
         raw_wpm,
         accuracy,
     )
-    .execute(&pool)
+    .execute(&db)
     .await?;
 
     Ok(())
 }
 
-pub async fn get_results(
-    pool: MySqlPool,
-    auth_token: AuthToken,
-) -> Result<Json<Vec<TestResult>>, AppError> {
+pub async fn get_results(db: Db, auth_token: AuthToken) -> Result<Json<Vec<TestResult>>, AppError> {
     let results = sqlx::query_as!(
         TestResult,
         "SELECT test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ?",
         auth_token.user_id,
     )
-    .fetch_all(&pool)
+    .fetch_all(&db)
     .await?;
 
     Ok(Json(results))

@@ -1,9 +1,9 @@
 import WordsTypingTest from "../typingtests/words/RandomTypingTest";
 import TimeTypingTest from "../typingtests/time/RandomTypingTest";
+import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
 import { usePreference } from "../context/preferences";
 import VerticalSpacer from "../common/VerticalSpacer";
 import HorizontalSpacer from "../common/HorizontalSpacer";
-
 import "./RandomTypingTestView.css";
 import { MenuItem, FormControl, InputLabel, Select } from "@mui/material";
 
@@ -45,12 +45,14 @@ const getTypingTest = (mode) => {
       return <WordsTypingTestView />;
     case "time":
       return <TimeTypingTestView />;
+    case "quote":
+      return <QuoteTypingTestView />;
     default:
   }
 };
 
 const WordsTypingTestView = () => {
-  const [language, setLanguage] = usePreference("wordsModeLanguage");
+  const [language, setLanguage] = usePreference("language");
   const [length, setLength] = usePreference("wordsModeLength");
 
   const handleLanguageChange = (event) => {
@@ -107,7 +109,7 @@ const WordsTypingTestView = () => {
 };
 
 const TimeTypingTestView = () => {
-  const [language, setLanguage] = usePreference("timeModeLanguage");
+  const [language, setLanguage] = usePreference("language");
   const [duration, setDuration] = usePreference("timeModeDuration");
 
   const handleLanguageChange = (event) => {
@@ -161,6 +163,10 @@ const TimeTypingTestView = () => {
       />
     </>
   );
+};
+
+const QuoteTypingTestView = () => {
+  return <QuoteTypingTest />;
 };
 
 export default RandomTypingTestView;

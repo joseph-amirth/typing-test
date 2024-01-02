@@ -1,18 +1,18 @@
 use axum::Json;
 use serde::Serialize;
-use sqlx::MySqlPool;
 
-use crate::{common::Preferences, utils::AppError};
+use crate::common::{error::AppError, state::Db};
+use crate::preferences::Preferences;
 
 use super::AuthToken;
 
 pub async fn current_user(
-    pool: MySqlPool,
+    db: Db,
     auth_token: AuthToken,
 ) -> Result<Json<CurrentUserResponse>, AppError> {
     let preferences_json: String = sqlx::query_scalar("SELECT preferences FROM user WHERE id = ?")
         .bind(auth_token.user_id)
-        .fetch_one(&pool)
+        .fetch_one(&db)
         .await?;
     let preferences = Preferences::from(preferences_json);
 

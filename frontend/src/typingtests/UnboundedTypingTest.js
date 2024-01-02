@@ -1,24 +1,17 @@
-import { useRef, useState } from "react";
-import Diff from "./Diff";
-import Result from "./Result";
-import { useCharCounts } from "./useCharCounts";
-import "./TimedTypingTest.css";
-import { usePreference } from "../context/preferences";
-import VerticalSpacer from "../common/VerticalSpacer";
-import { disableCutCopyPasteProps } from "../util/component";
+import { useState } from "react";
 
 /**
  * @component
- * Shows a typing test that ends in a given amount of time.
- * @param {number -> string[]} generateTest - Function that generates a test upto the given count of words.
+ * Shows a typing test whose word count is not bounded and whose completion is
+ * controlled by the parent.
+ *
+ * @param {string[] -> string[]} generateTest - Function that generates a test
+ * given the user's attempt.
  * @param {number} duration - Duration of the test in seconds.
  */
-const TimedTypingTest = ({ generateTest, duration }) => {
-  const [maxCharsInLine] = usePreference("maxCharsInLine");
-  const padding = maxCharsInLine; // test is always "padded" with this many more words compared to attempt.
-
-  const [test, setTest] = useState(generateTest(padding));
+const UnboundedTypingTest = ({ generateTest, end }) => {
   const [attempt, setAttempt] = useState("".split(" "));
+  const [test, setTest] = useState(generateTest(attempt));
 
   const [start, setStart] = useState(false);
   const [end, setEnd] = useState(false);
@@ -59,7 +52,7 @@ const TimedTypingTest = ({ generateTest, duration }) => {
   };
 
   return (
-    <div className="TimedTypingTest" onClick={handleClick}>
+    <div className="UnboundedTypingTest" onClick={handleClick}>
       {start && !end && <Progress progress={progress} />}
       <Diff test={test} attempt={attempt} isTestBounded={false} />
       <input
@@ -107,4 +100,4 @@ const getActualTest = (test, attempt) => {
   return actualTest;
 };
 
-export default TimedTypingTest;
+export default UnboundedTypingTest;
