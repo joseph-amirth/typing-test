@@ -99,11 +99,7 @@ const WordsTypingTestView = () => {
         </FormControl>
       </div>
       <VerticalSpacer />
-      <WordsTypingTest
-        key={language + " " + length}
-        language={language}
-        length={length}
-      />
+      <WordsTypingTest language={language} length={length} />
     </>
   );
 };
@@ -156,11 +152,7 @@ const TimeTypingTestView = () => {
         </FormControl>
       </div>
       <VerticalSpacer />
-      <TimeTypingTest
-        key={language + " " + duration}
-        language={language}
-        duration={duration}
-      />
+      <TimeTypingTest language={language} duration={duration} />
     </>
   );
 };

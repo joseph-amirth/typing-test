@@ -10,12 +10,15 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 
 const RandomTypingTest = ({ language = "english", length = 100 }) => {
   const [id, setId] = useState("");
-  const [seed, setSeed] = useState(generate32bitSeed());
+  const [seed, setSeed] = useState(-1);
   const [key, setKey] = useState(Date.now());
 
   useEffect(() => {
-    postTest("words", { language, length, seed }).then(setId);
-  }, [language, length, seed]);
+    const newSeed = generate32bitSeed();
+    setSeed(newSeed);
+    setKey(Date.now());
+    postTest("words", { language, length, seed: newSeed }).then(setId);
+  }, [language, length]);
 
   const nextTest = () => {
     let newSeed = generate32bitSeed();
@@ -24,6 +27,7 @@ const RandomTypingTest = ({ language = "english", length = 100 }) => {
     }
     setSeed(newSeed);
     setKey(Date.now());
+    postTest("words", { language, length, seed: newSeed }).then(setId);
   };
 
   const restartTest = () => {
