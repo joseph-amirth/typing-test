@@ -30,12 +30,20 @@ const Header = () => {
       </Button>
       {user === undefined && (
         <div className="Login">
-          <Link to="/signin">Sign in</Link> <Link to="/signup">Sign up</Link>
+          <Button onClick={() => navigate("/signin")} variant="contained">
+            Sign in
+          </Button>{" "}
+          <Button onClick={() => navigate("/signup")} variant="contained">
+            Sign up
+          </Button>{" "}
         </div>
       )}
       {user !== undefined && (
         <div className="UserDetails">
-          {user.username} <button onClick={handleLogout}>Log out</button>
+          <Button>{user.username}</Button>{" "}
+          <Button variant="contained" onClick={handleLogout}>
+            Log out
+          </Button>
         </div>
       )}
     </div>
