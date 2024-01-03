@@ -1,8 +1,3 @@
--- Because of foreign key constraints.
-DROP TABLE IF EXISTS random_test;
-DROP TABLE IF EXISTS result;
-DROP TABLE IF EXISTS user;
-
 CREATE TABLE user (
   id INT UNSIGNED auto_increment PRIMARY KEY,
   username VARCHAR(30) NOT NULL UNIQUE,
