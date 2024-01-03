@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
+import quotes from "../../res/quotes";
+
+const getQuote = (quoteId) => {
+  return quotes[quoteId];
+};
 
 const SpecificTypingTest = () => {
   const navigate = useNavigate();
-  const { quote } = useLoaderData();
+  const { id } = useParams();
+
+  const quote = getQuote(id);
 
   const [key, setKey] = useState("");
 

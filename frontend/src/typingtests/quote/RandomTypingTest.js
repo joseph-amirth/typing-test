@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
 import VerticalSpacer from "../../common/VerticalSpacer";
-import { getRandomQuote } from "../../util/backend";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
+import quotes from "../../res/quotes";
+
+const getRandomQuote = ({ oldQuoteId } = {}) => {
+  const nQuotes = quotes.length;
+  let newQuoteId = Math.floor(Math.random() * nQuotes);
+  if (oldQuoteId !== undefined) {
+    while (newQuoteId === oldQuoteId) {
+      newQuoteId = Math.floor(Math.random() * nQuotes);
+    }
+  }
+  return { newQuoteId, newQuote: quotes[newQuoteId] };
+};
 
 const RandomTypingTest = () => {
   const [key, setKey] = useState(Date.now());
-  const [quoteId, setQuoteId] = useState("");
+  const [quoteId, setQuoteId] = useState(-1);
   const [quote, setQuote] = useState("");
 
   useEffect(() => {
-    getRandomQuote().then(({ quoteId, quote }) => {
-      setQuoteId(quoteId);
-      setQuote(quote);
-    });
+    const { newQuoteId, newQuote } = getRandomQuote();
+    setQuoteId(newQuoteId);
+    setQuote(newQuote);
   }, []);
 
   const restartTest = () => {
@@ -22,15 +32,13 @@ const RandomTypingTest = () => {
   };
 
   const nextTest = () => {
-    getRandomQuote(/* oldQuoteId= */ quoteId).then(({ quoteId, quote }) => {
-      setQuoteId(quoteId);
-      setQuote(quote);
-      setKey(Date.now());
-    });
+    const { newQuoteId, newQuote } = getRandomQuote({ oldQuoteId: quoteId });
+    setQuoteId(newQuoteId);
+    setQuote(newQuote);
+    setKey(Date.now());
   };
 
   const shareLinkToTest = () => {
-    // TODO: Make this link work.
     copyTextToClipboard(`${window.location.origin}/quote/${quoteId}`);
   };
 

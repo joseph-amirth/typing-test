@@ -15,18 +15,6 @@ export const getTest = (id) => {
   return get(`/test/${id}`).then(extractJson);
 };
 
-export const getRandomQuote = (oldQuoteId) => {
-  let queryString = "";
-  if (oldQuoteId !== undefined) {
-    queryString += `oldQuoteId=${oldQuoteId}`;
-  }
-  return get(`/quote?${queryString}`).then(extractJson);
-};
-
-export const getQuote = (quoteId) => {
-  return get(`/quote/${quoteId}`).then(extractJson);
-};
-
 // Returned promise resolves to user details and settings on success.
 export const signUp = (username, email, password, preferences) => {
   return postJson(

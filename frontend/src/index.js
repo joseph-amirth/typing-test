@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import { currentUser, getQuote, getResults, getTest } from "./util/backend";
+import { currentUser, getResults, getTest } from "./util/backend";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import Results from "./view/Results";
 import SignIn from "./view/SignIn";
@@ -34,10 +34,6 @@ const router = createBrowserRouter([
       {
         path: "quote/:id",
         element: <SpecificQuoteTypingTest />,
-        loader: async ({ params }) => {
-          const { id } = params;
-          return await getQuote(id);
-        },
       },
       {
         path: "results",

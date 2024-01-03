@@ -1,7 +1,5 @@
-mod quote;
 mod words_or_time;
 
-pub use quote::*;
 pub use words_or_time::*;
 
 use serde::{Deserialize, Serialize};

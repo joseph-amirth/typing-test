@@ -40,8 +40,6 @@ async fn main() {
     let app = Router::new()
         .route("/test", post(typing_test::post_test))
         .route("/test/:id", get(typing_test::get_test))
-        .route("/quote", get(typing_test::get_random_quote))
-        .route("/quote/:id", get(typing_test::get_quote))
         .route("/result", get(get_results).post(post_result))
         .route("/signup", post(auth::sign_up))
         .route("/signin", post(auth::sign_in))
