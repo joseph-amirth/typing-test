@@ -21,11 +21,7 @@ const SeededTypingTest = ({ language, length, seed }) => {
 
   const test = randomWords(rand, language, length);
 
-  return (
-    <div className="SeededTypingTest">
-      <BoundedTypingTest test={test} />
-    </div>
-  );
+  return <BoundedTypingTest test={test} />;
 };
 
 export default SeededTypingTest;

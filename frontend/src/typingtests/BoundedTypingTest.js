@@ -3,7 +3,6 @@ import { isTestDone } from "../util/test";
 import Diff from "./Diff";
 import Result from "./Result";
 import { useCharCounts } from "./useCharCounts";
-
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { disableCutCopyPasteProps } from "../util/component";

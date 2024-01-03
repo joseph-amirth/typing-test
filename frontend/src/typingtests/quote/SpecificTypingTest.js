@@ -4,6 +4,7 @@ import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
 import quotesInfo from "../../static/quotes.json";
+import "./SpecificTypingTest.css";
 
 const getQuote = (quoteId) => {
   return quotesInfo.quotes[quoteId].text;
