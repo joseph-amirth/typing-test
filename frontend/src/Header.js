@@ -40,7 +40,7 @@ const Header = () => {
       )}
       {user !== undefined && (
         <div className="UserDetails">
-          <Button>{user.username}</Button>{" "}
+          <Button onClick={() => navigate("/results")}>{user.username}</Button>{" "}
           <Button variant="contained" onClick={handleLogout}>
             Log out
           </Button>
