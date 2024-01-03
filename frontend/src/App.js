@@ -26,6 +26,9 @@ const App = () => {
     },
     typography: {
       fontFamily: "JetBrains Mono",
+      button: {
+        textTransform: "none",
+      },
     },
   });
 
