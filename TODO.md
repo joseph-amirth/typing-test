@@ -1,7 +1,7 @@
 # TODOs
 
-### Frontend & Backend TODOs
-- [ ] Merge language preferences for words and time mode into one.
+### General TODOs
+N/A
 
 ### Frontend TODOs
 - [ ] Add anti-cheat mechanisms.
