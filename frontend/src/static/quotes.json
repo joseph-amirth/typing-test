@@ -1,0 +1,57 @@
+{
+  "short": [0, 3],
+  "medium": [3, 6],
+  "long": [6, 9],
+  "veryLong": [9, 12],
+  "all": [0, 12],
+  "quotes": [
+    {
+      "text": "You have the power to heal your life, and you need to know that.",
+      "source": "Meditations to Heal Your Life"
+    },
+    {
+      "text": "They don't know that we know they know we know.",
+      "source": "Friends"
+    },
+    {
+      "text": "The people with ideas have no power and the people with power have no ideas.",
+      "source": "5,001 Wisdom Quotations of Mike Murdock"
+    },
+    {
+      "text": "The thing about a story is that you dream it as you tell it, hoping that others might then dream along with you, and in this way memory and imagination and language combine to make spirits in the head. There is the illusion of aliveness.",
+      "source": "The Things They Carried"
+    },
+    {
+      "text": "Treachery and violence are spears pointed at both ends; they wound those who resort to them worse than their enemies.",
+      "source": "Wuthering Heights"
+    },
+    {
+      "text": "I know just how to whisper and I know just how to cry. I know just where to find the answers and I know just how to lie. I know just how to fake it and I know just how to scheme. I know just when to face the truth and then I know just when to dream.",
+      "source": "Making Love Out of Nothing At All"
+    },
+    {
+      "text": "Why is it that when you awake to the world of realities you nearly always feel, sometimes very vividly, that the vanished dream has carried with it some enigma which you have failed to solve?",
+      "source": "The Idiot"
+    },
+    {
+      "text": "It is a love based on giving and receiving as well as having and sharing. And the love that they give and have is shared and received. And through this having and giving and sharing and receiving, we too can share and love and have... and receive.",
+      "source": "Friends"
+    },
+    {
+      "text": "Every thought and every word works for you or against you, and every thought that you confirm to be true becomes a belief. When you change a belief, you change a mental construction and, therefore, your life.",
+      "source": "Unlimited Memory: How to Use Advanced Learning Strategies to Learn Faster, Remember More and Be More Productive"
+    },
+    {
+      "text": "There was a time when I was alone, nowhere to go and no place to call home. My only friend was the man in the moon and even sometimes he would go away, too. Then one night, as I closed my eyes, I saw a shadow flying high. He came to me with the sweetest smile, told me he wanted to talk for a while.",
+      "source": "Lost Boy"
+    },
+    {
+      "text": "I don't know if I will have the time to write any more letters because I might be too busy trying to participate. So if this does end up being the last letter, I just want you to know that I was in a bad place before I started high school, and you helped me. Even if you didn't know what I was talking about or know someone who's gone through it, you made me not feel alone.",
+      "source": "The Perks of Being a Wallflower"
+    },
+    {
+      "text": "Someone once told me that time was a predator that stalked us all our lives. I rather believe that time is a companion who goes with us on the journey and reminds us to cherish every moment, because it will never come again. What we leave behind is not as important as how we've lived. After all Number One, we're only mortal.",
+      "source": "Star Trek: Generations"
+    }
+  ]
+}

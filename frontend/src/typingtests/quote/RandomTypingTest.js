@@ -3,36 +3,43 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
-import quotes from "../../res/quotes";
+import quotesInfo from "../../static/quotes.json";
+import { randomInt } from "../../util/math";
 
-const getRandomQuote = ({ oldQuoteId } = {}) => {
-  const nQuotes = quotes.length;
-  let newQuoteId = Math.floor(Math.random() * nQuotes);
+const getRandomQuote = (length, oldQuoteId = undefined) => {
+  const [first, last] = quotesInfo[length];
+  const quotes = quotesInfo.quotes;
+
+  let newQuoteId = randomInt(first, last);
   if (oldQuoteId !== undefined) {
     while (newQuoteId === oldQuoteId) {
-      newQuoteId = Math.floor(Math.random() * nQuotes);
+      newQuoteId = randomInt(first, last);
     }
   }
   return { newQuoteId, newQuote: quotes[newQuoteId] };
 };
 
-const RandomTypingTest = () => {
-  const [key, setKey] = useState(Date.now());
+const RandomTypingTest = ({ length }) => {
   const [quoteId, setQuoteId] = useState(-1);
-  const [quote, setQuote] = useState("");
+  const [quote, setQuote] = useState({ text: "" });
+  const [key, setKey] = useState(Date.now());
 
   useEffect(() => {
-    const { newQuoteId, newQuote } = getRandomQuote();
+    const { newQuoteId, newQuote } = getRandomQuote(length);
     setQuoteId(newQuoteId);
     setQuote(newQuote);
-  }, []);
+    setKey(Date.now());
+  }, [length]);
 
   const restartTest = () => {
     setKey(Date.now());
   };
 
   const nextTest = () => {
-    const { newQuoteId, newQuote } = getRandomQuote({ oldQuoteId: quoteId });
+    const { newQuoteId, newQuote } = getRandomQuote(
+      length,
+      /* oldQuoteId= */ quoteId,
+    );
     setQuoteId(newQuoteId);
     setQuote(newQuote);
     setKey(Date.now());
@@ -44,7 +51,7 @@ const RandomTypingTest = () => {
 
   return (
     <div className="RandomTypingTest">
-      <BoundedTypingTest key={key} test={quote.split(" ")} />
+      <BoundedTypingTest key={key} test={quote.text.split(" ")} />
       <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
     </div>

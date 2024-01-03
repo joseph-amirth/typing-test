@@ -3,10 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
-import quotes from "../../res/quotes";
+import quotesInfo from "../../static/quotes.json";
 
 const getQuote = (quoteId) => {
-  return quotes[quoteId];
+  return quotesInfo.quotes[quoteId].text;
 };
 
 const SpecificTypingTest = () => {
@@ -15,7 +15,7 @@ const SpecificTypingTest = () => {
 
   const quote = getQuote(id);
 
-  const [key, setKey] = useState("");
+  const [key, setKey] = useState(Date.now());
 
   const restartTest = () => {
     setKey(Date.now());

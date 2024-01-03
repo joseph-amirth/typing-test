@@ -166,7 +166,37 @@ const TimeTypingTestView = () => {
 };
 
 const QuoteTypingTestView = () => {
-  return <QuoteTypingTest />;
+  const [length, setLength] = usePreference("quoteModeLength");
+
+  const handleLengthChange = (event) => {
+    const value = event.target.value;
+    setLength(value);
+  };
+
+  return (
+    <>
+      <div className="ModeControls">
+        <FormControl>
+          <InputLabel id="Length">Length</InputLabel>
+          <Select
+            variant="outlined"
+            labelId="Length"
+            label="Length"
+            value={length}
+            onChange={handleLengthChange}
+          >
+            <MenuItem value="short">Short</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="long">Long</MenuItem>
+            <MenuItem value="veryLong">Very long</MenuItem>
+            <MenuItem value="all">All</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <VerticalSpacer />
+      <QuoteTypingTest length={length} />
+    </>
+  );
 };
 
 export default RandomTypingTestView;

@@ -20,35 +20,34 @@ pub async fn update_preferences(
     Ok(())
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Preferences {
     current_mode: TypingTestMode,
     words_mode_length: u32,
     time_mode_duration: u32,
     language: String,
-    quote_mode_min_length: u32,
-    quote_mode_max_length: Option<u32>,
+    quote_mode_length: QuoteModeLength,
     max_chars_in_line: u32,
     show_all_lines: bool,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum TypingTestMode {
-    #[default]
     Words,
     Time,
     Quote,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum QuoteModeLength {
     Short,
-    #[default]
     Medium,
     Long,
     VeryLong,
+    All,
 }
 
 impl From<String> for Preferences {

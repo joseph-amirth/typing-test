@@ -7,8 +7,7 @@ export const defaultPreferences = {
   wordsModeLength: 20,
   timeModeDuration: 30,
   language: "english",
-  quoteModeMinLength: 0,
-  quoteModeMaxLength: undefined,
+  quoteModeLength: "medium",
   maxCharsInLine: 60,
   showAllLines: false,
 };
@@ -77,6 +76,9 @@ export const useTypingTestParams = () => {
     case "quote":
       return {
         mode: currentMode,
+        params: {
+          length: preferences.quoteModeLength,
+        },
       };
     default:
   }

@@ -4,6 +4,8 @@ pub use words_or_time::*;
 
 use serde::{Deserialize, Serialize};
 
+use crate::preferences::QuoteModeLength;
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(rename_all_fields = "camelCase")]
@@ -11,7 +13,7 @@ use serde::{Deserialize, Serialize};
 pub enum RandomTestParams {
     Words { language: String, length: u32 },
     Time { language: String, duration: u32 },
-    Quote,
+    Quote { length: QuoteModeLength },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,6 +32,7 @@ pub enum SeededTestParams {
         seed: i32,
     },
     Quote {
+        length: QuoteModeLength,
         id: usize,
     },
 }
@@ -47,7 +50,7 @@ impl From<SeededTestParams> for RandomTestParams {
                 duration,
                 seed: _,
             } => RandomTestParams::Time { language, duration },
-            SeededTestParams::Quote { id: _ } => RandomTestParams::Quote,
+            SeededTestParams::Quote { length, id: _ } => RandomTestParams::Quote { length },
         }
     }
 }

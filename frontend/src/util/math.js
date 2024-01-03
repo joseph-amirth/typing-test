@@ -1,3 +1,12 @@
+/**
+ * Returns a random integer between first and end (exclusive).
+ * @param {number} first
+ * @param {number} last
+ */
+export const randomInt = (first, last) => {
+  return first + Math.floor(Math.random() * (last - first));
+};
+
 export const timestampInSecs = () => {
   return Math.floor(Date.now() / 1000);
 };
