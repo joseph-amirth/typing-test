@@ -1,4 +1,4 @@
-export const words = [
+[
   "the",
   "of",
   "to",
@@ -995,5 +995,5 @@ export const words = [
   "quotient",
   "teeth",
   "shell",
-  "neck",
-];
+  "neck"
+]
