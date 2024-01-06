@@ -157,7 +157,7 @@ mod validation {
     }
 
     pub fn validate_password(password: &str) -> Result<(), SignUpError> {
-        static SPECIAL_CHARS: &'static str = r###" !"#$%&'()*+,-./:;<=>?@[]\^_`{|}~"###;
+        static SPECIAL_CHARS: &str = r###" !"#$%&'()*+,-./:;<=>?@[]\^_`{|}~"###;
 
         let mut is_valid = true;
         is_valid &= password.chars().any(|c| c.is_ascii_uppercase());

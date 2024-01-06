@@ -5,6 +5,7 @@ import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
 import quotesInfo from "../../static/quotes.json";
 import "./SpecificTypingTest.css";
+import VerticalSpacer from "../../common/VerticalSpacer";
 
 const getQuote = (quoteId) => {
   return quotesInfo.quotes[quoteId].text;
@@ -33,6 +34,7 @@ const SpecificTypingTest = () => {
   return (
     <div key={key} className="SpecificTypingTest">
       <BoundedTypingTest test={quote.split(" ")} />
+      <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
     </div>
   );

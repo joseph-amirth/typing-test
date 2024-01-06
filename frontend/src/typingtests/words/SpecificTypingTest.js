@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import VerticalSpacer from "../../common/VerticalSpacer";
 import { copyTextToClipboard } from "../../util/misc";
 import Buttons from "../Buttons";
 import SeededTypingTest from "./SeededTypingTest";
 import "./SpecificTypingTest.css";
 
-const SpecificTypingTest = (props) => {
+const SpecificTypingTest = () => {
   const navigate = useNavigate();
+  const params = useParams();
+  params.length = parseInt(params.length);
+  params.seed = parseInt(params.seed);
 
   const [key, setKey] = useState("");
 
@@ -24,7 +28,8 @@ const SpecificTypingTest = (props) => {
 
   return (
     <div key={key} className="SpecificTypingTest">
-      <SeededTypingTest {...props} />
+      <SeededTypingTest {...params} />
+      <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
     </div>
   );

@@ -55,7 +55,7 @@ pub async fn refresh_auth_token(
 }
 
 impl AuthToken {
-    const VALIDITY_DURATION: Duration = Duration::from_secs(60 * 60 * 24 * 1); // 1 day
+    const VALIDITY_DURATION: Duration = Duration::from_secs(60 * 60 * 24); // 1 day
     const COOKIE_NAME: &'static str = "signintoken";
 
     fn new(user_id: u32, username: &str, email: &str) -> Self {

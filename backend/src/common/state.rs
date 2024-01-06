@@ -32,13 +32,13 @@ impl AppState {
     async fn get_db() -> Db {
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-        let db = MySqlPoolOptions::new()
+        
+
+        MySqlPoolOptions::new()
             .max_connections(5)
             .connect(database_url.as_str())
             .await
-            .expect("no error");
-
-        db
+            .expect("no error")
     }
 
     fn get_mailer() -> Mailer {
@@ -52,12 +52,12 @@ impl AppState {
 
         let creds = Credentials::new(smtp_username.to_owned(), smtp_password.to_owned());
 
-        let mailer = Mailer::relay(&smtp_server)
+        
+        Mailer::relay(&smtp_server)
             .expect("no error")
             .port(smtp_port)
             .credentials(creds)
-            .build();
-        mailer
+            .build()
     }
 }
 

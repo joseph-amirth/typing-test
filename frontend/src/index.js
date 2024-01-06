@@ -3,12 +3,13 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import { currentUser, getResults, getTest } from "./util/backend";
+import { currentUser, getResults } from "./util/backend";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import Results from "./view/Results";
 import SignIn from "./view/SignIn";
 import SignUp from "./view/SignUp";
-import SpecificTypingTestView from "./view/SpecificTypingTestView";
+import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
+import SpecificTimeTypingTest from "./typingtests/time/SpecificTypingTest";
 import SpecificQuoteTypingTest from "./typingtests/quote/SpecificTypingTest";
 
 const router = createBrowserRouter([
@@ -24,12 +25,12 @@ const router = createBrowserRouter([
         element: <RandomTypingTestView />,
       },
       {
-        path: ":id",
-        element: <SpecificTypingTestView />,
-        loader: async ({ params }) => {
-          const { id } = params;
-          return await getTest(id);
-        },
+        path: "words/:language/:length/:seed",
+        element: <SpecificWordsTypingTest />,
+      },
+      {
+        path: "time/:language/:duration/:seed",
+        element: <SpecificTimeTypingTest />,
       },
       {
         path: "quote/:id",

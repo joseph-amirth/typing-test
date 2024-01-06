@@ -18,8 +18,3 @@ CREATE TABLE result (
   accuracy FLOAT UNSIGNED NOT NULL,
   CONSTRAINT `fk_user_result` FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE ON UPDATE RESTRICT
 );
-
-CREATE TABLE random_test (
-  id UUID PRIMARY KEY,
-  params JSON NOT NULL
-);

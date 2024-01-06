@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { postTest } from "../../util/backend";
 import { copyTextToClipboard } from "../../util/misc";
 import { generate32bitSeed } from "../../util/prng";
 import Buttons from "../Buttons";
@@ -11,13 +10,11 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 const RandomTypingTest = ({ language = "english", duration = 30 }) => {
   const [seed, setSeed] = useState(generate32bitSeed());
   const [key, setKey] = useState(Date.now());
-  const [id, setId] = useState("");
 
   useEffect(() => {
     const newSeed = generate32bitSeed();
     setSeed(newSeed);
     setKey(Date.now());
-    postTest("time", { language, duration, seed: newSeed }).then(setId);
   }, [language, duration]);
 
   const nextTest = () => {
@@ -27,7 +24,6 @@ const RandomTypingTest = ({ language = "english", duration = 30 }) => {
     }
     setSeed(newSeed);
     setKey(Date.now());
-    postTest("time", { language, duration, seed: newSeed }).then(setId);
   };
 
   const restartTest = () => {
@@ -35,7 +31,9 @@ const RandomTypingTest = ({ language = "english", duration = 30 }) => {
   };
 
   const shareLinkToTest = () => {
-    copyTextToClipboard(`${window.location.origin}/${id}`);
+    copyTextToClipboard(
+      `${window.location.origin}/time/${language}/${duration}/${seed}`,
+    );
   };
 
   return (

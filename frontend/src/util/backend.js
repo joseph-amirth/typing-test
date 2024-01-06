@@ -3,18 +3,6 @@ import { getOrInitItem } from "./localStorage";
 
 const backendUrl = "http://localhost:8080";
 
-// Returned promise resolves to id of the test.
-export const postTest = (mode, params) => {
-  return postJson("/test", { mode, params }).then((response) =>
-    response.text(),
-  );
-};
-
-// Returned promise resolves to parameters of the test with given id.
-export const getTest = (id) => {
-  return get(`/test/${id}`).then(extractJson);
-};
-
 // Returned promise resolves to user details and settings on success.
 export const signUp = (username, email, password, preferences) => {
   return postJson(
