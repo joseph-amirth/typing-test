@@ -1,0 +1,23 @@
+/**
+ * This file has utilities related to interpreting key strokes as user actions.
+ */
+
+import { createContext, useState } from "react";
+
+export type ActionKind = "Insert" | "Control";
+
+export type Callback = (action: Action) => void;
+
+export interface Action {
+  kind: ActionKind;
+}
+
+export const ActionContext = createContext({
+  register: (kind: ActionKind) => {},
+});
+
+export const initializeActionContext = () => {
+  const [callbacks, setCallbacks] = useState<{
+    [key: string]: (action: Action) => void;
+  }>({});
+};
