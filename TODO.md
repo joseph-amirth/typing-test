@@ -26,7 +26,6 @@ N/A
 
 ### Major feature TODOs
 - [ ] Improve UI/UX.
-- [ ] Add support for typing quotes.
 - [ ] Add support for ghosts (stored in Redis for 24 hrs).
 - [ ] Add support for typing races.
 - [ ] Add support for sharing results.
