@@ -1,0 +1,14 @@
+@use "color";
+@use "sizing";
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../static/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
+body {
+  font-family: "JetBrains Mono";
+  font-size: sizing.$font-size;
+  background-color: color.$background-color;
+  color: color.$primary;
+}

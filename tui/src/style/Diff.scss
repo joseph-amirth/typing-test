@@ -1,0 +1,31 @@
+@use "color";
+
+.Diff {
+    text-align: left;
+}
+
+.Line {
+    white-space: pre;
+}
+
+.Letter.Normal {
+    color: white;
+    color: #245c69;
+}
+
+.Letter.Correct {
+    color: color.$primary;
+}
+
+.Letter.Wrong {
+    color: #b94da1;
+}
+
+.Letter.Extra {
+    color: #9b3a76;
+}
+
+.Letter.Skipped {
+    color: rgb(128, 128, 128);
+    /* text-decoration: red wavy underline; */
+}

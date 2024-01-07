@@ -1,0 +1,17 @@
+@use "color";
+@use "spacing";
+
+.Header {
+    position: absolute;
+    top: 0;
+
+    padding: spacing.$padding;
+    display: flex;
+    flex-direction: row;
+
+    .Title {
+        padding: calc(0.3 * spacing.$padding);
+        background-color: color.$primary;
+        color: color.$background-color;
+    }
+}
