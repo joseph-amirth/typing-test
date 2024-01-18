@@ -5,7 +5,7 @@
 
 .Caret {
   position: absolute;
-  background-color: white;
+  background-color: #00e980;
   height: calc(1lh - 4px);
   width: 1px;
 }
@@ -18,28 +18,31 @@
   white-space: pre;
 }
 
+.Word.Skipped {
+  text-decoration: underline #b94da1;
+}
+
 .Letter {
   white-space: pre;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .Letter.Normal {
-  color: white;
+  color: #245c69;
 }
 
 .Letter.Correct {
-  color: green;
+  color: #00e980;
 }
 
 .Letter.Wrong {
-  color: red;
+  color: #b94da1;
 }
 
 .Letter.Extra {
-  color: rgb(128, 0, 0);
+  color: #9b3a76;
 }
 
 .Letter.Skipped {
-  color: rgb(128, 128, 128);
-  /* text-decoration: red wavy underline; */
+  color: #245c69;
 }

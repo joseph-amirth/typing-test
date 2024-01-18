@@ -99,8 +99,10 @@ const Letter = ({ letter, state = "Normal" }: DiffLetterProps) => {
 };
 
 const Word = ({ letters }: DiffWordProps) => {
+  const isSkippedWord = letters.some((letter) => letter.state === "Skipped");
+
   return (
-    <span className="Word">
+    <span className={`Word ${isSkippedWord ? "Skipped" : ""}`}>
       {letters.map((props, i) => (
         <Letter key={i} {...props} />
       ))}
