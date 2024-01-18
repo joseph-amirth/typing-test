@@ -1,32 +1,45 @@
 .Diff {
-    text-align: left;
+  position: relative;
+  text-align: left;
+}
+
+.Caret {
+  position: absolute;
+  background-color: white;
+  height: calc(1lh - 4px);
+  width: 1px;
 }
 
 .Line {
-    white-space: pre;
+  white-space: pre;
+}
+
+.Word {
+  white-space: pre;
 }
 
 .Letter {
-    font-family: 'JetBrains Mono', monospace;
+  white-space: pre;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .Letter.Normal {
-    color: white;
+  color: white;
 }
 
 .Letter.Correct {
-    color: green;
+  color: green;
 }
 
 .Letter.Wrong {
-    color: red;
+  color: red;
 }
 
 .Letter.Extra {
-    color: rgb(128, 0, 0);
+  color: rgb(128, 0, 0);
 }
 
 .Letter.Skipped {
-    color: rgb(128, 128, 128);
-    /* text-decoration: red wavy underline; */
+  color: rgb(128, 128, 128);
+  /* text-decoration: red wavy underline; */
 }
