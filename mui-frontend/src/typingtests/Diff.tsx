@@ -1,26 +1,24 @@
-import { usePreference } from "../context/preferences";
 import { disableCutCopyPasteProps } from "../util/component";
 import "./Diff.css";
 
 const Diff = ({
   test,
   attempt,
-  isTestBounded,
+  maxCharsInLine,
+  showAllLines,
 }: {
   test: string[];
   attempt: string[];
-  isTestBounded: boolean;
+  maxCharsInLine: number;
+  showAllLines: boolean;
 }) => {
-  const [maxCharsInLine] = usePreference("maxCharsInLine");
-  const [showAllLines] = usePreference("showAllLines");
-
   const diffWords = getDiffWords(test, attempt);
   const diffLines = getDiffLines(diffWords, maxCharsInLine);
 
   const focusedWordNumber = attempt.length - 1;
   const [row, column] = getCaretPosition(diffLines, focusedWordNumber);
 
-  if (isTestBounded && showAllLines) {
+  if (showAllLines) {
     return (
       <div className="Diff">
         <Caret row={row} column={column} />

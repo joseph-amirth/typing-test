@@ -61,7 +61,12 @@ const TimedTypingTest = ({ generateTest, duration }) => {
   return (
     <div className="TimedTypingTest" onClick={handleClick}>
       {start && !end && <Progress progress={progress} />}
-      <Diff test={test} attempt={attempt} isTestBounded={false} />
+      <Diff
+        test={test}
+        attempt={attempt}
+        maxCharsInLine={maxCharsInLine}
+        showAllLines={false}
+      />
       <input
         type="text"
         ref={inputRef}

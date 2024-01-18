@@ -6,6 +6,7 @@ import { useCharCounts } from "./useCharCounts";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { disableCutCopyPasteProps } from "../util/component";
+import { usePreference } from "../context/preferences";
 
 /**
  * @component
@@ -13,6 +14,9 @@ import { disableCutCopyPasteProps } from "../util/component";
  * @param {string[]} test
  */
 const BoundedTypingTest = ({ test }) => {
+  const [maxCharsInLine] = usePreference("maxCharsInLine");
+  const [showAllLines] = usePreference("showAllLines");
+
   const [attempt, setAttempt] = useState("".split(" "));
 
   const [start, setStart] = useState();
@@ -53,7 +57,12 @@ const BoundedTypingTest = ({ test }) => {
           {progress} / {test.length}
         </div>
       )}
-      <Diff test={test} attempt={attempt} isTestBounded={true} />
+      <Diff
+        test={test}
+        attempt={attempt}
+        maxCharsInLine={maxCharsInLine}
+        showAllLines={showAllLines}
+      />
       <input
         type="text"
         ref={inputRef}
