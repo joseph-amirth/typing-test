@@ -34,6 +34,13 @@ const BoundedTypingTest = ({ test }) => {
       const previousAttempt = attempt;
 
       const currentAttempt = event.target.value.split(" ");
+      if (
+        currentAttempt.length <= test.length &&
+        currentAttempt[currentAttempt.length - 1].length >
+          test[currentAttempt.length - 1].length + 20
+      ) {
+        return;
+      }
       setAttempt(currentAttempt);
       setProgress(currentAttempt.length - 1);
 
@@ -65,6 +72,7 @@ const BoundedTypingTest = ({ test }) => {
       />
       <input
         type="text"
+        value={attempt.join(" ")}
         ref={inputRef}
         className="Hide"
         onInput={handleInput}

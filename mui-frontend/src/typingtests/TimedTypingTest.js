@@ -44,6 +44,13 @@ const TimedTypingTest = ({ generateTest, duration }) => {
       const previousAttempt = attempt;
 
       const currentAttempt = event.target.value.split(" ");
+      if (
+        currentAttempt.length <= test.length &&
+        currentAttempt[currentAttempt.length - 1].length >
+          test[currentAttempt.length - 1].length + 20
+      ) {
+        return;
+      }
       setAttempt(currentAttempt);
       if (currentAttempt.length + padding > test.length) {
         setTest(generateTest(currentAttempt.length + padding));
@@ -69,6 +76,7 @@ const TimedTypingTest = ({ generateTest, duration }) => {
       />
       <input
         type="text"
+        value={attempt.join(" ")}
         ref={inputRef}
         className="Hide"
         onInput={handleInput}
