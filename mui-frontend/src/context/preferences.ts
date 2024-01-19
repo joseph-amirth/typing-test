@@ -2,16 +2,6 @@ import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
 import { setItem } from "../util/localStorage";
 
-export interface Preferences {
-  currentMode: "words" | "time" | "quote";
-  wordsModeLength: number;
-  timeModeDuration: number;
-  language: "english" | "english1k";
-  quoteModeLength: "short" | "medium" | "long" | "verylong" | "all";
-  maxCharsInLine: number;
-  showAllLines: boolean;
-}
-
 export const defaultPreferences: Preferences = {
   currentMode: "words",
   wordsModeLength: 20,
@@ -59,19 +49,20 @@ export const usePreferencesContext = (initialPreferences: Preferences) => {
 };
 
 // Hook to use and update a preference with the given name.
-// TODO: Don't use any.
-export const usePreference = (preferenceName: keyof Preferences): any => {
+export function usePreference<T extends keyof Preferences>(
+  preferenceName: T,
+): [Preferences[T], (value: Preferences[T]) => void] {
   const { preferences, addPreferences } = useContext(PreferencesContext);
   return [
     preferences[preferenceName],
-    (value: any) => {
+    (value: Preferences[T]) => {
       const preference = { [preferenceName]: value };
       addPreferences(preference);
     },
   ];
-};
+}
 
-export const useTypingTestParams = () => {
+export const useTypingTestParams = (): TypingTestParams => {
   const { preferences } = useContext(PreferencesContext);
   const { currentMode } = preferences;
 
@@ -99,6 +90,47 @@ export const useTypingTestParams = () => {
           length: preferences.quoteModeLength,
         },
       };
-    default:
   }
 };
+
+export interface Preferences {
+  currentMode: TypingTestMode;
+  wordsModeLength: number;
+  timeModeDuration: number;
+  language: Language;
+  quoteModeLength: QuoteModeLength;
+  maxCharsInLine: number;
+  showAllLines: boolean;
+}
+
+export type TypingTestMode = "words" | "time" | "quote";
+export type Language = "english" | "english1k";
+export type QuoteModeLength = "short" | "medium" | "long" | "verylong" | "all";
+
+export type TypingTestParams =
+  | WordsTypingTestParams
+  | TimeTypingTestParams
+  | QuoteTypingTestParams;
+
+export interface WordsTypingTestParams {
+  mode: "words";
+  params: {
+    language: Language;
+    length: number;
+  };
+}
+
+export interface TimeTypingTestParams {
+  mode: "time";
+  params: {
+    language: Language;
+    duration: number;
+  };
+}
+
+export interface QuoteTypingTestParams {
+  mode: "quote";
+  params: {
+    length: QuoteModeLength;
+  };
+}
