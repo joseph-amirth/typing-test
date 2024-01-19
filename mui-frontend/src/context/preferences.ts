@@ -2,7 +2,17 @@ import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
 import { setItem } from "../util/localStorage";
 
-export const defaultPreferences = {
+export interface Preferences {
+  currentMode: "words" | "time" | "quote";
+  wordsModeLength: number;
+  timeModeDuration: number;
+  language: "english" | "english1k";
+  quoteModeLength: "short" | "medium" | "long" | "verylong" | "all";
+  maxCharsInLine: number;
+  showAllLines: boolean;
+}
+
+export const defaultPreferences: Preferences = {
   currentMode: "words",
   wordsModeLength: 20,
   timeModeDuration: 30,
@@ -12,21 +22,29 @@ export const defaultPreferences = {
   showAllLines: false,
 };
 
-export const PreferencesContext = createContext();
+export const PreferencesContext = createContext<{
+  preferences: Preferences;
+  receivePreferences: (newPreferences: Preferences) => void;
+  addPreferences: (newPreferences: Partial<Preferences>) => void;
+}>({
+  preferences: defaultPreferences,
+  receivePreferences: () => {},
+  addPreferences: () => {},
+});
 
 // Hook to initialize the preferences context and return it.
-export const usePreferencesContext = (initialPreferences) => {
+export const usePreferencesContext = (initialPreferences: Preferences) => {
   const [preferences, setPreferences] = useState(initialPreferences);
 
   return {
     preferences,
     // To be used when preferences are received from the backend.
-    receivePreferences: (newPreferences) => {
+    receivePreferences: (newPreferences: Preferences) => {
       setPreferences(newPreferences);
       setItem("preferences", newPreferences);
     },
     // To be used when preferences are updated in the frontend.
-    addPreferences: (newPreferences) => {
+    addPreferences: (newPreferences: Partial<Preferences>) => {
       setPreferences((preferences) => {
         const updatedPreferences = {
           ...preferences,
@@ -41,11 +59,12 @@ export const usePreferencesContext = (initialPreferences) => {
 };
 
 // Hook to use and update a preference with the given name.
-export const usePreference = (preferenceName) => {
+// TODO: Don't use any.
+export const usePreference = (preferenceName: keyof Preferences): any => {
   const { preferences, addPreferences } = useContext(PreferencesContext);
   return [
     preferences[preferenceName],
-    (value) => {
+    (value: any) => {
       const preference = { [preferenceName]: value };
       addPreferences(preference);
     },
