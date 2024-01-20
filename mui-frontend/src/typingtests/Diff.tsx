@@ -40,9 +40,10 @@ const Diff = ({
         letters: [
           {
             letter: " ",
-            state: "Normal",
+            state: "Untyped",
           },
         ],
+        skipped: false,
       }),
     };
 
@@ -66,11 +67,12 @@ const Diff = ({
 
 interface DiffLetterProps {
   letter: string;
-  state: "Normal" | "Correct" | "Wrong" | "Extra" | "Skipped";
+  state: "Untyped" | "Correct" | "Wrong" | "Extra";
 }
 
 interface DiffWordProps {
   letters: DiffLetterProps[];
+  skipped: boolean;
 }
 
 interface DiffLineProps {
@@ -92,17 +94,15 @@ const Caret = ({ row, column }: { row?: number; column?: number }) => {
   );
 };
 
-const Letter = ({ letter, state = "Normal" }: DiffLetterProps) => {
+const DiffLetter = ({ letter, state }: DiffLetterProps) => {
   return <span className={`Letter ${state}`}>{letter}</span>;
 };
 
-const Word = ({ letters }: DiffWordProps) => {
-  const isSkippedWord = letters.some((letter) => letter.state === "Skipped");
-
+const DiffWord = ({ letters, skipped }: DiffWordProps) => {
   return (
-    <span className={`Word ${isSkippedWord ? "Skipped" : ""}`}>
-      {letters.map((props, i) => (
-        <Letter key={i} {...props} />
+    <span className={`Word ${skipped ? "Skipped" : ""}`}>
+      {letters.map((diffLetterProps, i) => (
+        <DiffLetter key={i} {...diffLetterProps} />
       ))}
     </span>
   );
@@ -111,8 +111,8 @@ const Word = ({ letters }: DiffWordProps) => {
 const Line = ({ words }: DiffLineProps) => {
   return (
     <div className="Line">
-      {words.map(({ letters }, i) => (
-        <Word key={i} letters={letters} />
+      {words.map((diffWordProps, i) => (
+        <DiffWord key={i} {...diffWordProps} />
       ))}
     </div>
   );
@@ -149,21 +149,24 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
       for (let j = minLength; j < maxLength; j++) {
         letters.push({
           letter: word[j],
-          state: i + 1 !== attempt.length ? "Skipped" : "Normal",
+          state: "Untyped",
         });
       }
     }
 
-    diffWords.push({ letters });
+    const skipped =
+      i + 1 !== attempt.length &&
+      letters.some(({ state }) => state !== "Correct");
+    diffWords.push({ letters, skipped });
   }
 
   for (let i = attempt.length; i < test.length; i++) {
     const word = test[i];
     const letters: DiffLetterProps[] = [];
     for (const letter of word) {
-      letters.push({ letter, state: "Normal" });
+      letters.push({ letter, state: "Untyped" });
     }
-    diffWords.push({ letters });
+    diffWords.push({ letters, skipped: false });
   }
 
   return diffWords;
@@ -179,7 +182,8 @@ function getDiffLines(
   let currentLineChars = 0;
 
   const space: DiffWordProps = {
-    letters: [{ letter: " ", state: "Normal" }],
+    letters: [{ letter: " ", state: "Untyped" }],
+    skipped: false,
   };
 
   for (let i = 0; i < diffWords.length; i++) {
@@ -245,7 +249,7 @@ function getCaretPosition(
       if (currentWordNumber === focusedWordNumber) {
         let row = lineNumber;
         let index = letters.findLastIndex(
-          (letter: DiffLetterProps) => letter.state !== "Normal",
+          (letter: DiffLetterProps) => letter.state !== "Untyped",
         );
         let column = currentLineChars + index + 1;
         return [row, column];

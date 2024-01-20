@@ -27,7 +27,7 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-.Letter.Normal {
+.Letter.Untyped {
   color: #245c69;
 }
 
@@ -41,8 +41,4 @@
 
 .Letter.Extra {
   color: #9b3a76;
-}
-
-.Letter.Skipped {
-  color: #245c69;
 }
