@@ -23,6 +23,9 @@ const App = () => {
       primary: {
         main: "#00e980",
       },
+      background: {
+        default: "#011926",
+      },
     },
     typography: {
       fontFamily: "JetBrains Mono",
