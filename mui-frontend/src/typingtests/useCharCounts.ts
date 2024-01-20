@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-export const useCharCounts = (): [
-  { correctChars: number; incorrectChars: number },
+export function useCharCounts(): [
+  CharCounts,
   (test: string[], previousAttempt: string[], currentAttempt: string[]) => void,
-] => {
+] {
   const [correctChars, setCorrectChars] = useState(0);
   const [incorrectChars, setIncorrectChars] = useState(0);
 
@@ -32,4 +32,9 @@ export const useCharCounts = (): [
       }
     },
   ];
-};
+}
+
+export interface CharCounts {
+  correctChars: number;
+  incorrectChars: number;
+}
