@@ -67,7 +67,7 @@ const TimedTypingTest = ({ generateTest, duration }) => {
 
   return (
     <div className="TimedTypingTest" onClick={handleClick}>
-      {start && !end && <Progress progress={progress} />}
+      <Progress progress={progress} hide={!start || end} />
       <Diff
         test={test}
         attempt={attempt}
@@ -98,12 +98,15 @@ const TimedTypingTest = ({ generateTest, duration }) => {
   );
 };
 
-const Progress = ({ progress }) => {
+const Progress = ({ progress, hide }) => {
   const minutes = Math.floor(progress / 60);
   const seconds = progress % 60;
 
   return (
-    <div className="Progress">
+    <div
+      className="Progress"
+      style={{ visibility: hide ? "hidden" : "inherit" }}
+    >
       {minutes === 0
         ? seconds
         : `${minutes}:${seconds.toString().padStart(2, "0")}`}

@@ -59,11 +59,12 @@ const BoundedTypingTest = ({ test }) => {
 
   return (
     <div className="BoundedTypingTest" onClick={handleClick}>
-      {start && !end && (
-        <div className="Progress">
-          {progress} / {test.length}
-        </div>
-      )}
+      <div
+        className="Progress"
+        style={{ visibility: !start || end ? "hidden" : "inherit" }}
+      >
+        {progress} / {test.length}
+      </div>
       <Diff
         test={test}
         attempt={attempt}
