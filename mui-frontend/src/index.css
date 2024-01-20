@@ -1,5 +1,12 @@
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("./static/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  font-family: "JetBrains Mono";
 }
