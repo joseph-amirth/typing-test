@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
-import { setItem } from "../util/localStorage";
+import { setItem } from "../util/local-storage";
 
 export const defaultPreferences: Preferences = {
   currentMode: "words",

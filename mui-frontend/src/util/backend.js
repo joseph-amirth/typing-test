@@ -1,5 +1,5 @@
 import { defaultPreferences } from "../context/preferences";
-import { getOrInitItem } from "./localStorage";
+import { getOrInitItem } from "./local-storage";
 
 const backendUrl = "http://localhost:8080";
 
