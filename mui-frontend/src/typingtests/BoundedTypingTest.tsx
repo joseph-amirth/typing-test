@@ -8,25 +8,20 @@ import VerticalSpacer from "../common/VerticalSpacer";
 import { disableCutCopyPasteProps } from "../util/component";
 import { usePreference } from "../context/preferences";
 
-/**
- * @component
- * Shows a typing test that has a bounded number of words.
- * @param {string[]} test
- */
-const BoundedTypingTest = ({ test }) => {
+const BoundedTypingTest = ({ test }: { test: string[] }) => {
   const [maxCharsInLine] = usePreference("maxCharsInLine");
   const [showAllLines] = usePreference("showAllLines");
 
   const [attempt, setAttempt] = useState("".split(" "));
 
-  const [start, setStart] = useState();
-  const [end, setEnd] = useState();
+  const [start, setStart] = useState<number | undefined>(undefined);
+  const [end, setEnd] = useState<number | undefined>(undefined);
 
   const [charCounts, updateCharCounts] = useCharCounts();
 
   const [progress, setProgress] = useState(0);
 
-  const handleInput = (event) => {
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!start) {
       setStart(performance.now());
     }
@@ -52,9 +47,11 @@ const BoundedTypingTest = ({ test }) => {
     }
   };
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
-    inputRef.current.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   return (
@@ -80,7 +77,7 @@ const BoundedTypingTest = ({ test }) => {
         autoFocus
         {...disableCutCopyPasteProps()}
       />
-      {end && (
+      {start && end && (
         <>
           <VerticalSpacer />
           <Result
