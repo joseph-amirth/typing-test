@@ -1,11 +1,11 @@
-import WordsTypingTest from "../typingtests/words/RandomTypingTest";
-import TimeTypingTest from "../typingtests/time/RandomTypingTest";
-import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
-import { usePreference } from "../context/preferences";
-import HorizontalSpacer from "../common/HorizontalSpacer";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import VerticalSpacer from "src/common/VerticalSpacer";
+import HorizontalSpacer from "src/common/HorizontalSpacer";
+import { usePreference } from "src/context/preferences";
+import QuoteTypingTest from "src/typingtests/quote/RandomTypingTest";
+import TimeTypingTest from "src/typingtests/time/RandomTypingTest";
+import WordsTypingTest from "src/typingtests/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { MenuItem, FormControl, InputLabel, Select } from "@mui/material";
-import VerticalSpacer from "../common/VerticalSpacer";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
