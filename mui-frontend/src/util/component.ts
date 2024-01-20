@@ -6,7 +6,7 @@ export const disableCutCopyPasteProps = () => {
   };
 };
 
-const disableEvent = (event) => {
+const disableEvent = (event: React.SyntheticEvent) => {
   event.preventDefault();
   return false;
 };

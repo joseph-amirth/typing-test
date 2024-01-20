@@ -1,14 +1,17 @@
-export function generate128bitSeed() {
+export function generate128bitSeed(): Int32Array {
   return window.crypto.getRandomValues(new Int32Array(4));
 }
 
-export function generate32bitSeed() {
+export function generate32bitSeed(): number {
   return window.crypto.getRandomValues(new Int32Array(1))[0];
 }
 
-export function sfc32(seed) {
+/**
+ * Takes in a 128-bit seed and produces 32-bit signed integers.
+ */
+export function sfc32(seed: [number, number, number, number]): PrngFn {
   let [a, b, c, d] = seed;
-  return function() {
+  return function () {
     a >>>= 0;
     b >>>= 0;
     c >>>= 0;
@@ -24,12 +27,17 @@ export function sfc32(seed) {
   };
 }
 
-export function mulberry32(seed) {
+/**
+ * Takes in a 32-bit seed and produces 32-bit signed integers.
+ */
+export function mulberry32(seed: number): PrngFn {
   let a = seed;
-  return function() {
+  return function () {
     var t = (a += 0x6d2b79f5);
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return (t ^ (t >>> 14)) >>> 0;
   };
 }
+
+type PrngFn = () => number;
