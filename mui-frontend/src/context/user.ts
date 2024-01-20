@@ -1,10 +1,5 @@
 import { createContext, useContext, useState } from "react";
 
-export interface User {
-  username: string;
-  email: string;
-}
-
 export const UserContext = createContext<{
   user?: User;
   setUser: (user?: User) => void;
@@ -25,3 +20,8 @@ export const useIsSignedIn = () => {
   const { user } = useContext(UserContext);
   return user !== undefined;
 };
+
+export interface User {
+  username: string;
+  email: string;
+}
