@@ -1,14 +1,5 @@
 {
-  "plugins": [
-    "@babel/syntax-dynamic-import",
-    ["module-resolver", {
-      "root": ["./src"],
-      "alias": {
-        "test": "./test",
-        "underscore": "lodash"
-      }
-    }]
-  ],
+  "plugins": ["@babel/syntax-dynamic-import"],
   "presets": [
     [
       "@babel/preset-env",
