@@ -19,7 +19,7 @@
 }
 
 .Word.Skipped {
-  text-decoration: underline #b94da1;
+  text-decoration: 1.5px underline #b94da1;
 }
 
 .Letter {
