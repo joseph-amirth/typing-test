@@ -15,12 +15,13 @@
 }
 
 .Word {
+  position: relative;
   white-space: pre;
 }
 
 .Word.Skipped {
-  text-decoration: 1.5px underline #b94da1;
-  text-underline-offset: 0.15em;
+  text-decoration: 1px underline #b94da1;
+  text-underline-offset: 0.2em;
 }
 
 .Letter {

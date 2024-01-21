@@ -16,12 +16,10 @@ const Diff = ({
   const diffLines = getDiffLines(diffWords, maxCharsInLine);
 
   const focusedWordNumber = attempt.length - 1;
-  const [row, column] = getCaretPosition(diffLines, focusedWordNumber);
 
   if (showAllLines) {
     return (
       <div className="Diff">
-        <Caret row={row} column={column} />
         {diffLines.map(({ words }, i) => (
           <Line key={i} words={words} />
         ))}
@@ -44,6 +42,7 @@ const Diff = ({
           },
         ],
         skipped: false,
+        focused: false,
       }),
     };
 
@@ -53,10 +52,6 @@ const Diff = ({
 
     return (
       <div className="Diff" {...disableCutCopyPasteProps()}>
-        <Caret
-          row={row === undefined ? row : Math.min(row, 1)}
-          column={column}
-        />
         {displayLines.map(({ words }, i) => (
           <Line key={i} words={words} />
         ))}
@@ -73,22 +68,20 @@ interface DiffLetterProps {
 interface DiffWordProps {
   letters: DiffLetterProps[];
   skipped: boolean;
+  focused: boolean;
 }
 
 interface DiffLineProps {
   words: DiffWordProps[];
 }
 
-const Caret = ({ row, column }: { row?: number; column?: number }) => {
-  if (row === undefined || column === undefined) {
-    return null;
-  }
+const Caret = ({ offset }: { offset: number }) => {
   return (
     <div
       className="Caret"
       style={{
-        top: `calc(${row}lh + 2px)`,
-        left: `${column}ch`,
+        top: "0px",
+        left: `${offset}ch`,
       }}
     ></div>
   );
@@ -98,9 +91,14 @@ const DiffLetter = ({ letter, state }: DiffLetterProps) => {
   return <span className={`Letter ${state}`}>{letter}</span>;
 };
 
-const DiffWord = ({ letters, skipped }: DiffWordProps) => {
+const DiffWord = ({ letters, skipped, focused }: DiffWordProps) => {
   return (
     <span className={`Word ${skipped ? "Skipped" : ""}`}>
+      {focused && (
+        <Caret
+          offset={1 + letters.findLastIndex(({ state }) => state !== "Untyped")}
+        />
+      )}
       {letters.map((diffLetterProps, i) => (
         <DiffLetter key={i} {...diffLetterProps} />
       ))}
@@ -154,10 +152,10 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
       }
     }
 
+    const focused = i + 1 === attempt.length;
     const skipped =
-      i + 1 !== attempt.length &&
-      letters.some(({ state }) => state !== "Correct");
-    diffWords.push({ letters, skipped });
+      !focused && letters.some(({ state }) => state !== "Correct");
+    diffWords.push({ letters, skipped, focused });
   }
 
   for (let i = attempt.length; i < test.length; i++) {
@@ -166,7 +164,7 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
     for (const letter of word) {
       letters.push({ letter, state: "Untyped" });
     }
-    diffWords.push({ letters, skipped: false });
+    diffWords.push({ letters, skipped: false, focused: false });
   }
 
   return diffWords;
@@ -184,6 +182,7 @@ function getDiffLines(
   const space: DiffWordProps = {
     letters: [{ letter: " ", state: "Untyped" }],
     skipped: false,
+    focused: false,
   };
 
   for (let i = 0; i < diffWords.length; i++) {
@@ -232,33 +231,5 @@ const getFocusedLineNumber = (
   }
   return diffLines.length - 1;
 };
-
-function getCaretPosition(
-  diffLines: DiffLineProps[],
-  focusedWordNumber: number,
-): [number?, number?] {
-  let currentWordNumber = 0;
-  for (let lineNumber = 0; lineNumber < diffLines.length; lineNumber++) {
-    let { words } = diffLines[lineNumber];
-    let currentLineChars = 0;
-    for (const { letters } of words) {
-      if (letters.length === 1 && letters[0].letter === " ") {
-        currentLineChars += 1;
-        continue;
-      }
-      if (currentWordNumber === focusedWordNumber) {
-        let row = lineNumber;
-        let index = letters.findLastIndex(
-          (letter: DiffLetterProps) => letter.state !== "Untyped",
-        );
-        let column = currentLineChars + index + 1;
-        return [row, column];
-      }
-      currentWordNumber += 1;
-      currentLineChars += letters.length;
-    }
-  }
-  return [undefined, undefined];
-}
 
 export default Diff;
