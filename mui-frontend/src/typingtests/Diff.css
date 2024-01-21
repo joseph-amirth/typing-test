@@ -20,6 +20,7 @@
 
 .Word.Skipped {
   text-decoration: 1.5px underline #b94da1;
+  text-underline-offset: 0.15em;
 }
 
 .Letter {
