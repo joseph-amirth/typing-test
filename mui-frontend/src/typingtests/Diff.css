@@ -1,6 +1,6 @@
 .Diff {
-  position: relative;
   text-align: left;
+  width: 50%;
 }
 
 .Caret {
@@ -10,22 +10,13 @@
   width: 1px;
 }
 
-.Line {
-  white-space: pre;
-}
-
 .Word {
   position: relative;
-  white-space: pre;
 }
 
 .Word.Skipped {
   text-decoration: 1px underline #b94da1;
   text-underline-offset: 0.2em;
-}
-
-.Letter {
-  white-space: pre;
 }
 
 .Letter.Untyped {
