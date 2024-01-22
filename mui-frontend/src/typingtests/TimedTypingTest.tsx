@@ -7,13 +7,13 @@ import { usePreference } from "../context/preferences";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { disableCutCopyPasteProps } from "../util/component";
 
-/**
- * @component
- * Shows a typing test that ends in a given amount of time.
- * @param {number -> string[]} generateTest - Function that generates a test upto the given count of words.
- * @param {number} duration - Duration of the test in seconds.
- */
-const TimedTypingTest = ({ generateTest, duration }) => {
+const TimedTypingTest = ({
+  generateTest,
+  duration,
+}: {
+  generateTest: (length: number) => string[];
+  duration: number;
+}) => {
   const [maxCharsInLine] = usePreference("maxCharsInLine");
   const padding = maxCharsInLine; // test is always "padded" with this many more words compared to attempt.
 
@@ -27,7 +27,7 @@ const TimedTypingTest = ({ generateTest, duration }) => {
 
   const [progress, setProgress] = useState(duration);
 
-  const handleInput = (event) => {
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!start) {
       setStart(true);
       const intervalId = setInterval(() => {
@@ -60,20 +60,15 @@ const TimedTypingTest = ({ generateTest, duration }) => {
     }
   };
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleClick = () => {
-    inputRef.current.focus();
+    inputRef.current!.focus();
   };
 
   return (
     <div className="TimedTypingTest" onClick={handleClick}>
       <Progress progress={progress} hide={!start || end} />
-      <Diff
-        test={test}
-        attempt={attempt}
-        maxCharsInLine={maxCharsInLine}
-        showAllLines={false}
-      />
+      <Diff test={test} attempt={attempt} showAllLines={false} />
       <input
         type="text"
         value={attempt.join(" ")}
@@ -98,7 +93,7 @@ const TimedTypingTest = ({ generateTest, duration }) => {
   );
 };
 
-const Progress = ({ progress, hide }) => {
+const Progress = ({ progress, hide }: { progress: number; hide: boolean }) => {
   const minutes = Math.floor(progress / 60);
   const seconds = progress % 60;
 
@@ -116,10 +111,10 @@ const Progress = ({ progress, hide }) => {
 
 // Helper method that cuts out the extra words at the end of the generated test.
 // It also cuts out extra letters at the end of the last word typed.
-const getActualTest = (test, attempt) => {
+const getActualTest = (test: string[], attempt: string[]) => {
   const actualTest = test.slice(0, attempt.length);
   const last = attempt.length - 1;
-  actualTest[last] = actualTest[last].slice(0, attempt.at(-1).length);
+  actualTest[last] = actualTest[last].slice(0, attempt.at(-1)!.length);
   return actualTest;
 };
 
