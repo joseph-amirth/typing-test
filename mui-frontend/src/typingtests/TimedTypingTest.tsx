@@ -5,7 +5,7 @@ import { useCharCounts } from "./useCharCounts";
 import "./TimedTypingTest.css";
 import { usePreference } from "../context/preferences";
 import VerticalSpacer from "../common/VerticalSpacer";
-import { disableCutCopyPasteProps } from "../util/component";
+import { ANTI_CHEAT_PROPS } from "../util/component";
 
 const TimedTypingTest = ({
   generateTest,
@@ -76,7 +76,7 @@ const TimedTypingTest = ({
         className="Hide"
         onInput={handleInput}
         autoFocus
-        {...disableCutCopyPasteProps()}
+        {...ANTI_CHEAT_PROPS}
       />
       {end && (
         <>

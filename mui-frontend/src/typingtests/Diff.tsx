@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { disableCutCopyPasteProps } from "../util/component";
+import { ANTI_CHEAT_PROPS } from "../util/component";
 import "./Diff.css";
 
 const Diff = ({
@@ -80,7 +80,7 @@ const Diff = ({
         className="Diff"
         style={{ height: "3lh", overflow: "hidden" }}
         ref={diffRef}
-        {...disableCutCopyPasteProps()}
+        {...ANTI_CHEAT_PROPS}
       >
         {diffWordSpans}
         <div className="EmptyLine" />

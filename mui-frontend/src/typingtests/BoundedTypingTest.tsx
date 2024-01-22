@@ -5,7 +5,7 @@ import Result from "./Result";
 import { useCharCounts } from "./useCharCounts";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
-import { disableCutCopyPasteProps } from "../util/component";
+import { ANTI_CHEAT_PROPS } from "../util/component";
 import { usePreference } from "../context/preferences";
 
 export interface BoundedTypingTestProps {
@@ -105,7 +105,7 @@ const BoundedTypingTest = ({
         className="Hide"
         onInput={handleInput}
         autoFocus
-        {...disableCutCopyPasteProps()}
+        {...ANTI_CHEAT_PROPS}
       />
       {start && end && (
         <>
