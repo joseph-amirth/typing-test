@@ -4,13 +4,9 @@
 N/A
 
 ### Frontend TODOs
-- [ ] Add anti-cheat mechanisms.
+- [ ] Refine typing race experience.
 - [ ] Figure out how to style stuff with CSS grid.
 - [ ] Fix heading being a button.
-- [ ] Add fonts through javascript and not /public/index.html.
-- [ ] Add caret to tests.
-- [ ] Add guardrails to prevent users from typing too many wrong chars in a row.
-- [ ] Figure out proper path and directory structure for storing resources like languages.
 - [ ] Use a PRNG with larger seeds for generating tests.
 - [ ] Clean up the /public directory.
 - [ ] Use error notifications when internal server errors are encountered.
@@ -18,6 +14,7 @@ N/A
 
 ### Backend TODOs
 - [ ] Store random test params in Redis for 24 hrs.
+- [ ] Make typing races more robust and fault-tolerant.
 
 ### Major (non-feature) TODOs
 - [ ] Document features and flows.
@@ -27,5 +24,6 @@ N/A
 ### Major feature TODOs
 - [ ] Improve UI/UX.
 - [ ] Add support for ghosts (stored in Redis for 24 hrs).
-- [ ] Add support for typing races.
+- [ ] Add support for choosing mode in typing races.
+- [ ] Add matchmaking based on skill in typing races.
 - [ ] Add support for sharing results.
