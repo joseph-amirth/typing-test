@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { disableCutCopyPasteProps } from "../util/component";
 import "./Diff.css";
 
@@ -11,29 +11,81 @@ const Diff = ({
   attempt: string[];
   showAllLines: boolean;
 }) => {
-  const diffDiv = useRef<HTMLDivElement>(null);
-
   const diffWords = getDiffWords(test, attempt);
 
-  if (showAllLines) {
+  const diffRef = useRef<HTMLDivElement>(null);
+  const caretRef = useRef<HTMLDivElement>(null);
+
+  // Scroll lines and position caret appropriately on resize.
+  useEffect(() => {
+    if (showAllLines || diffRef.current === null || caretRef.current === null) {
+      return;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      const diff = diffRef.current!;
+      const caret = caretRef.current!;
+
+      const diffTop = diff.getBoundingClientRect().top;
+      const caretTop = caret.getBoundingClientRect().top;
+
+      syncScrollingWithCaret(diff, diffTop, caretTop);
+    });
+
+    const diff = diffRef.current;
+    resizeObserver.observe(diff);
+    return () => resizeObserver.disconnect();
+  }, [showAllLines]);
+
+  // Scroll lines depending on position of the caret.
+  useLayoutEffect(() => {
+    if (showAllLines || diffRef.current === null || caretRef.current === null) {
+      return;
+    }
+
+    const diff = diffRef.current!;
+    const caret = caretRef.current!;
+
+    const diffTop = diff.getBoundingClientRect().top;
+    const caretTop = caret.getBoundingClientRect().top;
+
+    syncScrollingWithCaret(diff, diffTop, caretTop);
+  }, [showAllLines, attempt]);
+
+  const diffWordSpans = diffWords.map(({ letters, skipped, focused }, i) => {
     return (
-      <div className="Diff">
-        {diffWords.map((word, i) => (
-          <DiffWord key={i} {...word} />
+      <span key={i} className={`Word ${skipped ? "Skipped" : ""}`}>
+        {focused && (
+          <div
+            ref={caretRef}
+            className="Caret"
+            style={{
+              top: "0px",
+              left: `${1 + letters.findLastIndex(({ state }) => state !== "Untyped")}ch`,
+            }}
+          ></div>
+        )}
+        {letters.map((diffLetterProps, i) => (
+          <DiffLetter key={i} {...diffLetterProps} />
         ))}
-      </div>
+      </span>
     );
+  });
+
+  if (showAllLines) {
+    return <div className="Diff">{diffWordSpans}</div>;
   } else {
     return (
       <div
         className="Diff"
         style={{ height: "3lh", overflow: "hidden" }}
-        ref={diffDiv}
+        ref={diffRef}
         {...disableCutCopyPasteProps()}
       >
-        {diffWords.map((word, i) => (
-          <DiffWord key={i} {...word} />
-        ))}
+        {diffWordSpans}
+        <div className="EmptyLine" />
+        <div className="EmptyLine" />
+        <div className="EmptyLine" />
       </div>
     );
   }
@@ -50,35 +102,8 @@ interface DiffWordProps {
   focused: boolean;
 }
 
-const Caret = ({ offset }: { offset: number }) => {
-  return (
-    <div
-      className="Caret"
-      style={{
-        top: "0px",
-        left: `${offset}ch`,
-      }}
-    ></div>
-  );
-};
-
 const DiffLetter = ({ letter, state }: DiffLetterProps) => {
   return <span className={`Letter ${state}`}>{letter}</span>;
-};
-
-const DiffWord = ({ letters, skipped, focused }: DiffWordProps) => {
-  return (
-    <span className={`Word ${skipped ? "Skipped" : ""}`}>
-      {focused && (
-        <Caret
-          offset={1 + letters.findLastIndex(({ state }) => state !== "Untyped")}
-        />
-      )}
-      {letters.map((diffLetterProps, i) => (
-        <DiffLetter key={i} {...diffLetterProps} />
-      ))}
-    </span>
-  );
 };
 
 function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
@@ -143,6 +168,36 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
   }
 
   return diffWords;
+}
+
+function syncScrollingWithCaret(
+  diff: HTMLDivElement,
+  diffTop: number,
+  caretTop: number,
+) {
+  const lineHeight = parseFloat(window.getComputedStyle(diff).lineHeight);
+  let scroll = Math.floor((caretTop - diffTop) / lineHeight);
+  console.log(scroll);
+
+  if (scroll < 1) {
+    while (scroll < 0) {
+      diff.scrollTop -= lineHeight;
+      scroll += 1;
+    }
+    if (scroll === 0 && diff.scrollTop !== 0) {
+      diff.scrollTop -= lineHeight;
+    }
+  }
+
+  if (scroll > 1) {
+    while (scroll > 2) {
+      diff.scrollTop += lineHeight;
+      scroll -= 1;
+    }
+    if (scroll === 2) {
+      diff.scrollTop += lineHeight;
+    }
+  }
 }
 
 export default Diff;

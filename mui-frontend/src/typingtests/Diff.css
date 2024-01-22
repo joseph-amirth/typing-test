@@ -1,6 +1,11 @@
 .Diff {
   text-align: left;
-  width: 50%;
+  width: 100%;
+}
+
+.EmptyLine {
+  height: 1lh;
+  width: 100%;
 }
 
 .Caret {
