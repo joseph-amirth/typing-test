@@ -40,4 +40,4 @@ export function mulberry32(seed: number): PrngFn {
   };
 }
 
-type PrngFn = () => number;
+export type PrngFn = () => number;

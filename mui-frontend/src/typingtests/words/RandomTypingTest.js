@@ -3,7 +3,6 @@ import { copyTextToClipboard } from "../../util/misc";
 import { generate32bitSeed } from "../../util/prng";
 import Buttons from "../Buttons";
 import SeededTypingTest from "./SeededTypingTest";
-
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 

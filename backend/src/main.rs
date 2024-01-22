@@ -11,6 +11,8 @@ use tower_http::cors::CorsLayer;
 
 mod auth;
 mod common;
+
+mod typing_race;
 mod typing_test;
 
 mod results;
@@ -38,7 +40,6 @@ async fn main() {
     dotenv().ok();
 
     let app = Router::new()
-        .route("/result", get(get_results).post(post_result))
         .route("/signup", post(auth::sign_up))
         .route("/signin", post(auth::sign_in))
         .route(
@@ -46,7 +47,9 @@ async fn main() {
             get(auth::current_user.layer(map_response(auth::refresh_auth_token))),
         )
         .route("/logout", get(auth::log_out))
+        .route("/result", get(get_results).post(post_result))
         .route("/prefs", post(update_preferences))
+        .route("/race", get(typing_race::join_matchmaking))
         .route("/experimental", get(experimental))
         .with_state(AppState::new().await)
         .layer(

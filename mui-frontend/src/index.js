@@ -11,6 +11,7 @@ import SignUp from "./view/SignUp";
 import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
 import SpecificTimeTypingTest from "./typingtests/time/SpecificTypingTest";
 import SpecificQuoteTypingTest from "./typingtests/quote/SpecificTypingTest";
+import TypingRaceView from "./view/TypingRaceView";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <RandomTypingTestView />,
+      },
+      {
+        path: "race",
+        element: <TypingRaceView />,
       },
       {
         path: "words/:language/:length/:seed",

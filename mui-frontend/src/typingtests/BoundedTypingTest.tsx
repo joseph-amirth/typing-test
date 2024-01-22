@@ -8,8 +8,26 @@ import VerticalSpacer from "../common/VerticalSpacer";
 import { disableCutCopyPasteProps } from "../util/component";
 import { usePreference } from "../context/preferences";
 
-const BoundedTypingTest = ({ test }: { test: string[] }) => {
-  const [maxCharsInLine] = usePreference("maxCharsInLine");
+export interface BoundedTypingTestProps {
+  test: string[];
+  enabled?: boolean;
+  onStart?: () => void;
+  onUpdate?: (previousAttempt: string[], currentAttempt: string[]) => void;
+  onFinish?: (attempt: string[], duration: number) => void;
+  options?: {
+    allowSkipping?: boolean;
+    allowBackpedal?: boolean;
+  };
+}
+
+const BoundedTypingTest = ({
+  test,
+  enabled,
+  onStart,
+  onUpdate,
+  onFinish,
+  options,
+}: BoundedTypingTestProps) => {
   const [showAllLines] = usePreference("showAllLines");
 
   const [attempt, setAttempt] = useState("".split(" "));
@@ -22,8 +40,12 @@ const BoundedTypingTest = ({ test }: { test: string[] }) => {
   const [progress, setProgress] = useState(0);
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (enabled !== undefined && !enabled) {
+      return;
+    }
     if (!start) {
       setStart(performance.now());
+      if (onStart) onStart();
     }
     if (!end) {
       const previousAttempt = attempt;
@@ -36,13 +58,26 @@ const BoundedTypingTest = ({ test }: { test: string[] }) => {
       ) {
         return;
       }
+      if (
+        options?.allowSkipping !== undefined &&
+        !options?.allowSkipping &&
+        currentAttempt.length > previousAttempt.length &&
+        currentAttempt[previousAttempt.length - 1] !==
+          test[previousAttempt.length - 1]
+      ) {
+        return;
+      }
       setAttempt(currentAttempt);
       setProgress(currentAttempt.length - 1);
 
       updateCharCounts(test, previousAttempt, currentAttempt);
 
+      if (onUpdate) onUpdate(previousAttempt, currentAttempt);
+
       if (isTestDone(test, currentAttempt)) {
-        setEnd(performance.now());
+        const end = performance.now();
+        setEnd(end);
+        if (onFinish) onFinish(currentAttempt, end - start!);
       }
     }
   };
@@ -62,12 +97,7 @@ const BoundedTypingTest = ({ test }: { test: string[] }) => {
       >
         {progress} / {test.length}
       </div>
-      <Diff
-        test={test}
-        attempt={attempt}
-        maxCharsInLine={maxCharsInLine}
-        showAllLines={showAllLines}
-      />
+      <Diff test={test} attempt={attempt} showAllLines={showAllLines} />
       <input
         type="text"
         value={attempt.join(" ")}

@@ -3,6 +3,9 @@ use std::{convert::Infallible, env};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
 use lettre::{transport::smtp::authentication::Credentials, AsyncSmtpTransport, Tokio1Executor};
 use sqlx::mysql::MySqlPoolOptions;
+use tokio::sync::mpsc::Sender;
+
+use crate::typing_race::{spawn_matchmaking_service, MmsMsg};
 
 pub type Db = sqlx::MySqlPool;
 pub type Mailer = AsyncSmtpTransport<Tokio1Executor>;
@@ -11,6 +14,7 @@ pub type Mailer = AsyncSmtpTransport<Tokio1Executor>;
 pub struct AppState {
     db: Db,
     mailer: Mailer,
+    matchmaking: Sender<MmsMsg>,
 }
 
 impl AppState {
@@ -18,6 +22,7 @@ impl AppState {
         Self {
             db: Self::get_db().await,
             mailer: Self::get_mailer(),
+            matchmaking: spawn_matchmaking_service(),
         }
     }
 
@@ -29,10 +34,12 @@ impl AppState {
         self.mailer.to_owned()
     }
 
+    pub fn matchmaking(&self) -> Sender<MmsMsg> {
+        self.matchmaking.clone()
+    }
+
     async fn get_db() -> Db {
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
-        
 
         MySqlPoolOptions::new()
             .max_connections(5)
@@ -52,7 +59,6 @@ impl AppState {
 
         let creds = Credentials::new(smtp_username.to_owned(), smtp_password.to_owned());
 
-        
         Mailer::relay(&smtp_server)
             .expect("no error")
             .port(smtp_port)
