@@ -4,6 +4,7 @@ import Header from "./Header";
 import { UserContext, useUserContext } from "./context/user";
 import Notifications from "./Notifications";
 import {
+  Preferences,
   PreferencesContext,
   usePreferencesContext,
 } from "./context/preferences";
@@ -11,7 +12,6 @@ import {
   NotificationsContext,
   useNotificationsContext,
 } from "./context/notifications";
-
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
@@ -35,9 +35,16 @@ const App = () => {
     },
   });
 
-  const { username, email, preferences } = useLoaderData();
+  const { username, email, preferences } = useLoaderData() as {
+    username?: string;
+    email?: string;
+    preferences: Preferences;
+  };
+
   const userContext = useUserContext(
-    username === undefined ? undefined : { username, email },
+    username === undefined || email === undefined
+      ? undefined
+      : { username, email },
   );
   const preferencesContext = usePreferencesContext(preferences);
   const notificationsContext = useNotificationsContext();

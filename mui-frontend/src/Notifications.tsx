@@ -1,6 +1,7 @@
 import "./Notifications.css";
+import { NotificationProps } from "./context/notifications";
 
-const Notification = ({ type, content }) => {
+const Notification = ({ type, content }: NotificationProps) => {
   return (
     <div className={`Notification ${type}`}>
       <h3>{content}</h3>
@@ -8,7 +9,11 @@ const Notification = ({ type, content }) => {
   );
 };
 
-const Notifications = ({ notifications }) => {
+const Notifications = ({
+  notifications,
+}: {
+  notifications: NotificationProps[];
+}) => {
   return (
     <div className="Notifications">
       {notifications.map((props) => (

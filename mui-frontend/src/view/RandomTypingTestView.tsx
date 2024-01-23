@@ -1,7 +1,18 @@
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import VerticalSpacer from "../common/VerticalSpacer";
 import HorizontalSpacer from "../common/HorizontalSpacer";
-import { usePreference } from "../context/preferences";
+import {
+  Language,
+  QuoteModeLength,
+  TypingTestMode,
+  usePreference,
+} from "../context/preferences";
 import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
 import TimeTypingTest from "../typingtests/time/RandomTypingTest";
 import WordsTypingTest from "../typingtests/words/RandomTypingTest";
@@ -10,8 +21,8 @@ import "./RandomTypingTestView.css";
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
 
-  const handleCurrentModeChange = (event) => {
-    const value = event.target.value;
+  const handleCurrentModeChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as TypingTestMode;
     setCurrentMode(value);
   };
 
@@ -40,7 +51,7 @@ const RandomTypingTestView = () => {
   );
 };
 
-const getTypingTestControls = (mode) => {
+const getTypingTestControls = (mode: TypingTestMode) => {
   switch (mode) {
     case "words":
       return <WordsTypingTestControls />;
@@ -48,11 +59,10 @@ const getTypingTestControls = (mode) => {
       return <TimeTypingTestControls />;
     case "quote":
       return <QuoteTypingTestControls />;
-    default:
   }
 };
 
-const getTypingTestView = (mode) => {
+const getTypingTestView = (mode: TypingTestMode) => {
   switch (mode) {
     case "words":
       return <WordsTypingTestView />;
@@ -60,7 +70,6 @@ const getTypingTestView = (mode) => {
       return <TimeTypingTestView />;
     case "quote":
       return <QuoteTypingTestView />;
-    default:
   }
 };
 
@@ -68,12 +77,12 @@ const WordsTypingTestControls = () => {
   const [language, setLanguage] = usePreference("language");
   const [length, setLength] = usePreference("wordsModeLength");
 
-  const handleLanguageChange = (event) => {
-    const value = event.target.value;
+  const handleLanguageChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as Language;
     setLanguage(value);
   };
 
-  const handleLengthChange = (event) => {
+  const handleLengthChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
     setLength(parseInt(value));
   };
@@ -101,7 +110,7 @@ const WordsTypingTestControls = () => {
           variant="outlined"
           labelId="Length"
           label="Length"
-          value={length}
+          value={length.toString()}
           onChange={handleLengthChange}
         >
           <MenuItem value={10}>10 words</MenuItem>
@@ -125,12 +134,12 @@ const TimeTypingTestControls = () => {
   const [language, setLanguage] = usePreference("language");
   const [duration, setDuration] = usePreference("timeModeDuration");
 
-  const handleLanguageChange = (event) => {
-    const value = event.target.value;
+  const handleLanguageChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as Language;
     setLanguage(value);
   };
 
-  const handleDurationChange = (event) => {
+  const handleDurationChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
     setDuration(parseInt(value));
   };
@@ -158,7 +167,7 @@ const TimeTypingTestControls = () => {
           variant="outlined"
           labelId="Duration"
           label="Duration"
-          value={duration}
+          value={duration.toString()}
           onChange={handleDurationChange}
         >
           <MenuItem value={15}>15 seconds</MenuItem>
@@ -181,8 +190,8 @@ const TimeTypingTestView = () => {
 const QuoteTypingTestControls = () => {
   const [length, setLength] = usePreference("quoteModeLength");
 
-  const handleLengthChange = (event) => {
-    const value = event.target.value;
+  const handleLengthChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as QuoteModeLength;
     setLength(value);
   };
 
