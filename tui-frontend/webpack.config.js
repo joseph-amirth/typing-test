@@ -1,12 +1,16 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ProvidePlugin = require("webpack").ProvidePlugin;
 
 module.exports = {
   mode: "development",
-  entry: "./src/index.ts",
+  entry: "./src/index",
   plugins: [
     new HtmlWebpackPlugin({
       title: "Typing test",
+    }),
+    new ProvidePlugin({
+      $: "jquery",
     }),
   ],
   output: {
@@ -15,7 +19,7 @@ module.exports = {
     clean: true,
   },
   resolve: {
-    extensions: [".ts"],
+    extensions: [".ts", ".js"],
   },
   module: {
     rules: [

@@ -1,11 +1,17 @@
 @use "base";
 
 .App {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
 
-    display: flex;
-    justify-items: center;
-    align-items: center;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+
+  .Input {
+    position: fixed;
+    left: 0;
+    top: -999em;
+  }
 }
