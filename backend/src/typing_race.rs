@@ -14,7 +14,7 @@ use tokio::{
     time::sleep,
 };
 
-use crate::{auth::AuthToken, common::state::AppState};
+use crate::{auth::AuthToken, common::state::AppState, typing_test::Seed};
 
 pub async fn join_matchmaking(
     State(state): State<AppState>,
@@ -86,7 +86,7 @@ pub enum MmsMsg {
 }
 
 async fn start_race(mut lobby: Vec<Player>) {
-    let seed: i32 = rand::random();
+    let seed: Seed = rand::random();
     let start_msg = start_msg(seed);
     for player in &mut lobby {
         player.send(&start_msg).await;
@@ -205,7 +205,7 @@ fn joined_msg(new_player_name: &String) -> impl Serialize {
     })
 }
 
-fn start_msg(seed: i32) -> impl Serialize {
+fn start_msg(seed: Seed) -> impl Serialize {
     use serde_json::json;
     json!({
         "kind": "start",

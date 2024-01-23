@@ -177,7 +177,6 @@ function syncScrollingWithCaret(
 ) {
   const lineHeight = parseFloat(window.getComputedStyle(diff).lineHeight);
   let scroll = Math.floor((caretTop - diffTop) / lineHeight);
-  console.log(scroll);
 
   if (scroll < 1) {
     while (scroll < 0) {

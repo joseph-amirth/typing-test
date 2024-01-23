@@ -1,4 +1,4 @@
-import { PrngFn, mulberry32 } from "../util/prng";
+import { PrngFn, Seed, sfc32 } from "../util/prng";
 import english from "../static/words/english.json";
 import english1k from "../static/words/english1k.json";
 import { Language } from "../context/preferences";
@@ -6,11 +6,11 @@ import { Language } from "../context/preferences";
 const languages: { [key in Language]: string[] } = { english, english1k };
 
 export function randomWords(
-  seed: number,
+  seed: Seed,
   language: Language,
   count: number,
 ): string[] {
-  const rand = mulberry32(seed);
+  const rand = sfc32(seed);
   const words = languages[language];
   return range(count).map(() => randomWord(rand, words));
 }

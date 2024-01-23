@@ -20,18 +20,20 @@ pub enum SeededTestParams {
     Words {
         language: String,
         length: u32,
-        seed: i32,
+        seed: Seed,
     },
     Time {
         language: String,
         duration: u32,
-        seed: i32,
+        seed: Seed,
     },
     Quote {
         length: QuoteModeLength,
         id: usize,
     },
 }
+
+pub type Seed = [i32; 4];
 
 impl From<SeededTestParams> for RandomTestParams {
     fn from(seeded_test_params: SeededTestParams) -> Self {

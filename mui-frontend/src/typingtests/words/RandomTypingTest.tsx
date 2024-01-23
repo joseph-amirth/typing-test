@@ -1,26 +1,33 @@
 import { useEffect, useState } from "react";
 import { copyTextToClipboard } from "../../util/misc";
-import { generate32bitSeed } from "../../util/prng";
 import Buttons from "../Buttons";
-import SeededTypingTest from "./SeededTypingTest";
-
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
+import { generateSeed, seedToBase64url } from "../../util/prng";
+import { randomWords } from "../gen";
+import BoundedTypingTest from "../BoundedTypingTest";
+import { Language } from "../../context/preferences";
 
-const RandomTypingTest = ({ language = "english", duration = 30 }) => {
-  const [seed, setSeed] = useState(generate32bitSeed());
+const RandomTypingTest = ({
+  language = "english",
+  length = 100,
+}: {
+  language: Language;
+  length: number;
+}) => {
+  const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
 
   useEffect(() => {
-    const newSeed = generate32bitSeed();
+    const newSeed = generateSeed();
     setSeed(newSeed);
     setKey(Date.now());
-  }, [language, duration]);
+  }, [language, length]);
 
   const nextTest = () => {
-    let newSeed = generate32bitSeed();
+    let newSeed = generateSeed();
     while (newSeed === seed) {
-      newSeed = generate32bitSeed();
+      newSeed = generateSeed();
     }
     setSeed(newSeed);
     setKey(Date.now());
@@ -32,18 +39,15 @@ const RandomTypingTest = ({ language = "english", duration = 30 }) => {
 
   const shareLinkToTest = () => {
     copyTextToClipboard(
-      `${window.location.origin}/time/${language}/${duration}/${seed}`,
+      `${window.location.origin}/words/${language}/${length}/${seedToBase64url(seed)}`,
     );
   };
 
+  const test = randomWords(seed, language, length);
+
   return (
     <div className="RandomTypingTest">
-      <SeededTypingTest
-        key={key}
-        language={language}
-        duration={duration}
-        seed={seed}
-      />
+      <BoundedTypingTest key={key} test={test} />
       <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
     </div>

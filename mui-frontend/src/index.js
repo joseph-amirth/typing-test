@@ -30,11 +30,11 @@ const router = createBrowserRouter([
         element: <TypingRaceView />,
       },
       {
-        path: "words/:language/:length/:seed",
+        path: "words/:language/:length/:base64urlSeed",
         element: <SpecificWordsTypingTest />,
       },
       {
-        path: "time/:language/:duration/:seed",
+        path: "time/:language/:duration/:base64urlSeed",
         element: <SpecificTimeTypingTest />,
       },
       {

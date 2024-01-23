@@ -3,6 +3,7 @@ import { User, UserContext } from "../context/user";
 import BoundedTypingTest from "../typingtests/BoundedTypingTest";
 import { randomWords } from "../typingtests/gen";
 import { LinearProgress } from "@mui/material";
+import { Seed } from "../util/prng";
 
 const TEST_LENGTH = 20;
 
@@ -13,7 +14,7 @@ const TypingRaceView = () => {
   const [opponents, setOpponents] = useState<Opponent[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [state, setState] = useState("waiting");
-  const [info, setInfo] = useState<{ [key: string]: any }>({});
+  const [seed, setSeed] = useState<Seed | undefined>(undefined);
 
   const handleMessage = (msg: Msg) => {
     const { kind, payload } = msg;
@@ -30,9 +31,8 @@ const TypingRaceView = () => {
       case "start":
         {
           const { seed } = payload;
-          console.log(seed);
           setState("prepare");
-          setInfo({ seed });
+          setSeed(seed);
           setTimeout(() => {
             setState("start");
           }, 5 * 1000);
@@ -70,7 +70,6 @@ const TypingRaceView = () => {
       return;
     }
     socket.current = new WebSocket("ws://localhost:8080/race");
-    socket.current.addEventListener("open", () => console.log("opened!!"));
     socket.current.addEventListener("message", (event) => {
       const msg = JSON.parse(event.data) as Msg;
       handleMessage(msg);
@@ -110,7 +109,7 @@ const TypingRaceView = () => {
       />
       {state === "start" && (
         <BoundedTypingTest
-          test={randomWords(info.seed, "english", TEST_LENGTH)}
+          test={randomWords(seed!, "english", TEST_LENGTH)}
           options={{
             allowSkipping: false,
           }}
@@ -216,7 +215,7 @@ interface JoinedMsg {
 interface StartMsg {
   kind: "start";
   payload: {
-    seed: number;
+    seed: Seed;
   };
 }
 

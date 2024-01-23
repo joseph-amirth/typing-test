@@ -1,25 +1,33 @@
 import { useEffect, useState } from "react";
 import { copyTextToClipboard } from "../../util/misc";
-import { generate32bitSeed } from "../../util/prng";
+import { generateSeed, seedToBase64url } from "../../util/prng";
 import Buttons from "../Buttons";
-import SeededTypingTest from "./SeededTypingTest";
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
+import { randomWords } from "../gen";
+import TimedTypingTest from "../TimedTypingTest";
+import { Language } from "../../context/preferences";
 
-const RandomTypingTest = ({ language = "english", length = 100 }) => {
-  const [seed, setSeed] = useState(generate32bitSeed());
+const RandomTypingTest = ({
+  language,
+  duration,
+}: {
+  language: Language;
+  duration: number;
+}) => {
+  const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
 
   useEffect(() => {
-    const newSeed = generate32bitSeed();
+    const newSeed = generateSeed();
     setSeed(newSeed);
     setKey(Date.now());
-  }, [language, length]);
+  }, [language, duration]);
 
   const nextTest = () => {
-    let newSeed = generate32bitSeed();
+    let newSeed = generateSeed();
     while (newSeed === seed) {
-      newSeed = generate32bitSeed();
+      newSeed = generateSeed();
     }
     setSeed(newSeed);
     setKey(Date.now());
@@ -31,17 +39,20 @@ const RandomTypingTest = ({ language = "english", length = 100 }) => {
 
   const shareLinkToTest = () => {
     copyTextToClipboard(
-      `${window.location.origin}/words/${language}/${length}/${seed}`,
+      `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(seed)}`,
     );
+  };
+
+  const generateTest = (count: number) => {
+    return randomWords(seed, language, count);
   };
 
   return (
     <div className="RandomTypingTest">
-      <SeededTypingTest
+      <TimedTypingTest
         key={key}
-        language={language}
-        length={length}
-        seed={seed}
+        generateTest={generateTest}
+        duration={duration}
       />
       <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
