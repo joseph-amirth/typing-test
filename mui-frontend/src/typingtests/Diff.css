@@ -1,4 +1,5 @@
 .Diff {
+  position: relative;
   text-align: left;
   width: 100%;
 }
@@ -13,10 +14,6 @@
   background-color: #00e980;
   height: calc(1lh - 4px);
   width: 1px;
-}
-
-.Word {
-  position: relative;
 }
 
 .Word.Skipped {

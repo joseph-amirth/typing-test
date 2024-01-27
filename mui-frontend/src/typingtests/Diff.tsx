@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import "./Diff.css";
 
@@ -16,60 +16,64 @@ const Diff = ({
   const diffRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
 
-  // Scroll lines and position caret appropriately on resize.
-  useEffect(() => {
-    if (showAllLines || diffRef.current === null || caretRef.current === null) {
-      return;
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      const diff = diffRef.current!;
-      const caret = caretRef.current!;
-
-      const diffTop = diff.getBoundingClientRect().top;
-      const caretTop = caret.getBoundingClientRect().top;
-
-      syncScrollingWithCaret(diff, diffTop, caretTop);
-    });
-
-    const diff = diffRef.current;
-    resizeObserver.observe(diff);
-    return () => resizeObserver.disconnect();
-  }, [showAllLines]);
-
-  // Scroll lines depending on position of the caret.
+  // Scroll diff and set position of the caret.
   useLayoutEffect(() => {
     if (showAllLines || diffRef.current === null || caretRef.current === null) {
       return;
     }
 
+    const fixScrollAndCaretPosition = () => {
+      const diff = diffRef.current!;
+      const caret = caretRef.current!;
+
+      const focusedWord = diff.querySelector(
+        `:nth-child(${Math.min(test.length, attempt.length)} of .Word)`,
+      )!;
+
+      // Set caret's new horizontal position.
+      const firstUntypedLetter = focusedWord.querySelector(".Untyped");
+      const diffLeft = diff.getBoundingClientRect().left;
+      if (firstUntypedLetter !== null) {
+        caret.style.left = `${
+          firstUntypedLetter.getBoundingClientRect().left - diffLeft
+        }px`;
+      } else {
+        caret.style.left = `${
+          focusedWord.getBoundingClientRect().right - diffLeft
+        }px`;
+      }
+
+      // Scroll diff.
+      const diffTop = diff.getBoundingClientRect().top;
+      const focusedWordTop = focusedWord.getBoundingClientRect().top;
+      const oldDiffScroll = diff.scrollTop;
+      scrollDiff(diff, diffTop, focusedWordTop);
+
+      // Set caret's new vertical position.
+      const newDiffScroll = diff.scrollTop;
+      const deltaScroll = newDiffScroll - oldDiffScroll;
+      const newFocusedWordTop = focusedWordTop - deltaScroll;
+      caret.style.top = `${newFocusedWordTop - diffTop + newDiffScroll}px`;
+    };
+
+    fixScrollAndCaretPosition();
+
+    const resizeObserver = new ResizeObserver(fixScrollAndCaretPosition);
+
     const diff = diffRef.current!;
-    const caret = caretRef.current!;
-
-    const diffTop = diff.getBoundingClientRect().top;
-    const caretTop = caret.getBoundingClientRect().top;
-
-    syncScrollingWithCaret(diff, diffTop, caretTop);
+    resizeObserver.observe(diff);
+    return () => resizeObserver.disconnect();
   }, [showAllLines, attempt]);
 
-  const diffWordSpans = diffWords.map(({ letters, skipped, focused }, i) => {
-    return (
+  const diffWordSpans = diffWords.flatMap(({ letters, skipped }, i) => {
+    return [
       <span key={i} className={`Word ${skipped ? "Skipped" : ""}`}>
-        {focused && (
-          <div
-            ref={caretRef}
-            className="Caret"
-            style={{
-              top: "0px",
-              left: `${1 + letters.findLastIndex(({ state }) => state !== "Untyped")}ch`,
-            }}
-          ></div>
-        )}
-        {letters.map((diffLetterProps, i) => (
-          <DiffLetter key={i} {...diffLetterProps} />
+        {letters.map((diffLetterProps, j) => (
+          <DiffLetter key={j} {...diffLetterProps} />
         ))}
-      </span>
-    );
+      </span>,
+      " ",
+    ];
   });
 
   if (showAllLines) {
@@ -82,6 +86,7 @@ const Diff = ({
         ref={diffRef}
         {...ANTI_CHEAT_PROPS}
       >
+        <div ref={caretRef} className="Caret"></div>
         {diffWordSpans}
         <div className="EmptyLine" />
         <div className="EmptyLine" />
@@ -99,7 +104,6 @@ interface DiffLetterProps {
 interface DiffWordProps {
   letters: DiffLetterProps[];
   skipped: boolean;
-  focused: boolean;
 }
 
 const DiffLetter = ({ letter, state }: DiffLetterProps) => {
@@ -145,12 +149,7 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
     const focused = i + 1 === attempt.length;
     const skipped =
       !focused && letters.some(({ state }) => state !== "Correct");
-    diffWords.push({ letters, skipped, focused });
-    diffWords.push({
-      letters: [{ letter: " ", state: "Untyped" }],
-      skipped: false,
-      focused: false,
-    });
+    diffWords.push({ letters, skipped });
   }
 
   for (let i = attempt.length; i < test.length; i++) {
@@ -159,24 +158,19 @@ function getDiffWords(test: string[], attempt: string[]): DiffWordProps[] {
     for (const letter of word) {
       letters.push({ letter, state: "Untyped" });
     }
-    diffWords.push({ letters, skipped: false, focused: false });
-    diffWords.push({
-      letters: [{ letter: " ", state: "Untyped" }],
-      skipped: false,
-      focused: false,
-    });
+    diffWords.push({ letters, skipped: false });
   }
 
   return diffWords;
 }
 
-function syncScrollingWithCaret(
+function scrollDiff(
   diff: HTMLDivElement,
   diffTop: number,
-  caretTop: number,
+  focusedWordTop: number,
 ) {
   const lineHeight = parseFloat(window.getComputedStyle(diff).lineHeight);
-  let scroll = Math.floor((caretTop - diffTop) / lineHeight);
+  let scroll = Math.floor((focusedWordTop - diffTop) / lineHeight);
 
   if (scroll < 1) {
     while (scroll < 0) {
