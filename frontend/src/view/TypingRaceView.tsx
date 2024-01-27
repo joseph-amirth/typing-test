@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { User, UserContext } from "../context/user";
-import BoundedTypingTest from "../typingtests/BoundedTypingTest";
-import { randomWords } from "../typingtests/gen";
+import BoundedTypingTest from "../typing-test/BoundedTypingTest";
+import { randomWords } from "../typing-test/gen";
 import { LinearProgress } from "@mui/material";
 import { Seed } from "../util/prng";
 

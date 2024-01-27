@@ -8,9 +8,9 @@ import RandomTypingTestView from "./view/RandomTypingTestView";
 import ResultsView from "./view/ResultsView";
 import SignInView from "./view/SignInView";
 import SignUpView from "./view/SignUpView";
-import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
-import SpecificTimeTypingTest from "./typingtests/time/SpecificTypingTest";
-import SpecificQuoteTypingTest from "./typingtests/quote/SpecificTypingTest";
+import SpecificWordsTypingTest from "./typing-test/words/SpecificTypingTest";
+import SpecificTimeTypingTest from "./typing-test/time/SpecificTypingTest";
+import SpecificQuoteTypingTest from "./typing-test/quote/SpecificTypingTest";
 import TypingRaceView from "./view/TypingRaceView";
 
 const router = createBrowserRouter([

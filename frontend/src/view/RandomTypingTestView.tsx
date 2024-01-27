@@ -13,9 +13,9 @@ import {
   TypingTestMode,
   usePreference,
 } from "../context/preference";
-import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
-import TimeTypingTest from "../typingtests/time/RandomTypingTest";
-import WordsTypingTest from "../typingtests/words/RandomTypingTest";
+import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
+import TimeTypingTest from "../typing-test/time/RandomTypingTest";
+import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
 
 const RandomTypingTestView = () => {
