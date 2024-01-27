@@ -105,7 +105,7 @@ export interface Preferences {
 
 export type TypingTestMode = "words" | "time" | "quote";
 export type Language = "english" | "english1k";
-export type QuoteModeLength = "short" | "medium" | "long" | "verylong" | "all";
+export type QuoteModeLength = "short" | "medium" | "long" | "veryLong" | "all";
 
 export type TypingTestParams =
   | WordsTypingTestParams

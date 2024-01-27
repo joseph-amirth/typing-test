@@ -11,20 +11,31 @@ import {
 import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
+import { TypingTestParams } from "../context/preferences";
 
 const PAGE_SIZE = 15;
 
-const Results = () => {
-  const params = useLoaderData();
+const ResultsView = () => {
+  const params = useLoaderData() as
+    | { error: string }
+    | Array<{
+        testParams: TypingTestParams;
+        testCompletedTimestamp: number;
+        wpm: number;
+        rawWpm: number;
+        accuracy: number;
+      }>;
   const [page, setPage] = useState(1);
 
-  const { error } = params;
-  if (error !== undefined) {
-    return <div>{error}</div>;
+  if ("error" in params) {
+    return <div>{params.error}</div>;
   }
 
-  const handlePageChange = (_event, value) => {
-    setPage(value);
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    page: number,
+  ) => {
+    setPage(page);
   };
 
   return (
@@ -62,7 +73,7 @@ const Results = () => {
                   return (
                     <TableRow key={i}>
                       <TableCell>
-                        <TypingTestParams {...testParams} />
+                        <TypingTestParamsDisplay {...testParams} />
                       </TableCell>
                       <TableCell>{wpm}</TableCell>
                       <TableCell>{accuracy}</TableCell>
@@ -81,7 +92,7 @@ const Results = () => {
   );
 };
 
-const TypingTestParams = ({ mode, params }) => {
+const TypingTestParamsDisplay = ({ mode, params }: TypingTestParams) => {
   const stat = (() => {
     if (mode === "words" || mode === "quote") {
       return params.length;
@@ -90,18 +101,16 @@ const TypingTestParams = ({ mode, params }) => {
     }
   })();
 
-  const language = params.language;
-
   return (
     <div className="TypingTestParams">
-      {stat} {mode} {language}
+      {stat} {mode} {"language" in params ? params.language : undefined}
     </div>
   );
 };
 
-const getDateFromTimestampInSecs = (timestampInSecs) => {
+const getDateFromTimestampInSecs = (timestampInSecs: number) => {
   const datetime = new Date(timestampInSecs * 1000);
   return datetime.toLocaleDateString() + " " + datetime.toLocaleTimeString();
 };
 
-export default Results;
+export default ResultsView;

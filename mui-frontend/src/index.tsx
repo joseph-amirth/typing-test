@@ -5,7 +5,7 @@ import App from "./App";
 import "./index.css";
 import { currentUser, getResults } from "./util/backend";
 import RandomTypingTestView from "./view/RandomTypingTestView";
-import Results from "./view/Results";
+import ResultsView from "./view/ResultsView";
 import SignIn from "./view/SignIn";
 import SignUp from "./view/SignUp";
 import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
       },
       {
         path: "results",
-        element: <Results />,
+        element: <ResultsView />,
         loader: async () => {
           return await getResults();
         },

@@ -63,7 +63,7 @@ const Diff = ({
     const diff = diffRef.current!;
     resizeObserver.observe(diff);
     return () => resizeObserver.disconnect();
-  }, [showAllLines, attempt]);
+  }, [showAllLines, test, attempt]);
 
   const diffWordSpans = diffWords.flatMap(({ letters, skipped }, i) => {
     return [
