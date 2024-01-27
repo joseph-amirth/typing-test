@@ -1,10 +1,19 @@
-import { defaultPreferences } from "../context/preferences";
+import {
+  Preferences,
+  TypingTestParams,
+  defaultPreferences,
+} from "../context/preferences";
 import { getOrInitItem } from "./local-storage";
 
 const backendUrl = "http://localhost:8080";
 
 // Returned promise resolves to user details and settings on success.
-export const signUp = (username, email, password, preferences) => {
+export const signUp = (
+  username: string,
+  email: string,
+  password: string,
+  preferences: Preferences,
+) => {
   return postJson(
     "/signup",
     { username, email, password, preferences },
@@ -12,16 +21,19 @@ export const signUp = (username, email, password, preferences) => {
   ).then(extractJson);
 };
 
-export const signInWithEmail = (email, password) => {
+export const signInWithEmail = (email: string, password: string) => {
   return signIn({ email }, password);
 };
 
-export const signInWithUsername = (username, password) => {
+export const signInWithUsername = (username: string, password: string) => {
   return signIn({ username }, password);
 };
 
 // Returned promise resolves to user details and settings on success.
-const signIn = (usernameOrEmail, password) => {
+const signIn = (
+  usernameOrEmail: { username: string } | { email: string },
+  password: string,
+) => {
   return postJson(
     "/signin",
     { usernameOrEmail, password },
@@ -46,11 +58,11 @@ export const logout = () => {
 };
 
 export const postResult = (
-  testParams,
-  testCompletedTimestamp,
-  wpm,
-  rawWpm,
-  accuracy,
+  testParams: TypingTestParams,
+  testCompletedTimestamp: number,
+  wpm: number,
+  rawWpm: number,
+  accuracy: number,
 ) => {
   return postJson(
     "/result",
@@ -69,15 +81,15 @@ export const getResults = () => {
   return get("/result", { credentials: "include" }).then(extractJson);
 };
 
-export const updatePreferences = (preferences) => {
+export const updatePreferences = (preferences: Preferences) => {
   return postJson("/prefs", preferences, { credentials: "include" });
 };
 
-const get = (path, options = {}) => {
+const get = (path: string, options = {}) => {
   return fetchNonThrowing(`${backendUrl}${path}`, options);
 };
 
-const extractJson = (response) => {
+const extractJson = (response: Response) => {
   if (response.status !== 200) {
     return response.text().then((text) => {
       return { error: text };
@@ -86,7 +98,7 @@ const extractJson = (response) => {
   return response.json();
 };
 
-const postJson = (path, obj, options = {}) => {
+const postJson = (path: string, obj: object, options = {}) => {
   return fetchNonThrowing(`${backendUrl}${path}`, {
     method: "POST",
     headers: {
@@ -97,7 +109,7 @@ const postJson = (path, obj, options = {}) => {
   });
 };
 
-const fetchNonThrowing = (path, options = {}) => {
+const fetchNonThrowing = (path: string, options = {}) => {
   return fetch(path, options).catch(() => {
     return new Response(null, {
       status: 503,

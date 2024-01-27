@@ -1,7 +1,15 @@
 import { Button, ButtonGroup } from "@mui/material";
 import "./Buttons.css";
 
-const Buttons = ({ restart, next, share }) => {
+const Buttons = ({
+  restart,
+  next,
+  share,
+}: {
+  restart: () => void;
+  next: () => void;
+  share: () => void;
+}) => {
   return (
     <ButtonGroup>
       <Button onClick={restart}>Restart</Button>

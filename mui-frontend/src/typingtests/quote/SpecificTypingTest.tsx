@@ -7,15 +7,15 @@ import quotesInfo from "../../static/quotes.json";
 import "./SpecificTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 
-const getQuote = (quoteId) => {
+const getQuote = (quoteId: number) => {
   return quotesInfo.quotes[quoteId].text;
 };
 
 const SpecificTypingTest = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
 
-  const quote = getQuote(id);
+  const quote = getQuote(parseInt(id));
 
   const [key, setKey] = useState(Date.now());
 

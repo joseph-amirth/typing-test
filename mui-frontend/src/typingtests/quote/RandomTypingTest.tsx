@@ -5,8 +5,12 @@ import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
 import quotesInfo from "../../static/quotes.json";
 import { randomInt } from "../../util/math";
+import { QuoteModeLength } from "../../context/preferences";
 
-const getRandomQuote = (length, oldQuoteId = undefined) => {
+const getRandomQuote = (
+  length: QuoteModeLength,
+  oldQuoteId: number | undefined = undefined,
+) => {
   const [first, last] = quotesInfo[length];
   const quotes = quotesInfo.quotes;
 
@@ -19,7 +23,7 @@ const getRandomQuote = (length, oldQuoteId = undefined) => {
   return { newQuoteId, newQuote: quotes[newQuoteId] };
 };
 
-const RandomTypingTest = ({ length }) => {
+const RandomTypingTest = ({ length }: { length: QuoteModeLength }) => {
   const [quoteId, setQuoteId] = useState(-1);
   const [quote, setQuote] = useState({ text: "" });
   const [key, setKey] = useState(Date.now());
