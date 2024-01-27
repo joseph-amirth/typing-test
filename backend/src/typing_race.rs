@@ -7,7 +7,10 @@ use axum::{
     },
     response::IntoResponse,
 };
-use futures::{SinkExt, StreamExt};
+use futures::{
+    stream::{SplitSink, SplitStream},
+    SinkExt, StreamExt,
+};
 use serde::{Deserialize, Serialize};
 use tokio::{
     sync::mpsc::{self, Sender},
@@ -27,8 +30,8 @@ pub async fn join_matchmaking(
 async fn handle_socket(state: AppState, auth_token: AuthToken, socket: WebSocket) {
     let matchmaking = state.matchmaking();
     let username = auth_token.username;
-    let mut player = Player::new(username, socket);
-    if !player.is_alive().await {
+    let mut player = create_player(username, socket);
+    if !player.ping().await {
         return;
     }
     matchmaking.send(MmsMsg::Joined(player)).await.unwrap();
@@ -45,7 +48,7 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
     let tx_clone = tx.clone();
     tokio::spawn(async move {
         let mut lobby_id: u64 = rand::random();
-        let mut lobby = Vec::<Player>::new();
+        let mut lobby = Vec::<Player<WithRx>>::new();
 
         while let Some(mms_msg) = rx.recv().await {
             match mms_msg {
@@ -81,11 +84,11 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
 }
 
 pub enum MmsMsg {
-    Joined(Player),
+    Joined(Player<WithRx>),
     Evict(u64),
 }
 
-async fn start_race(mut lobby: Vec<Player>) {
+async fn start_race(mut lobby: Vec<Player<WithRx>>) {
     let seed: Seed = rand::random();
     let start_msg = start_msg(seed);
     for player in &mut lobby {
@@ -97,8 +100,8 @@ async fn start_race(mut lobby: Vec<Player>) {
     let mut race = Vec::new();
     for player in lobby {
         let tx = tx.clone();
-        let (player_tx, mut player_rx) = player.socket.split();
-        race.push((player.username, player_tx));
+        let (mut player_rx, player) = player.take_receiver();
+        race.push(player);
         tokio::spawn(async move {
             while let Some(Ok(message)) = player_rx.next().await {
                 match message {
@@ -122,15 +125,10 @@ async fn start_race(mut lobby: Vec<Player>) {
     while let Some(message) = rx.recv().await {
         let username = message.username();
         for player in &mut race {
-            if username == &player.0 {
+            if username == &player.username {
                 continue;
             }
-            let _ = player
-                .1
-                .send(Message::Text(
-                    serde_json::to_string(&message).expect("no error"),
-                ))
-                .await;
+            let _ = player.send(&message).await;
         }
     }
 }
@@ -153,31 +151,45 @@ impl RaceMsg {
     }
 }
 
-pub struct Player {
-    pub username: String,
-    pub socket: WebSocket,
+type PlayerTx = SplitSink<WebSocket, Message>;
+type PlayerRx = SplitStream<WebSocket>;
+
+type WithRx = PlayerRx;
+type WithoutRx = ();
+
+fn create_player(username: String, socket: WebSocket) -> Player<WithRx> {
+    let (sender, receiver) = socket.split();
+    Player::<WithRx> {
+        username,
+        sender,
+        receiver,
+    }
 }
 
-impl Player {
-    pub fn new(username: String, socket: WebSocket) -> Self {
-        Self { username, socket }
-    }
+pub struct Player<Rx> {
+    pub username: String,
+    pub sender: PlayerTx,
+    receiver: Rx,
+}
 
+impl<Rx> Player<Rx> {
     pub async fn send<T>(&mut self, message: &T)
     where
         T: Serialize,
     {
-        self.socket
+        self.sender
             .send(Message::Text(
                 serde_json::to_string(&message).expect("no error"),
             ))
             .await
             .expect("no error");
     }
+}
 
-    pub async fn is_alive(&mut self) -> bool {
+impl Player<WithRx> {
+    pub async fn ping(&mut self) -> bool {
         if self
-            .socket
+            .sender
             .send(Message::Ping(PING_BYTES.to_vec()))
             .await
             .is_err()
@@ -185,13 +197,24 @@ impl Player {
             return false;
         }
 
-        let Some(message) = self.socket.recv().await else {
+        let Some(message) = self.receiver.next().await else {
             return false;
         };
         let Ok(message) = message else {
             return false;
         };
         return message == Message::Pong(PING_BYTES.to_vec());
+    }
+
+    pub fn take_receiver(self) -> (PlayerRx, Player<WithoutRx>) {
+        (
+            self.receiver,
+            Player::<WithoutRx> {
+                username: self.username,
+                sender: self.sender,
+                receiver: (),
+            },
+        )
     }
 }
 
@@ -215,7 +238,7 @@ fn start_msg(seed: Seed) -> impl Serialize {
     })
 }
 
-impl Debug for Player {
+impl<State> Debug for Player<State> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.username)
     }
