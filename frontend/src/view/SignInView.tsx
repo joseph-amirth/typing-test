@@ -27,8 +27,8 @@ const SignInView = () => {
       className="SignIn"
       onSubmit={handleSubmit(({ usernameOrEmail, password }) => {
         (RE_USERNAME.test(usernameOrEmail)
-          ? signInWithUsername(usernameOrEmail, password)
-          : signInWithEmail(usernameOrEmail, password)
+          ? signInWithUsername({ username: usernameOrEmail, password })
+          : signInWithEmail({ email: usernameOrEmail, password })
         ).then((json) => {
           if ("error" in json) {
             setServerError(json.error);

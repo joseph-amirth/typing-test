@@ -3,7 +3,6 @@ import { useIsSignedIn } from "../context/user";
 import { useTypingTestParams } from "../context/preference";
 import { getAccuracy } from "../util/test";
 import { roundToTwoDecimalPlaces, timestampInSecs } from "../util/math";
-
 import "./Result.css";
 import { CharCounts } from "./use-char-counts";
 
@@ -26,7 +25,13 @@ const Result = ({
   const typingTestParams = useTypingTestParams();
 
   if (isSignedIn) {
-    postResult(typingTestParams, timestampInSecs(), wpm, rawWpm, accuracy);
+    postResult({
+      testParams: typingTestParams,
+      testCompletedTimestamp: timestampInSecs(),
+      wpm,
+      rawWpm,
+      accuracy,
+    });
   }
 
   return (

@@ -42,7 +42,7 @@ const ResultsView = () => {
     <Stack
       alignItems="center"
       spacing="1em"
-      sx={{ margin: "0 auto", width: "50%" }}
+      sx={{ margin: "0 auto", width: "100%" }}
     >
       <Pagination
         count={Math.ceil(params.length / PAGE_SIZE)}

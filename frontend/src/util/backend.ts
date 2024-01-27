@@ -8,40 +8,45 @@ import { getOrInitItem } from "./local-storage";
 const backendUrl = "http://localhost:8080";
 
 // Returned promise resolves to user details and settings on success.
-export const signUp = async (
-  username: string,
-  email: string,
-  password: string,
-  preferences: Preferences,
-) => {
-  return postJson(
-    "/signup",
-    { username, email, password, preferences },
-    { credentials: "include" },
-  ).then(extractJson);
+export const signUp = async (params: {
+  username: string;
+  email: string;
+  password: string;
+  preferences: Preferences;
+}) => {
+  return postJson("/signup", params, { credentials: "include" }).then(
+    extractJson,
+  );
 };
 
-export const signInWithEmail = async (email: string, password: string) => {
-  return signIn({ email }, password);
+export const signInWithEmail = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  return signIn({ usernameOrEmail: { email }, password });
 };
 
-export const signInWithUsername = async (
-  username: string,
-  password: string,
-) => {
-  return signIn({ username }, password);
+export const signInWithUsername = async ({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}) => {
+  return signIn({ usernameOrEmail: { username }, password });
 };
 
 // Returned promise resolves to user details and settings on success.
-const signIn = async (
-  usernameOrEmail: { username: string } | { email: string },
-  password: string,
-) => {
-  return postJson(
-    "/signin",
-    { usernameOrEmail, password },
-    { credentials: "include" },
-  ).then(extractJson);
+const signIn = async (params: {
+  usernameOrEmail: { username: string } | { email: string };
+  password: string;
+}) => {
+  return postJson("/signin", params, { credentials: "include" }).then(
+    extractJson,
+  );
 };
 
 // Returned promise resolves to user details and preferences on success.
@@ -60,24 +65,22 @@ export const logout = async () => {
   return get("/logout", { credentials: "include" });
 };
 
-export const postResult = async (
-  testParams: TypingTestParams,
-  testCompletedTimestamp: number,
-  wpm: number,
-  rawWpm: number,
-  accuracy: number,
-) => {
-  return postJson(
-    "/result",
-    { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
-    { credentials: "include" },
-  ).then((response) => {
-    if (response.status !== 200) {
-      return response.text().then((text) => {
-        console.error(text);
-      });
-    }
-  });
+export const postResult = async (params: {
+  testParams: TypingTestParams;
+  testCompletedTimestamp: number;
+  wpm: number;
+  rawWpm: number;
+  accuracy: number;
+}) => {
+  return postJson("/result", params, { credentials: "include" }).then(
+    (response) => {
+      if (response.status !== 200) {
+        return response.text().then((text) => {
+          console.error(text);
+        });
+      }
+    },
+  );
 };
 
 export const getResults = async () => {
@@ -93,7 +96,7 @@ const get = async (path: string, options = {}) => {
 };
 
 const extractJson = async (response: Response) => {
-  if (response.status !== 200) {
+  if (!response.ok) {
     return response.text().then((text) => {
       return { error: text };
     });

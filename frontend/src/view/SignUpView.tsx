@@ -26,7 +26,7 @@ const SignUpView = () => {
     <form
       className="SignUp"
       onSubmit={handleSubmit(({ username, email, password }) => {
-        signUp(username, email, password, preferences).then((json) => {
+        signUp({ username, email, password, preferences }).then((json) => {
           if ("error" in json) {
             setServerError(json.error);
           } else {
