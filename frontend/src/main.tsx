@@ -6,12 +6,13 @@ import "./index.css";
 import { currentUser, getResults } from "./util/backend";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import ResultsView from "./view/ResultsView";
-import SignIn from "./view/SignIn";
-import SignUp from "./view/SignUp";
+import SignInView from "./view/SignInView";
+import SignUpView from "./view/SignUpView";
 import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
 import SpecificTimeTypingTest from "./typingtests/time/SpecificTypingTest";
 import SpecificQuoteTypingTest from "./typingtests/quote/SpecificTypingTest";
 import TypingRaceView from "./view/TypingRaceView";
+import View from "./view/View";
 
 const router = createBrowserRouter([
   {
@@ -31,15 +32,27 @@ const router = createBrowserRouter([
       },
       {
         path: "words/:language/:length/:base64urlSeed",
-        element: <SpecificWordsTypingTest />,
+        element: (
+          <View>
+            <SpecificWordsTypingTest />
+          </View>
+        ),
       },
       {
         path: "time/:language/:duration/:base64urlSeed",
-        element: <SpecificTimeTypingTest />,
+        element: (
+          <View>
+            <SpecificTimeTypingTest />
+          </View>
+        ),
       },
       {
         path: "quote/:id",
-        element: <SpecificQuoteTypingTest />,
+        element: (
+          <View>
+            <SpecificQuoteTypingTest />
+          </View>
+        ),
       },
       {
         path: "results",
@@ -50,11 +63,11 @@ const router = createBrowserRouter([
       },
       {
         path: "signup",
-        element: <SignUp />,
+        element: <SignUpView />,
       },
       {
         path: "signin",
-        element: <SignIn />,
+        element: <SignInView />,
       },
     ],
   },
