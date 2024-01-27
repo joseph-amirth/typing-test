@@ -8,7 +8,7 @@ import { getOrInitItem } from "./local-storage";
 const backendUrl = "http://localhost:8080";
 
 // Returned promise resolves to user details and settings on success.
-export const signUp = (
+export const signUp = async (
   username: string,
   email: string,
   password: string,
@@ -21,16 +21,19 @@ export const signUp = (
   ).then(extractJson);
 };
 
-export const signInWithEmail = (email: string, password: string) => {
+export const signInWithEmail = async (email: string, password: string) => {
   return signIn({ email }, password);
 };
 
-export const signInWithUsername = (username: string, password: string) => {
+export const signInWithUsername = async (
+  username: string,
+  password: string,
+) => {
   return signIn({ username }, password);
 };
 
 // Returned promise resolves to user details and settings on success.
-const signIn = (
+const signIn = async (
   usernameOrEmail: { username: string } | { email: string },
   password: string,
 ) => {
@@ -42,7 +45,7 @@ const signIn = (
 };
 
 // Returned promise resolves to user details and preferences on success.
-export const currentUser = () => {
+export const currentUser = async () => {
   return get("/current", { credentials: "include" }).then((response) => {
     if (response.status !== 200) {
       return {
@@ -53,11 +56,11 @@ export const currentUser = () => {
   });
 };
 
-export const logout = () => {
+export const logout = async () => {
   return get("/logout", { credentials: "include" });
 };
 
-export const postResult = (
+export const postResult = async (
   testParams: TypingTestParams,
   testCompletedTimestamp: number,
   wpm: number,
@@ -77,19 +80,19 @@ export const postResult = (
   });
 };
 
-export const getResults = () => {
+export const getResults = async () => {
   return get("/result", { credentials: "include" }).then(extractJson);
 };
 
-export const updatePreferences = (preferences: Preferences) => {
+export const updatePreferences = async (preferences: Preferences) => {
   return postJson("/prefs", preferences, { credentials: "include" });
 };
 
-const get = (path: string, options = {}) => {
+const get = async (path: string, options = {}) => {
   return fetchNonThrowing(`${backendUrl}${path}`, options);
 };
 
-const extractJson = (response: Response) => {
+const extractJson = async (response: Response) => {
   if (response.status !== 200) {
     return response.text().then((text) => {
       return { error: text };
@@ -98,7 +101,7 @@ const extractJson = (response: Response) => {
   return response.json();
 };
 
-const postJson = (path: string, obj: object, options = {}) => {
+const postJson = async (path: string, obj: object, options = {}) => {
   return fetchNonThrowing(`${backendUrl}${path}`, {
     method: "POST",
     headers: {
@@ -109,7 +112,7 @@ const postJson = (path: string, obj: object, options = {}) => {
   });
 };
 
-const fetchNonThrowing = (path: string, options = {}) => {
+const fetchNonThrowing = async (path: string, options = {}) => {
   return fetch(path, options).catch(() => {
     return new Response(null, {
       status: 503,
