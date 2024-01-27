@@ -7,7 +7,7 @@ import "./SpecificTypingTest.css";
 import TimedTypingTest from "../TimedTypingTest";
 import { randomWords } from "../gen";
 import { base64urlToSeed } from "../../util/prng";
-import { Language } from "../../context/preferences";
+import { Language } from "../../context/preference";
 
 const SpecificTypingTest = () => {
   const navigate = useNavigate();

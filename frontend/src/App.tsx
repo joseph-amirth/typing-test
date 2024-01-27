@@ -7,11 +7,11 @@ import {
   Preferences,
   PreferencesContext,
   usePreferencesContext,
-} from "./context/preferences";
+} from "./context/preference";
 import {
   NotificationsContext,
   useNotificationsContext,
-} from "./context/notifications";
+} from "./context/notification";
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";

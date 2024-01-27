@@ -6,7 +6,7 @@ import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 import { randomWords } from "../gen";
 import TimedTypingTest from "../TimedTypingTest";
-import { Language } from "../../context/preferences";
+import { Language } from "../../context/preference";
 
 const RandomTypingTest = ({
   language,
@@ -39,7 +39,9 @@ const RandomTypingTest = ({
 
   const shareLinkToTest = () => {
     copyTextToClipboard(
-      `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(seed)}`,
+      `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(
+        seed,
+      )}`,
     );
   };
 

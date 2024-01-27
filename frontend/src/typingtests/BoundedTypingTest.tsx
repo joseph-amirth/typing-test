@@ -6,7 +6,7 @@ import { useCharCounts } from "./useCharCounts";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
-import { usePreference } from "../context/preferences";
+import { usePreference } from "../context/preference";
 
 export interface BoundedTypingTestProps {
   test: string[];

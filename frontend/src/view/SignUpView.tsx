@@ -2,7 +2,7 @@ import "./SignUpView.css";
 import { useForm } from "react-hook-form";
 import { signUp } from "../util/backend";
 import { useContext, useState } from "react";
-import { PreferencesContext } from "../context/preferences";
+import { PreferencesContext } from "../context/preference";
 import { UserContext } from "../context/user";
 import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";

@@ -3,7 +3,7 @@ import Diff from "./Diff";
 import Result from "./Result";
 import { useCharCounts } from "./useCharCounts";
 import "./TimedTypingTest.css";
-import { usePreference } from "../context/preferences";
+import { usePreference } from "../context/preference";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 

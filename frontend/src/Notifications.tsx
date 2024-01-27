@@ -1,5 +1,5 @@
 import "./Notifications.css";
-import { NotificationProps } from "./context/notifications";
+import { NotificationProps } from "./context/notification";
 
 const Notification = ({ type, content }: NotificationProps) => {
   return (

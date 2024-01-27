@@ -6,7 +6,7 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 import { generateSeed, seedToBase64url } from "../../util/prng";
 import { randomWords } from "../gen";
 import BoundedTypingTest from "../BoundedTypingTest";
-import { Language } from "../../context/preferences";
+import { Language } from "../../context/preference";
 
 const RandomTypingTest = ({
   language = "english",
@@ -39,7 +39,9 @@ const RandomTypingTest = ({
 
   const shareLinkToTest = () => {
     copyTextToClipboard(
-      `${window.location.origin}/words/${language}/${length}/${seedToBase64url(seed)}`,
+      `${window.location.origin}/words/${language}/${length}/${seedToBase64url(
+        seed,
+      )}`,
     );
   };
 

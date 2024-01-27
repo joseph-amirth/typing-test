@@ -12,7 +12,7 @@ import {
   QuoteModeLength,
   TypingTestMode,
   usePreference,
-} from "../context/preferences";
+} from "../context/preference";
 import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
 import TimeTypingTest from "../typingtests/time/RandomTypingTest";
 import WordsTypingTest from "../typingtests/words/RandomTypingTest";

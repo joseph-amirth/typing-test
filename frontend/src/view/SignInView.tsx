@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/user";
 import "./SignInView.css";
-import { PreferencesContext } from "../context/preferences";
+import { PreferencesContext } from "../context/preference";
 import { useForm } from "react-hook-form";
 import { RE_EMAIL, RE_USERNAME } from "../util/validation";
 import { signInWithEmail, signInWithUsername } from "../util/backend";

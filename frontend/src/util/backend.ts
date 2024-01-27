@@ -2,7 +2,7 @@ import {
   Preferences,
   TypingTestParams,
   defaultPreferences,
-} from "../context/preferences";
+} from "../context/preference";
 import { getOrInitItem } from "./local-storage";
 
 const backendUrl = "http://localhost:8080";

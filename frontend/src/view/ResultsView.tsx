@@ -11,7 +11,7 @@ import {
 import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
-import { TypingTestParams } from "../context/preferences";
+import { TypingTestParams } from "../context/preference";
 import View from "./View";
 
 const PAGE_SIZE = 15;

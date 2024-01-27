@@ -5,7 +5,7 @@ import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
 import quotesInfo from "../../static/quotes.json";
 import { randomInt } from "../../util/math";
-import { QuoteModeLength } from "../../context/preferences";
+import { QuoteModeLength } from "../../context/preference";
 
 const getRandomQuote = (
   length: QuoteModeLength,

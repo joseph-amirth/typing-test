@@ -1,6 +1,6 @@
 import { postResult } from "../util/backend";
 import { useIsSignedIn } from "../context/user";
-import { useTypingTestParams } from "../context/preferences";
+import { useTypingTestParams } from "../context/preference";
 import { getAccuracy } from "../util/test";
 import { roundToTwoDecimalPlaces, timestampInSecs } from "../util/math";
 
