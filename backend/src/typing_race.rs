@@ -13,7 +13,10 @@ use futures::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::{
-    sync::mpsc::{self, Sender},
+    sync::{
+        mpsc::{self, Sender},
+        oneshot,
+    },
     time::sleep,
 };
 
@@ -30,11 +33,19 @@ pub async fn join_matchmaking(
 async fn handle_socket(state: AppState, auth_token: AuthToken, socket: WebSocket) {
     let matchmaking = state.matchmaking();
     let username = auth_token.username;
-    let mut player = create_player(username, socket);
+    let mut player = Player::new(username, socket);
     if !player.ping().await {
         return;
     }
-    matchmaking.send(MmsMsg::Joined(player)).await.unwrap();
+    let (tx, rx) = oneshot::channel();
+    matchmaking
+        .send(MmsMsg::Join {
+            player,
+            responder: tx,
+        })
+        .await
+        .unwrap();
+    let _ = rx.await;
 }
 
 const PING_BYTES: [u8; 4] = [0, 1, 2, 3];
@@ -52,7 +63,11 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
 
         while let Some(mms_msg) = rx.recv().await {
             match mms_msg {
-                MmsMsg::Joined(mut new_player) => {
+                MmsMsg::Join {
+                    player: mut new_player,
+                    responder,
+                } => {
+                    responder.send(Ok(())).unwrap();
                     for player in &mut lobby {
                         player.send(&joined_msg(&new_player.username)).await;
                         new_player.send(&joined_msg(&player.username)).await;
@@ -83,9 +98,20 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
     tx
 }
 
+type Responder<T> = oneshot::Sender<Result<T, MmsError>>;
+
+#[derive(Debug)]
 pub enum MmsMsg {
-    Joined(Player<WithRx>),
+    Join {
+        player: Player<WithRx>,
+        responder: Responder<()>,
+    },
     Evict(u64),
+}
+
+#[derive(Debug)]
+pub enum MmsError {
+    JoinError(Player),
 }
 
 async fn start_race(mut lobby: Vec<Player<WithRx>>) {
@@ -157,19 +183,21 @@ type PlayerRx = SplitStream<WebSocket>;
 type WithRx = PlayerRx;
 type WithoutRx = ();
 
-fn create_player(username: String, socket: WebSocket) -> Player<WithRx> {
-    let (sender, receiver) = socket.split();
-    Player::<WithRx> {
-        username,
-        sender,
-        receiver,
-    }
-}
-
-pub struct Player<Rx> {
+pub struct Player<Rx = WithRx> {
     pub username: String,
     pub sender: PlayerTx,
     receiver: Rx,
+}
+
+impl Player {
+    fn new(username: String, socket: WebSocket) -> Self {
+        let (sender, receiver) = socket.split();
+        Self {
+            username,
+            sender,
+            receiver,
+        }
+    }
 }
 
 impl<Rx> Player<Rx> {
