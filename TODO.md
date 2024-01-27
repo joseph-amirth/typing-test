@@ -7,7 +7,6 @@ N/A
 - [ ] Refine typing race experience.
 - [ ] Figure out how to style stuff with CSS grid.
 - [ ] Fix heading being a button.
-- [ ] Use a PRNG with larger seeds for generating tests.
 - [ ] Clean up the /public directory.
 - [ ] Use error notifications when internal server errors are encountered.
 - [ ] Figure out when to record results. Results of repeated tests shouldn't be recorded.
