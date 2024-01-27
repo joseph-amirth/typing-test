@@ -1,38 +1,51 @@
 import { createContext, useState } from "react";
 
-const NOTIFICATION_TIMEOUT = 2 * 1000;
+export const NOTIFICATION_TIMEOUT = 10 * 1000;
+
+export type NotificationType = "Info" | "Success" | "Warning" | "Error";
 
 export interface NotificationProps {
-  id: number;
-  type: "info" | "success" | "warning" | "error";
-  content: string;
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
 }
 
 export const NotificationsContext = createContext<{
   notifications: NotificationProps[];
-  addNotification: (notificationProps: NotificationProps) => void;
+  addNotification: (
+    notificationWithoutId: Omit<NotificationProps, "id">,
+  ) => void;
+  removeNotification: (id: string) => void;
 }>({
   notifications: [],
   addNotification: () => {},
+  removeNotification: () => {},
 });
 
 export const useNotificationsContext = () => {
   const [notifications, setNotifications] = useState<NotificationProps[]>([]);
 
+  const removeNotification = (id: string) => {
+    setNotifications((notifications) =>
+      notifications.filter((notification) => notification.id !== id),
+    );
+  };
+
   return {
     notifications,
-    addNotification: (notification: NotificationProps) => {
-      const id = Date.now();
+    addNotification: ({ type, title, body }: Omit<NotificationProps, "id">) => {
+      const id = Math.random().toString();
+      const notification: NotificationProps = { id, type, title, body };
 
       setNotifications((notifications) => {
         return [...notifications, notification];
       });
 
       setTimeout(() => {
-        setNotifications((notifications) => {
-          return notifications.filter((notification) => notification.id !== id);
-        });
+        removeNotification(id);
       }, NOTIFICATION_TIMEOUT);
     },
+    removeNotification,
   };
 };

@@ -54,10 +54,10 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="App">
-        <Notifications notifications={notifications} />
         <NotificationsContext.Provider value={notificationsContext}>
           <UserContext.Provider value={userContext}>
             <PreferencesContext.Provider value={preferencesContext}>
+              <Notifications notifications={notifications} />
               <Header />
               <div className="Body">
                 <Outlet />
