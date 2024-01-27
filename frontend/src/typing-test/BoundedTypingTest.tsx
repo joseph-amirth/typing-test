@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { isTestDone } from "../util/test";
 import Diff from "./Diff";
 import Result from "./Result";
-import { useCharCounts } from "./useCharCounts";
+import { useCharCounts } from "./use-char-counts";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";

@@ -156,7 +156,7 @@ const RaceProgress = ({
   opponents: Opponent[];
   results: Result[];
 }) => {
-  let newResults = [...results];
+  const newResults = [...results];
   if (userResult !== undefined) {
     newResults.push({ username: user.username, result: userResult });
   }

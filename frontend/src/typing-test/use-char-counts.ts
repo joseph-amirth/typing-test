@@ -10,7 +10,7 @@ export function useCharCounts(): [
   return [
     { correctChars, incorrectChars },
     (test: string[], previousAttempt: string[], currentAttempt: string[]) => {
-      let lastIndex = currentAttempt.length - 1;
+      const lastIndex = currentAttempt.length - 1;
       if (
         currentAttempt.length === previousAttempt.length &&
         currentAttempt[lastIndex].length > previousAttempt[lastIndex].length

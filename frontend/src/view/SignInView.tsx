@@ -33,7 +33,7 @@ const SignInView = () => {
           if ("error" in json) {
             setServerError(json.error);
           } else {
-            let { username, email } = json;
+            const { username, email } = json;
             setUser({ username, email });
             receivePreferences(json.preferences);
             navigate("/");

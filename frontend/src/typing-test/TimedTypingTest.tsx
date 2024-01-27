@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
-import { useCharCounts } from "./useCharCounts";
+import { useCharCounts } from "./use-char-counts";
 import "./TimedTypingTest.css";
 import { usePreference } from "../context/preference";
 import VerticalSpacer from "../common/VerticalSpacer";

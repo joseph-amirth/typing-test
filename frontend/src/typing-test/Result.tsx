@@ -5,7 +5,7 @@ import { getAccuracy } from "../util/test";
 import { roundToTwoDecimalPlaces, timestampInSecs } from "../util/math";
 
 import "./Result.css";
-import { CharCounts } from "./useCharCounts";
+import { CharCounts } from "./use-char-counts";
 
 const Result = ({
   test,
@@ -66,7 +66,7 @@ const computeWpm = (test: string[], attempt: string[], duration: number) => {
 // There is no check for correctly typed characters or words.
 const computeRawWpm = (attempt: string[], duration: number) => {
   let charCount = 0;
-  for (let word of attempt) {
+  for (const word of attempt) {
     charCount += word.length;
   }
   charCount += attempt.length - 1; // Counting spaces.

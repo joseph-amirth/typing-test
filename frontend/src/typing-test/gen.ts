@@ -16,7 +16,7 @@ export function randomWords(
 }
 
 function range(size: number): number[] {
-  let result = [];
+  const result = [];
   for (let i = 0; i < size; i++) {
     result.push(i);
   }
