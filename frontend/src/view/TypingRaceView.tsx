@@ -4,7 +4,6 @@ import BoundedTypingTest from "../typingtests/BoundedTypingTest";
 import { randomWords } from "../typingtests/gen";
 import { LinearProgress } from "@mui/material";
 import { Seed } from "../util/prng";
-import View from "./View";
 
 const TEST_LENGTH = 20;
 
@@ -88,63 +87,59 @@ const TypingRaceView = () => {
 
   if (user === undefined) {
     return (
-      <View>
-        <div className="TypingRaceView">
-          Please sign in to participate in races.
-        </div>
-      </View>
+      <div className="TypingRaceView">
+        Please sign in to participate in races.
+      </div>
     );
   }
 
   return (
-    <View>
-      <div className="TypingRaceView">
-        <div className="State">
-          {state === "waiting" && "Waiting for more users..."}
-          {state === "prepare" && "Race starting soon..."}
-          {state === "start" && "Start!"}
-        </div>
-        <RaceProgress
-          user={user!}
-          userProgress={userProgress}
-          userResult={userResult}
-          opponents={opponents}
-          results={results}
-        />
-        {state === "start" && (
-          <BoundedTypingTest
-            test={randomWords(seed!, "english", TEST_LENGTH)}
-            options={{
-              allowSkipping: false,
-            }}
-            onUpdate={(_, attempt) => {
-              const userProgress = attempt.length - 1;
-              setUserProgress(userProgress);
-              const msg = JSON.stringify({
-                kind: "update",
-                payload: {
-                  username: user!.username,
-                  progress: userProgress,
-                },
-              });
-              socket.current?.send(msg);
-            }}
-            onFinish={(_, duration) => {
-              setUserResult(duration);
-              setState("finish");
-              const msg = JSON.stringify({
-                kind: "finish",
-                payload: {
-                  username: user!.username,
-                  result: duration,
-                },
-              });
-              socket.current?.send(msg);
-            }}
-          />
-        )}
+    <div className="TypingRaceView">
+      <div className="State">
+        {state === "waiting" && "Waiting for more users..."}
+        {state === "prepare" && "Race starting soon..."}
+        {state === "start" && "Start!"}
       </div>
-    </View>
+      <RaceProgress
+        user={user!}
+        userProgress={userProgress}
+        userResult={userResult}
+        opponents={opponents}
+        results={results}
+      />
+      {state === "start" && (
+        <BoundedTypingTest
+          test={randomWords(seed!, "english", TEST_LENGTH)}
+          options={{
+            allowSkipping: false,
+          }}
+          onUpdate={(_, attempt) => {
+            const userProgress = attempt.length - 1;
+            setUserProgress(userProgress);
+            const msg = JSON.stringify({
+              kind: "update",
+              payload: {
+                username: user!.username,
+                progress: userProgress,
+              },
+            });
+            socket.current?.send(msg);
+          }}
+          onFinish={(_, duration) => {
+            setUserResult(duration);
+            setState("finish");
+            const msg = JSON.stringify({
+              kind: "finish",
+              payload: {
+                username: user!.username,
+                result: duration,
+              },
+            });
+            socket.current?.send(msg);
+          }}
+        />
+      )}
+    </div>
   );
 };
 

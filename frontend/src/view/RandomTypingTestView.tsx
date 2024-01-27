@@ -17,7 +17,6 @@ import QuoteTypingTest from "../typingtests/quote/RandomTypingTest";
 import TimeTypingTest from "../typingtests/time/RandomTypingTest";
 import WordsTypingTest from "../typingtests/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import View from "./View";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
@@ -28,29 +27,27 @@ const RandomTypingTestView = () => {
   };
 
   return (
-    <View>
-      <div className="RandomTypingTestView">
-        <div className="RandomTypingTestControls">
-          <FormControl>
-            <InputLabel id="Mode">Mode</InputLabel>
-            <Select
-              variant="outlined"
-              labelId="Mode"
-              label="Mode"
-              value={currentMode}
-              onChange={handleCurrentModeChange}
-            >
-              <MenuItem value="words">Words</MenuItem>
-              <MenuItem value="time">Time</MenuItem>
-              <MenuItem value="quote">Quote</MenuItem>
-            </Select>
-          </FormControl>
-          {getTypingTestControls(currentMode)}
-        </div>
-        <VerticalSpacer />
-        {getTypingTestView(currentMode)}
+    <div className="RandomTypingTestView">
+      <div className="RandomTypingTestControls">
+        <FormControl>
+          <InputLabel id="Mode">Mode</InputLabel>
+          <Select
+            variant="outlined"
+            labelId="Mode"
+            label="Mode"
+            value={currentMode}
+            onChange={handleCurrentModeChange}
+          >
+            <MenuItem value="words">Words</MenuItem>
+            <MenuItem value="time">Time</MenuItem>
+            <MenuItem value="quote">Quote</MenuItem>
+          </Select>
+        </FormControl>
+        {getTypingTestControls(currentMode)}
       </div>
-    </View>
+      <VerticalSpacer />
+      {getTypingTestView(currentMode)}
+    </div>
   );
 };
 

@@ -12,7 +12,6 @@ import { Stack } from "@mui/system";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { TypingTestParams } from "../context/preference";
-import View from "./View";
 
 const PAGE_SIZE = 15;
 
@@ -40,64 +39,56 @@ const ResultsView = () => {
   };
 
   return (
-    <View>
-      <Stack
-        alignItems="center"
-        spacing="1em"
-        sx={{ margin: "0 auto", width: "50%" }}
-      >
-        <Pagination
-          count={Math.ceil(params.length / PAGE_SIZE)}
-          onChange={handlePageChange}
-          color="primary"
-        />
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mode</TableCell>
-                <TableCell>WPM</TableCell>
-                <TableCell>Accuracy</TableCell>
-                <TableCell>Raw WPM</TableCell>
-                <TableCell>Timestamp</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {params
-                .filter(
-                  (_, i) => (page - 1) * PAGE_SIZE <= i && i < page * PAGE_SIZE,
-                )
-                .map(
-                  (
-                    {
-                      testParams,
-                      testCompletedTimestamp,
-                      wpm,
-                      rawWpm,
-                      accuracy,
-                    },
-                    i,
-                  ) => {
-                    return (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <TypingTestParamsDisplay {...testParams} />
-                        </TableCell>
-                        <TableCell>{wpm}</TableCell>
-                        <TableCell>{accuracy}</TableCell>
-                        <TableCell>{rawWpm}</TableCell>
-                        <TableCell>
-                          {getDateFromTimestampInSecs(testCompletedTimestamp)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  },
-                )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Stack>
-    </View>
+    <Stack
+      alignItems="center"
+      spacing="1em"
+      sx={{ margin: "0 auto", width: "50%" }}
+    >
+      <Pagination
+        count={Math.ceil(params.length / PAGE_SIZE)}
+        onChange={handlePageChange}
+        color="primary"
+      />
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Mode</TableCell>
+              <TableCell>WPM</TableCell>
+              <TableCell>Accuracy</TableCell>
+              <TableCell>Raw WPM</TableCell>
+              <TableCell>Timestamp</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {params
+              .filter(
+                (_, i) => (page - 1) * PAGE_SIZE <= i && i < page * PAGE_SIZE,
+              )
+              .map(
+                (
+                  { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
+                  i,
+                ) => {
+                  return (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <TypingTestParamsDisplay {...testParams} />
+                      </TableCell>
+                      <TableCell>{wpm}</TableCell>
+                      <TableCell>{accuracy}</TableCell>
+                      <TableCell>{rawWpm}</TableCell>
+                      <TableCell>
+                        {getDateFromTimestampInSecs(testCompletedTimestamp)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                },
+              )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Stack>
   );
 };
 

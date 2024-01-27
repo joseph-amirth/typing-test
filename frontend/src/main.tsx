@@ -12,7 +12,6 @@ import SpecificWordsTypingTest from "./typingtests/words/SpecificTypingTest";
 import SpecificTimeTypingTest from "./typingtests/time/SpecificTypingTest";
 import SpecificQuoteTypingTest from "./typingtests/quote/SpecificTypingTest";
 import TypingRaceView from "./view/TypingRaceView";
-import View from "./view/View";
 
 const router = createBrowserRouter([
   {
@@ -32,27 +31,15 @@ const router = createBrowserRouter([
       },
       {
         path: "words/:language/:length/:base64urlSeed",
-        element: (
-          <View>
-            <SpecificWordsTypingTest />
-          </View>
-        ),
+        element: <SpecificWordsTypingTest />,
       },
       {
         path: "time/:language/:duration/:base64urlSeed",
-        element: (
-          <View>
-            <SpecificTimeTypingTest />
-          </View>
-        ),
+        element: <SpecificTimeTypingTest />,
       },
       {
         path: "quote/:id",
-        element: (
-          <View>
-            <SpecificQuoteTypingTest />
-          </View>
-        ),
+        element: <SpecificQuoteTypingTest />,
       },
       {
         path: "results",
