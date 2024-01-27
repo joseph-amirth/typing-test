@@ -88,9 +88,11 @@ const TypingRaceView = () => {
 
   if (user === undefined) {
     return (
-      <div className="TypingRaceView">
-        Please sign in to participate in races.
-      </div>
+      <View>
+        <div className="TypingRaceView">
+          Please sign in to participate in races.
+        </div>
+      </View>
     );
   }
 
