@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { isTestDone } from "../util/test";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./BoundedTypingTest.css";
@@ -129,5 +128,12 @@ const BoundedTypingTest = ({
     </div>
   );
 };
+
+function isTestDone(test: string[], attempt: string[]): boolean {
+  return (
+    (test.length === attempt.length && test.at(-1) === attempt.at(-1)) ||
+    test.length < attempt.length
+  );
+}
 
 export default BoundedTypingTest;
