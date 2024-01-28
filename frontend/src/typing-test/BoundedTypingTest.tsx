@@ -2,12 +2,16 @@ import { useRef, useState } from "react";
 import { isTestDone } from "../util/test";
 import Diff from "./Diff";
 import Result from "./Result";
-import { useCharCounts } from "./use-char-counts";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import { usePreference } from "../context/preference";
-import { Stats, calculateStats } from "./stat";
+import {
+  CharCounts,
+  calculateCharCounts,
+  calculateStats,
+  getActualTest,
+} from "./stat";
 
 export interface BoundedTypingTestProps {
   test: string[];
@@ -36,14 +40,18 @@ const BoundedTypingTest = ({
   const [start, setStart] = useState<number | undefined>(undefined);
   const [end, setEnd] = useState<number | undefined>(undefined);
 
-  const [, updateCharCounts] = useCharCounts();
+  const [charCounts, setCharCounts] = useState<CharCounts>({
+    correctChars: 0,
+    incorrectChars: 0,
+  });
 
-  const [progress, setProgress] = useState(0);
+  const progress = attempt.length - 1;
 
-  const [stats, setStats] = useState<Stats>({
-    wpm: 0,
-    rawWpm: 0,
-    accuracy: 0,
+  const stats = calculateStats({
+    test: getActualTest(test, attempt),
+    attempt,
+    duration: (performance.now() - start!) / 1000,
+    charCounts,
   });
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,19 +80,12 @@ const BoundedTypingTest = ({
         return;
       }
       setAttempt(newAttempt);
-      setProgress(newAttempt.length - 1);
 
-      const newCharCounts = updateCharCounts(test, attempt, newAttempt);
+      setCharCounts(
+        calculateCharCounts({ test, attempt, newAttempt, charCounts }),
+      );
 
       if (onUpdate) onUpdate(attempt, newAttempt);
-      setStats(
-        calculateStats({
-          test,
-          attempt: newAttempt,
-          duration: (performance.now() - start!) / 1000,
-          charCounts: newCharCounts,
-        }),
-      );
 
       if (isTestDone(test, newAttempt)) {
         const end = performance.now();

@@ -1,12 +1,16 @@
 import { useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
-import { useCharCounts } from "./use-char-counts";
 import "./TimedTypingTest.css";
 import { usePreference } from "../context/preference";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
-import { Stats, calculateStats } from "./stat";
+import {
+  CharCounts,
+  calculateCharCounts,
+  calculateStats,
+  getActualTest,
+} from "./stat";
 
 const TimedTypingTest = ({
   generateTest,
@@ -21,22 +25,26 @@ const TimedTypingTest = ({
   const [test, setTest] = useState(generateTest(padding));
   const [attempt, setAttempt] = useState("".split(" "));
 
-  const [start, setStart] = useState(false);
+  const [start, setStart] = useState<number | undefined>(undefined);
   const [end, setEnd] = useState(false);
 
-  const [, updateCharCounts] = useCharCounts();
+  const [charCounts, setCharCounts] = useState<CharCounts>({
+    correctChars: 0,
+    incorrectChars: 0,
+  });
 
   const [progress, setProgress] = useState(duration);
 
-  const [stats, setStats] = useState<Stats>({
-    wpm: 0,
-    rawWpm: 0,
-    accuracy: 0,
+  const stats = calculateStats({
+    test: getActualTest(test, attempt),
+    attempt,
+    duration: (performance.now() - start!) / 1000,
+    charCounts,
   });
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!start) {
-      setStart(true);
+      setStart(performance.now());
       const intervalId = setInterval(() => {
         setProgress((progress) => {
           if (progress === 1) {
@@ -61,15 +69,8 @@ const TimedTypingTest = ({
         setTest(generateTest(newAttempt.length + padding));
       }
 
-      const newCharCounts = updateCharCounts(test, attempt, newAttempt);
-
-      setStats(
-        calculateStats({
-          test: getActualTest(test, attempt),
-          attempt: newAttempt,
-          duration,
-          charCounts: newCharCounts,
-        }),
+      setCharCounts(
+        calculateCharCounts({ test, attempt, newAttempt, charCounts }),
       );
     }
   };
@@ -116,15 +117,6 @@ const Progress = ({ progress, hide }: { progress: number; hide: boolean }) => {
         : `${minutes}:${seconds.toString().padStart(2, "0")}`}
     </div>
   );
-};
-
-// Helper method that cuts out the extra words at the end of the generated test.
-// It also cuts out extra letters at the end of the last word typed.
-const getActualTest = (test: string[], attempt: string[]) => {
-  const actualTest = test.slice(0, attempt.length);
-  const last = attempt.length - 1;
-  actualTest[last] = actualTest[last].slice(0, attempt.at(-1)!.length);
-  return actualTest;
 };
 
 export default TimedTypingTest;
