@@ -7,12 +7,13 @@ import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import { usePreference } from "../context/preference";
+import { Stats, calculateStats } from "./stat";
 
 export interface BoundedTypingTestProps {
   test: string[];
   enabled?: boolean;
   onStart?: () => void;
-  onUpdate?: (previousAttempt: string[], currentAttempt: string[]) => void;
+  onUpdate?: (attempt: string[], newAttempt: string[]) => void;
   onFinish?: (attempt: string[], duration: number) => void;
   options?: {
     allowSkipping?: boolean;
@@ -35,9 +36,15 @@ const BoundedTypingTest = ({
   const [start, setStart] = useState<number | undefined>(undefined);
   const [end, setEnd] = useState<number | undefined>(undefined);
 
-  const [charCounts, updateCharCounts] = useCharCounts();
+  const [, updateCharCounts] = useCharCounts();
 
   const [progress, setProgress] = useState(0);
+
+  const [stats, setStats] = useState<Stats>({
+    wpm: 0,
+    rawWpm: 0,
+    accuracy: 0,
+  });
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (enabled !== undefined && !enabled) {
@@ -48,36 +55,41 @@ const BoundedTypingTest = ({
       if (onStart) onStart();
     }
     if (!end) {
-      const previousAttempt = attempt;
-
-      const currentAttempt = event.target.value.split(" ");
+      const newAttempt = event.target.value.split(" ");
       if (
-        currentAttempt.length <= test.length &&
-        currentAttempt[currentAttempt.length - 1].length >
-          test[currentAttempt.length - 1].length + 20
+        newAttempt.length <= test.length &&
+        newAttempt[newAttempt.length - 1].length >
+          test[newAttempt.length - 1].length + 20
       ) {
         return;
       }
       if (
         options?.allowSkipping !== undefined &&
         !options?.allowSkipping &&
-        currentAttempt.length > previousAttempt.length &&
-        currentAttempt[previousAttempt.length - 1] !==
-          test[previousAttempt.length - 1]
+        newAttempt.length > attempt.length &&
+        newAttempt[attempt.length - 1] !== test[attempt.length - 1]
       ) {
         return;
       }
-      setAttempt(currentAttempt);
-      setProgress(currentAttempt.length - 1);
+      setAttempt(newAttempt);
+      setProgress(newAttempt.length - 1);
 
-      updateCharCounts(test, previousAttempt, currentAttempt);
+      const newCharCounts = updateCharCounts(test, attempt, newAttempt);
 
-      if (onUpdate) onUpdate(previousAttempt, currentAttempt);
+      if (onUpdate) onUpdate(attempt, newAttempt);
+      setStats(
+        calculateStats({
+          test,
+          attempt: newAttempt,
+          duration: (performance.now() - start!) / 1000,
+          charCounts: newCharCounts,
+        }),
+      );
 
-      if (isTestDone(test, currentAttempt)) {
+      if (isTestDone(test, newAttempt)) {
         const end = performance.now();
         setEnd(end);
-        if (onFinish) onFinish(currentAttempt, end - start!);
+        if (onFinish) onFinish(newAttempt, end - start!);
       }
     }
   };
@@ -110,12 +122,7 @@ const BoundedTypingTest = ({
       {start && end && (
         <>
           <VerticalSpacer />
-          <Result
-            test={test}
-            attempt={attempt}
-            duration={(end - start) / 1000}
-            charCounts={charCounts}
-          />
+          <Result {...stats} />
         </>
       )}
     </div>

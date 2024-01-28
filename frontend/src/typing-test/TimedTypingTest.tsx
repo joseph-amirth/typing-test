@@ -6,6 +6,7 @@ import "./TimedTypingTest.css";
 import { usePreference } from "../context/preference";
 import VerticalSpacer from "../common/VerticalSpacer";
 import { ANTI_CHEAT_PROPS } from "../util/component";
+import { Stats, calculateStats } from "./stat";
 
 const TimedTypingTest = ({
   generateTest,
@@ -23,9 +24,15 @@ const TimedTypingTest = ({
   const [start, setStart] = useState(false);
   const [end, setEnd] = useState(false);
 
-  const [charCounts, updateCharCounts] = useCharCounts();
+  const [, updateCharCounts] = useCharCounts();
 
   const [progress, setProgress] = useState(duration);
+
+  const [stats, setStats] = useState<Stats>({
+    wpm: 0,
+    rawWpm: 0,
+    accuracy: 0,
+  });
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!start) {
@@ -41,22 +48,29 @@ const TimedTypingTest = ({
       }, 1000);
     }
     if (!end) {
-      const previousAttempt = attempt;
-
-      const currentAttempt = event.target.value.split(" ");
+      const newAttempt = event.target.value.split(" ");
       if (
-        currentAttempt.length <= test.length &&
-        currentAttempt[currentAttempt.length - 1].length >
-          test[currentAttempt.length - 1].length + 20
+        newAttempt.length <= test.length &&
+        newAttempt[newAttempt.length - 1].length >
+          test[newAttempt.length - 1].length + 20
       ) {
         return;
       }
-      setAttempt(currentAttempt);
-      if (currentAttempt.length + padding > test.length) {
-        setTest(generateTest(currentAttempt.length + padding));
+      setAttempt(newAttempt);
+      if (newAttempt.length + padding > test.length) {
+        setTest(generateTest(newAttempt.length + padding));
       }
 
-      updateCharCounts(test, previousAttempt, currentAttempt);
+      const newCharCounts = updateCharCounts(test, attempt, newAttempt);
+
+      setStats(
+        calculateStats({
+          test: getActualTest(test, attempt),
+          attempt: newAttempt,
+          duration,
+          charCounts: newCharCounts,
+        }),
+      );
     }
   };
 
@@ -81,12 +95,7 @@ const TimedTypingTest = ({
       {end && (
         <>
           <VerticalSpacer />
-          <Result
-            test={getActualTest(test, attempt)}
-            attempt={attempt}
-            duration={duration}
-            charCounts={charCounts}
-          />
+          <Result {...stats} />
         </>
       )}
     </div>
