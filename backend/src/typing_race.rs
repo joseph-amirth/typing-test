@@ -1,4 +1,4 @@
-use std::{fmt::Debug, time::Duration};
+use std::{collections::BTreeMap, fmt::Debug, time::Duration};
 
 use axum::{
     extract::{
@@ -53,13 +53,14 @@ const PING_BYTES: [u8; 4] = [0, 1, 2, 3];
 const TIME_UNTIL_EVICTION: Duration = Duration::from_secs(5);
 const MAX_USERS_PER_LOBBY: usize = 5;
 
-pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
+pub fn spawn_matchmaking_service() -> Mms {
     let (tx, mut rx) = mpsc::channel::<MmsMsg>(32);
 
-    let tx_clone = tx.clone();
+    let self_tx = tx.clone();
     tokio::spawn(async move {
-        let mut lobby_id: u64 = rand::random();
-        let mut lobby = Vec::<Player<WithRx>>::new();
+        let mut lobby_id: u32 = 0;
+        let mut lobby = Vec::<Player>::new();
+        let mut players = BTreeMap::<String, u32>::new();
 
         while let Some(mms_msg) = rx.recv().await {
             match mms_msg {
@@ -67,28 +68,50 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
                     player: mut new_player,
                     responder,
                 } => {
+                    if players.get(&new_player.username).is_some() {
+                        responder
+                            .send(Err(MmsError::JoinError(new_player)))
+                            .unwrap();
+                        continue;
+                    }
+
                     responder.send(Ok(())).unwrap();
+                    players.insert(new_player.username.clone(), lobby_id);
                     for player in &mut lobby {
-                        player.send(&joined_msg(&new_player.username)).await;
-                        new_player.send(&joined_msg(&player.username)).await;
+                        player
+                            .send(&joined_msg(&new_player.username))
+                            .await
+                            .unwrap();
+                        new_player
+                            .send(&joined_msg(&player.username))
+                            .await
+                            .unwrap();
                     }
                     lobby.push(new_player);
+
                     if lobby.len() == 2 {
-                        let tx_clone = tx_clone.clone();
+                        let mms = self_tx.clone();
                         tokio::spawn(async move {
                             sleep(TIME_UNTIL_EVICTION).await;
-                            tx_clone.send(MmsMsg::Evict(lobby_id)).await.unwrap();
+                            mms.send(MmsMsg::Evict(lobby_id)).await.unwrap();
                         });
                     }
 
                     if lobby.len() == MAX_USERS_PER_LOBBY {
-                        tokio::spawn(start_race(lobby.drain(..).collect()));
-                        lobby_id = rand::random();
+                        let mms = self_tx.clone();
+                        tokio::spawn(start_race(mms, lobby_id, lobby.drain(..).collect()));
+                        lobby_id = lobby_id.wrapping_add(1);
                     }
                 }
                 MmsMsg::Evict(id) => {
                     if id == lobby_id {
-                        tokio::spawn(start_race(lobby.drain(..).collect()));
+                        let mms = self_tx.clone();
+                        tokio::spawn(start_race(mms, lobby_id, lobby.drain(..).collect()));
+                    }
+                }
+                MmsMsg::Leave { username, lobby_id } => {
+                    if players.get(&username) == Some(&lobby_id) {
+                        players.remove(&username);
                     }
                 }
             }
@@ -100,13 +123,19 @@ pub fn spawn_matchmaking_service() -> Sender<MmsMsg> {
 
 type Responder<T> = oneshot::Sender<Result<T, MmsError>>;
 
+pub type Mms = Sender<MmsMsg>;
+
 #[derive(Debug)]
 pub enum MmsMsg {
     Join {
-        player: Player<WithRx>,
+        player: Player,
         responder: Responder<()>,
     },
-    Evict(u64),
+    Leave {
+        username: String,
+        lobby_id: u32,
+    },
+    Evict(u32),
 }
 
 #[derive(Debug)]
@@ -114,11 +143,11 @@ pub enum MmsError {
     JoinError(Player),
 }
 
-async fn start_race(mut lobby: Vec<Player<WithRx>>) {
+async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
     let seed: Seed = rand::random();
     let start_msg = start_msg(seed);
     for player in &mut lobby {
-        player.send(&start_msg).await;
+        player.send(&start_msg).await.unwrap();
     }
 
     let (tx, mut rx) = mpsc::channel::<RaceMsg>(32);
@@ -126,7 +155,9 @@ async fn start_race(mut lobby: Vec<Player<WithRx>>) {
     let mut race = Vec::new();
     for player in lobby {
         let tx = tx.clone();
+        let mms = mms.clone();
         let (mut player_rx, player) = player.take_receiver();
+        let username = player.username.clone();
         race.push(player);
         tokio::spawn(async move {
             while let Some(Ok(message)) = player_rx.next().await {
@@ -136,11 +167,14 @@ async fn start_race(mut lobby: Vec<Player<WithRx>>) {
                         tx.send(race_msg).await.unwrap();
                     }
                     Message::Close(_) => {
-                        return;
+                        break;
                     }
                     _ => {}
                 }
             }
+            mms.send(MmsMsg::Leave { username, lobby_id })
+                .await
+                .unwrap();
         });
     }
 
@@ -154,8 +188,17 @@ async fn start_race(mut lobby: Vec<Player<WithRx>>) {
             if username == &player.username {
                 continue;
             }
-            let _ = player.send(&message).await;
+            player.send(&message).await.unwrap();
         }
+    }
+
+    for player in race {
+        mms.send(MmsMsg::Leave {
+            username: player.username,
+            lobby_id,
+        })
+        .await
+        .unwrap();
     }
 }
 
@@ -201,7 +244,7 @@ impl Player {
 }
 
 impl<Rx> Player<Rx> {
-    pub async fn send<T>(&mut self, message: &T)
+    pub async fn send<T>(&mut self, message: &T) -> Result<(), axum::Error>
     where
         T: Serialize,
     {
@@ -210,7 +253,6 @@ impl<Rx> Player<Rx> {
                 serde_json::to_string(&message).expect("no error"),
             ))
             .await
-            .expect("no error");
     }
 }
 

@@ -76,4 +76,6 @@ function Input(
   );
 }
 
-export default forwardRef(Input);
+const InputWithForwardedRef = forwardRef(Input);
+
+export default InputWithForwardedRef;
