@@ -4,21 +4,28 @@ import Result from "./Result";
 import "./TimedTypingTest.css";
 import { usePreference } from "../context/preference";
 import VerticalSpacer from "../common/VerticalSpacer";
-import { ANTI_CHEAT_PROPS } from "../util/component";
 import {
   CharCounts,
   calculateCharCounts,
   calculateStats,
   getActualTest,
 } from "./stat";
+import Input, { InputOptions } from "./Input";
+import { TypingTestEventListeners } from "./props";
+
+interface TimedTypingTestProps extends InputOptions, TypingTestEventListeners {
+  generateTest: (length: number) => string[];
+  duration: number;
+}
 
 const TimedTypingTest = ({
   generateTest,
   duration,
-}: {
-  generateTest: (length: number) => string[];
-  duration: number;
-}) => {
+  onTestStart,
+  onTestUpdate,
+  onTestFinish,
+  ...inputOptions
+}: TimedTypingTestProps) => {
   const [maxCharsInLine] = usePreference("maxCharsInLine");
   const padding = maxCharsInLine; // test is always "padded" with this many more words compared to attempt.
 
@@ -42,35 +49,35 @@ const TimedTypingTest = ({
     charCounts,
   });
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAttemptUpdate = (newAttempt: string[]) => {
     if (!start) {
+      if (onTestStart) onTestStart();
       setStart(performance.now());
       const intervalId = setInterval(() => {
         setProgress((progress) => {
           if (progress === 1) {
             clearInterval(intervalId);
             setEnd(true);
+            if (onTestFinish) onTestFinish(attempt, performance.now() - start!);
           }
           return progress - 1;
         });
       }, 1000);
     }
     if (!end) {
-      const newAttempt = event.target.value.split(" ");
-      if (
-        newAttempt.length <= test.length &&
-        newAttempt[newAttempt.length - 1].length >
-          test[newAttempt.length - 1].length + 20
-      ) {
-        return;
-      }
       setAttempt(newAttempt);
+      if (onTestUpdate) onTestUpdate(attempt, newAttempt);
       if (newAttempt.length + padding > test.length) {
         setTest(generateTest(newAttempt.length + padding));
       }
 
       setCharCounts(
-        calculateCharCounts({ test, attempt, newAttempt, charCounts }),
+        calculateCharCounts({
+          test,
+          attempt: attempt,
+          newAttempt,
+          charCounts,
+        }),
       );
     }
   };
@@ -84,14 +91,13 @@ const TimedTypingTest = ({
     <div className="TimedTypingTest" onClick={handleClick}>
       <Progress progress={progress} hide={!start || end} />
       <Diff test={test} attempt={attempt} showAllLines={false} />
-      <input
-        type="text"
-        value={attempt.join(" ")}
+      <Input
         ref={inputRef}
-        className="Hide"
-        onInput={handleInput}
-        autoFocus
-        {...ANTI_CHEAT_PROPS}
+        enabled={true}
+        test={test}
+        attempt={attempt}
+        onAttemptUpdate={handleAttemptUpdate}
+        {...inputOptions}
       />
       {end && (
         <>

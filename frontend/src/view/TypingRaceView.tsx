@@ -110,10 +110,8 @@ const TypingRaceView = () => {
       {state === "start" && (
         <BoundedTypingTest
           test={randomWords(seed!, "english", TEST_LENGTH)}
-          options={{
-            allowSkipping: false,
-          }}
-          onUpdate={(_, attempt) => {
+          allowSkipping={false}
+          onTestUpdate={(_, attempt) => {
             const userProgress = attempt.length - 1;
             setUserProgress(userProgress);
             const msg = JSON.stringify({
@@ -125,7 +123,7 @@ const TypingRaceView = () => {
             });
             socket.current?.send(msg);
           }}
-          onFinish={(_, duration) => {
+          onTestFinish={(_, duration) => {
             setUserResult(duration);
             setState("finish");
             const msg = JSON.stringify({
