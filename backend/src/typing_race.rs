@@ -183,12 +183,58 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
     drop(tx);
 
     while let Some(message) = rx.recv().await {
-        let username = message.username();
+        let username = match &message {
+            RaceMsg::Update { username, .. } => username,
+            RaceMsg::Finish { username, .. } => username,
+            RaceMsg::Disconnect { .. } => {
+                // TODO: Log this meaningfully.
+                println!("Unexpected disconnect message received from a client");
+                continue;
+            }
+        };
+
+        let mut disconnected_players = Vec::new();
         for player in &mut race {
             if username == &player.username {
                 continue;
             }
-            player.send(&message).await.unwrap();
+            if player.send(&message).await.is_err() {
+                disconnected_players.push(player.username.clone());
+            }
+        }
+
+        while !disconnected_players.is_empty() {
+            race.retain(|player| {
+                disconnected_players
+                    .iter()
+                    .find(|disconnected_player| player.username == **disconnected_player)
+                    .is_none()
+            });
+
+            let mut new_disconnected_players = Vec::new();
+            for player in &mut race {
+                let mut is_disconnected = false;
+                for disconnected_player in &disconnected_players {
+                    let message = RaceMsg::Disconnect {
+                        username: disconnected_player.clone(),
+                    };
+                    if !is_disconnected && player.send(&message).await.is_err() {
+                        new_disconnected_players.push(player.username.clone());
+                        is_disconnected = true;
+                    }
+                }
+            }
+
+            for player in disconnected_players {
+                mms.send(MmsMsg::Leave {
+                    username: player,
+                    lobby_id,
+                })
+                .await
+                .unwrap();
+            }
+
+            disconnected_players = new_disconnected_players;
         }
     }
 
@@ -209,15 +255,7 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
 enum RaceMsg {
     Update { username: String, progress: usize },
     Finish { username: String, result: f32 },
-}
-
-impl RaceMsg {
-    fn username(&self) -> &String {
-        match self {
-            Self::Update { username, .. } => &username,
-            Self::Finish { username, .. } => &username,
-        }
-    }
+    Disconnect { username: String },
 }
 
 type PlayerTx = SplitSink<WebSocket, Message>;

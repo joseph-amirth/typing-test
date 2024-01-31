@@ -28,7 +28,7 @@ const TypingRaceView = () => {
           const { username } = payload;
           setOpponents((opponents) => [
             ...opponents,
-            { username, progress: 0 },
+            { username, progress: 0, disconnected: false },
           ]);
         }
         break;
@@ -44,15 +44,28 @@ const TypingRaceView = () => {
         break;
       case "update":
         {
-          const opponent = payload;
-          const { username } = opponent;
-          setOpponents((opponents) => {
-            const newOpponents = opponents.filter(
-              (opponent) => opponent.username !== username,
-            );
-            newOpponents.push(opponent);
-            return newOpponents;
-          });
+          const { username, progress } = payload;
+          setOpponents((opponents) =>
+            opponents.map((opponent) => {
+              if (opponent.username === username) {
+                opponent.progress = progress;
+              }
+              return opponent;
+            }),
+          );
+        }
+        break;
+      case "disconnect":
+        {
+          const { username } = payload;
+          setOpponents((opponents) =>
+            opponents.map((opponent) => {
+              if (opponent.username === username) {
+                opponent.disconnected = true;
+              }
+              return opponent;
+            }),
+          );
         }
         break;
       case "finish":
@@ -180,10 +193,18 @@ const RaceProgress = ({
           </div>
         );
       })}
-      {opponents.map(({ username, progress }) => {
-        return (
+      {opponents.map(({ username, progress, disconnected }) => {
+        return !disconnected ? (
           <div key={username} className="Opponent">
             {username}{" "}
+            <LinearProgress
+              variant="determinate"
+              value={(progress / TEST_LENGTH) * 100}
+            />
+          </div>
+        ) : (
+          <div key={username} className="Disconnected" style={{ opacity: 0.5 }}>
+            {username} {"(Disconnected)"}
             <LinearProgress
               variant="determinate"
               value={(progress / TEST_LENGTH) * 100}
@@ -193,8 +214,7 @@ const RaceProgress = ({
       })}
       {userResult === undefined && (
         <div className="User">
-          {user.username}
-          {"(You) "}
+          {user.username} {"(You)"}
           <LinearProgress
             variant="determinate"
             value={(userProgress / TEST_LENGTH) * 100}
@@ -205,7 +225,7 @@ const RaceProgress = ({
   );
 };
 
-type Msg = JoinedMsg | StartMsg | UpdateMsg | FinishMsg;
+type Msg = JoinedMsg | StartMsg | UpdateMsg | DisconnectMsg | FinishMsg;
 
 interface JoinedMsg {
   kind: "joined";
@@ -229,6 +249,13 @@ interface UpdateMsg {
   };
 }
 
+interface DisconnectMsg {
+  kind: "disconnect";
+  payload: {
+    username: string;
+  };
+}
+
 interface FinishMsg {
   kind: "finish";
   payload: {
@@ -240,6 +267,7 @@ interface FinishMsg {
 interface Opponent {
   username: string;
   progress: number;
+  disconnected: boolean;
 }
 
 interface Result {
