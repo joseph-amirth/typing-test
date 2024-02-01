@@ -1,9 +1,30 @@
 import { PrngFn, Seed, sfc32 } from "../util/prng";
 import english from "../static/words/english.json";
 import english1k from "../static/words/english1k.json";
-import { Language } from "../context/preference";
+import english5k from "../static/words/english5k.json";
+import english10k from "../static/words/english10k.json";
+import english25k from "../static/words/english25k.json";
+import english450k from "../static/words/english450k.json";
 
-const languages: { [key in Language]: string[] } = { english, english1k };
+export const languages = [
+  "english",
+  "english1k",
+  "english5k",
+  "english10k",
+  "english25k",
+  "english450k",
+] as const;
+
+export type Language = (typeof languages)[number];
+
+const words: { [key in Language]: string[] } = {
+  english,
+  english1k,
+  english5k,
+  english10k,
+  english25k,
+  english450k,
+};
 
 export function randomWords(
   seed: Seed,
@@ -11,8 +32,7 @@ export function randomWords(
   count: number,
 ): string[] {
   const rand = sfc32(seed);
-  const words = languages[language];
-  return range(count).map(() => randomWord(rand, words));
+  return range(count).map(() => randomWord(rand, words[language]));
 }
 
 function range(size: number): number[] {

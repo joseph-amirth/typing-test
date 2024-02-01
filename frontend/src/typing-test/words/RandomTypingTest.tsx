@@ -6,7 +6,7 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 import { generateSeed, seedToBase64url } from "../../util/prng";
 import { randomWords } from "../gen";
 import BoundedTypingTest from "../BoundedTypingTest";
-import { Language } from "../../context/preference";
+import { Language } from "../gen";
 
 const RandomTypingTest = ({
   language = "english",

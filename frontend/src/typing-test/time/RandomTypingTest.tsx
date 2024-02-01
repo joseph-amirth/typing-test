@@ -6,7 +6,7 @@ import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 import { randomWords } from "../gen";
 import TimedTypingTest from "../TimedTypingTest";
-import { Language } from "../../context/preference";
+import { Language } from "../gen";
 
 const RandomTypingTest = ({
   language,
