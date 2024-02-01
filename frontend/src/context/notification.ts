@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
 
-export const NOTIFICATION_TIMEOUT = 10 * 1000;
+export const NOTIFICATION_TIMEOUT = 5 * 1000;
 
 export type NotificationType = "Info" | "Success" | "Warning" | "Error";
 

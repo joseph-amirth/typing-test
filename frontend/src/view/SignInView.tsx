@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { RE_EMAIL, RE_USERNAME } from "../util/validation";
 import { signInWithEmail, signInWithUsername } from "../util/backend";
 import { Button, TextField } from "@mui/material";
+import { NotificationsContext } from "../context/notification";
 
 const SignInView = () => {
   const {
@@ -19,6 +20,7 @@ const SignInView = () => {
 
   const { setUser } = useContext(UserContext);
   const { receivePreferences } = useContext(PreferencesContext);
+  const { addNotification } = useContext(NotificationsContext);
 
   const [serverError, setServerError] = useState("");
 
@@ -31,6 +33,11 @@ const SignInView = () => {
           : signInWithEmail({ email: usernameOrEmail, password })
         ).then((json) => {
           if ("error" in json) {
+            addNotification({
+              type: "Error",
+              title: "Server not reachable",
+              body: "Backend isn't deployed yet",
+            });
             setServerError(json.error);
           } else {
             const { username, email } = json;

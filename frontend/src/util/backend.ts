@@ -117,7 +117,7 @@ async function postJson(path: string, obj: object, options = {}) {
 
 async function fetchNonThrowing(path: string, options = {}) {
   return fetch(path, options).catch(() => {
-    return new Response(null, {
+    return new Response("Network error", {
       status: 503,
       statusText: "Service unavailable",
     });

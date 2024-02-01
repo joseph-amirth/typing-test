@@ -7,6 +7,7 @@ import { UserContext } from "../context/user";
 import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
+import { NotificationsContext } from "../context/notification";
 
 const SignUpView = () => {
   const {
@@ -19,6 +20,7 @@ const SignUpView = () => {
 
   const { setUser } = useContext(UserContext);
   const { preferences } = useContext(PreferencesContext);
+  const { addNotification } = useContext(NotificationsContext);
 
   const [serverError, setServerError] = useState("");
 
@@ -28,6 +30,11 @@ const SignUpView = () => {
       onSubmit={handleSubmit(({ username, email, password }) => {
         signUp({ username, email, password, preferences }).then((json) => {
           if ("error" in json) {
+            addNotification({
+              type: "Error",
+              title: "Server not reachable",
+              body: "Backend isn't deployed yet",
+            });
             setServerError(json.error);
           } else {
             setUser(json);
