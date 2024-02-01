@@ -4,6 +4,7 @@ import BoundedTypingTest from "../typing-test/BoundedTypingTest";
 import { randomWords } from "../typing-test/gen";
 import { LinearProgress } from "@mui/material";
 import { Seed } from "../util/prng";
+import english from "../static/words/english.json";
 
 const TEST_LENGTH = 20;
 
@@ -129,7 +130,7 @@ const TypingRaceView = () => {
       />
       {state === "start" && (
         <BoundedTypingTest
-          test={randomWords(seed!, "english", TEST_LENGTH)}
+          test={randomWords(seed!, english, TEST_LENGTH)}
           allowSkipping={false}
           onTestUpdate={(_, attempt) => {
             const userProgress = attempt.length - 1;

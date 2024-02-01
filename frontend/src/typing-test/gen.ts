@@ -1,10 +1,4 @@
 import { PrngFn, Seed, sfc32 } from "../util/prng";
-import english from "../static/words/english.json";
-import english1k from "../static/words/english1k.json";
-import english5k from "../static/words/english5k.json";
-import english10k from "../static/words/english10k.json";
-import english25k from "../static/words/english25k.json";
-import english450k from "../static/words/english450k.json";
 
 export const languages = [
   "english",
@@ -17,22 +11,18 @@ export const languages = [
 
 export type Language = (typeof languages)[number];
 
-const words: { [key in Language]: string[] } = {
-  english,
-  english1k,
-  english5k,
-  english10k,
-  english25k,
-  english450k,
-};
+export async function importLanguage(language: Language): Promise<string[]> {
+  const dynamicModule = await import(`../static/words/${language}.json`);
+  return dynamicModule.default;
+}
 
 export function randomWords(
   seed: Seed,
-  language: Language,
+  words: string[],
   count: number,
 ): string[] {
   const rand = sfc32(seed);
-  return range(count).map(() => randomWord(rand, words[language]));
+  return range(count).map(() => randomWord(rand, words));
 }
 
 function range(size: number): number[] {

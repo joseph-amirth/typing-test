@@ -4,7 +4,7 @@ import Buttons from "../Buttons";
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 import { generateSeed, seedToBase64url } from "../../util/prng";
-import { randomWords } from "../gen";
+import { importLanguage, randomWords } from "../gen";
 import BoundedTypingTest from "../BoundedTypingTest";
 import { Language } from "../gen";
 
@@ -15,20 +15,30 @@ const RandomTypingTest = ({
   language: Language;
   length: number;
 }) => {
+  const [words, setWords] = useState<string[] | undefined>(undefined);
   const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
 
   useEffect(() => {
     const newSeed = generateSeed();
+    setWords(undefined);
     setSeed(newSeed);
     setKey(Date.now());
-  }, [language, length]);
+    importLanguage(language).then(setWords);
+  }, [language]);
+
+  useEffect(() => {
+    const newSeed = generateSeed();
+    setSeed(newSeed);
+    setKey(Date.now());
+  }, [length]);
 
   const nextTest = () => {
     let newSeed = generateSeed();
     while (newSeed === seed) {
       newSeed = generateSeed();
     }
+
     setSeed(newSeed);
     setKey(Date.now());
   };
@@ -45,7 +55,11 @@ const RandomTypingTest = ({
     );
   };
 
-  const test = randomWords(seed, language, length);
+  if (words === undefined) {
+    return <div className="Loading"> </div>;
+  }
+
+  const test = randomWords(seed, words, length);
 
   return (
     <div className="RandomTypingTest">

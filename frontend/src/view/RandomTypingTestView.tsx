@@ -207,7 +207,9 @@ function SelectLanguage() {
         onChange={handleLanguageChange}
       >
         {languages.map((language) => (
-          <MenuItem value={language}>{language}</MenuItem>
+          <MenuItem key={language} value={language}>
+            {language}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>
