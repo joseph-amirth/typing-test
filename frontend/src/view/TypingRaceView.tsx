@@ -16,7 +16,10 @@ const TypingRaceView = () => {
   const [state, setState] = useState("waiting");
   const [seed, setSeed] = useState<Seed | undefined>(undefined);
 
-  if (state === "finish" && opponents.length === 0) {
+  if (
+    state === "finish" &&
+    opponents.every((opponent) => opponent.disconnected)
+  ) {
     socket.current?.close();
   }
 
