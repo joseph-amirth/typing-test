@@ -52,7 +52,7 @@ async function signIn(params: {
 // Returned promise resolves to user details and preferences on success.
 export async function currentUser() {
   return get("/current", { credentials: "include" }).then((response) => {
-    if (response.status !== 200) {
+    if (!response.ok) {
       return {
         preferences: getOrInitItem("preferences", defaultPreferences),
       };
@@ -74,7 +74,7 @@ export async function postResult(params: {
 }) {
   return postJson("/result", params, { credentials: "include" }).then(
     (response) => {
-      if (response.status !== 200) {
+      if (!response.ok) {
         return response.text().then((text) => {
           console.error(text);
         });
