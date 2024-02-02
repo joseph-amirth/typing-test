@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { RE_EMAIL, RE_USERNAME } from "../util/validation";
 import { signInWithEmail, signInWithUsername } from "../util/backend";
 import { Button, TextField } from "@mui/material";
-import { NotificationsContext } from "../context/notification";
+import { NotificationsContext } from "../context/notifications";
 
 const SignInView = () => {
   const {

@@ -7,7 +7,7 @@ import { UserContext } from "../context/user";
 import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
-import { NotificationsContext } from "../context/notification";
+import { NotificationsContext } from "../context/notifications";
 
 const SignUpView = () => {
   const {
