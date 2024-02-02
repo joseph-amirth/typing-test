@@ -8,7 +8,6 @@ import {
 import VerticalSpacer from "../common/VerticalSpacer";
 import HorizontalSpacer from "../common/HorizontalSpacer";
 import {
-  Language,
   QuoteModeLength,
   TypingTestMode,
   usePreference,
@@ -17,6 +16,7 @@ import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
+import { Language, languageList } from "../context/languages";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
@@ -74,13 +74,7 @@ const getTypingTestView = (mode: TypingTestMode) => {
 };
 
 const WordsTypingTestControls = () => {
-  const [language, setLanguage] = usePreference("language");
   const [length, setLength] = usePreference("wordsModeLength");
-
-  const handleLanguageChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as Language;
-    setLanguage(value);
-  };
 
   const handleLengthChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
@@ -90,19 +84,7 @@ const WordsTypingTestControls = () => {
   return (
     <>
       <HorizontalSpacer />
-      <FormControl>
-        <InputLabel id="Language">Language</InputLabel>
-        <Select
-          variant="outlined"
-          labelId="Language"
-          label="Language"
-          value={language}
-          onChange={handleLanguageChange}
-        >
-          <MenuItem value="english">Common english words</MenuItem>
-          <MenuItem value="english1k">Uncommon english words</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectLanguage />
       <HorizontalSpacer />
       <FormControl>
         <InputLabel id="Length">Length</InputLabel>
@@ -127,17 +109,17 @@ const WordsTypingTestView = () => {
   const [language] = usePreference("language");
   const [length] = usePreference("wordsModeLength");
 
-  return <WordsTypingTest language={language} length={length} />;
+  return (
+    <WordsTypingTest
+      key={language + " " + length}
+      language={language}
+      length={length}
+    />
+  );
 };
 
 const TimeTypingTestControls = () => {
-  const [language, setLanguage] = usePreference("language");
   const [duration, setDuration] = usePreference("timeModeDuration");
-
-  const handleLanguageChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as Language;
-    setLanguage(value);
-  };
 
   const handleDurationChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
@@ -147,19 +129,7 @@ const TimeTypingTestControls = () => {
   return (
     <>
       <HorizontalSpacer />
-      <FormControl>
-        <InputLabel id="Language">Language</InputLabel>
-        <Select
-          variant="outlined"
-          labelId="Language"
-          label="Language"
-          value={language}
-          onChange={handleLanguageChange}
-        >
-          <MenuItem value="english">Common english words</MenuItem>
-          <MenuItem value="english1k">Uncommon english words</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectLanguage />
       <HorizontalSpacer />
       <FormControl>
         <InputLabel id="Duration">Duration</InputLabel>
@@ -184,7 +154,13 @@ const TimeTypingTestView = () => {
   const [language] = usePreference("language");
   const [duration] = usePreference("timeModeDuration");
 
-  return <TimeTypingTest language={language} duration={duration} />;
+  return (
+    <TimeTypingTest
+      key={language + " " + duration}
+      language={language}
+      duration={duration}
+    />
+  );
 };
 
 const QuoteTypingTestControls = () => {
@@ -221,7 +197,35 @@ const QuoteTypingTestControls = () => {
 const QuoteTypingTestView = () => {
   const [length] = usePreference("quoteModeLength");
 
-  return <QuoteTypingTest length={length} />;
+  return <QuoteTypingTest key={length} length={length} />;
 };
+
+function SelectLanguage() {
+  const [language, setLanguage] = usePreference("language");
+
+  const handleLanguageChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as Language;
+    setLanguage(value);
+  };
+
+  return (
+    <FormControl>
+      <InputLabel id="Language">Language</InputLabel>
+      <Select
+        variant="outlined"
+        labelId="Language"
+        label="Language"
+        value={language}
+        onChange={handleLanguageChange}
+      >
+        {languageList.map((language) => (
+          <MenuItem key={language} value={language}>
+            {language}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+}
 
 export default RandomTypingTestView;

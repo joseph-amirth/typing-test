@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { copyTextToClipboard } from "../../util/misc";
+import { useState } from "react";
 import { generateSeed, seedToBase64url } from "../../util/prng";
 import Buttons from "../Buttons";
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 import { randomWords } from "../gen";
 import TimedTypingTest from "../TimedTypingTest";
-import { Language } from "../../context/preference";
+import { Language, useLanguage } from "../../context/languages";
+import { copyTextToClipboard } from "../../util/misc";
 
 const RandomTypingTest = ({
   language,
@@ -15,14 +15,9 @@ const RandomTypingTest = ({
   language: Language;
   duration: number;
 }) => {
+  const words = useLanguage(language);
   const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
-
-  useEffect(() => {
-    const newSeed = generateSeed();
-    setSeed(newSeed);
-    setKey(Date.now());
-  }, [language, duration]);
 
   const nextTest = () => {
     let newSeed = generateSeed();
@@ -45,8 +40,12 @@ const RandomTypingTest = ({
     );
   };
 
+  if (words === undefined) {
+    return;
+  }
+
   const generateTest = (count: number) => {
-    return randomWords(seed, language, count);
+    return randomWords(seed, words, count);
   };
 
   return (
