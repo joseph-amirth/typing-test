@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
 import { setItem } from "../util/local-storage";
-import { Language } from "../typing-test/gen";
+import { Language } from "./languages";
 
 export const defaultPreferences: Preferences = {
   currentMode: "words",

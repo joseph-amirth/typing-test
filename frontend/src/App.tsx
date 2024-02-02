@@ -15,6 +15,7 @@ import {
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
+import { LanguagesContextProvider } from "./context/languages";
 
 const App = () => {
   const theme = createTheme({
@@ -57,12 +58,14 @@ const App = () => {
         <NotificationsContext.Provider value={notificationsContext}>
           <UserContext.Provider value={userContext}>
             <PreferencesContext.Provider value={preferencesContext}>
-              <Notifications notifications={notifications} />
-              <Header />
-              <div className="Body">
-                <Outlet />
-              </div>
-              <Footer />
+              <LanguagesContextProvider>
+                <Notifications notifications={notifications} />
+                <Header />
+                <div className="Body">
+                  <Outlet />
+                </div>
+                <Footer />
+              </LanguagesContextProvider>
             </PreferencesContext.Provider>
           </UserContext.Provider>
         </NotificationsContext.Provider>

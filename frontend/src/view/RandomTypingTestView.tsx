@@ -16,7 +16,8 @@ import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { Language, languages } from "../typing-test/gen";
+import { Language, LanguagesContext, languageList } from "../context/languages";
+import { useContext } from "react";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
@@ -106,10 +107,22 @@ const WordsTypingTestControls = () => {
 };
 
 const WordsTypingTestView = () => {
+  const languages = useContext(LanguagesContext);
   const [language] = usePreference("language");
   const [length] = usePreference("wordsModeLength");
 
-  return <WordsTypingTest language={language} length={length} />;
+  const words = languages[language];
+  if (words === undefined) {
+    return;
+  }
+
+  return (
+    <WordsTypingTest
+      key={language + " " + length}
+      words={words}
+      length={length}
+    />
+  );
 };
 
 const TimeTypingTestControls = () => {
@@ -145,10 +158,22 @@ const TimeTypingTestControls = () => {
 };
 
 const TimeTypingTestView = () => {
+  const languages = useContext(LanguagesContext);
   const [language] = usePreference("language");
   const [duration] = usePreference("timeModeDuration");
 
-  return <TimeTypingTest language={language} duration={duration} />;
+  const words = languages[language];
+  if (words === undefined) {
+    return;
+  }
+
+  return (
+    <TimeTypingTest
+      key={language + " " + duration}
+      words={words}
+      duration={duration}
+    />
+  );
 };
 
 const QuoteTypingTestControls = () => {
@@ -185,7 +210,7 @@ const QuoteTypingTestControls = () => {
 const QuoteTypingTestView = () => {
   const [length] = usePreference("quoteModeLength");
 
-  return <QuoteTypingTest length={length} />;
+  return <QuoteTypingTest key={length} length={length} />;
 };
 
 function SelectLanguage() {
@@ -206,7 +231,7 @@ function SelectLanguage() {
         value={language}
         onChange={handleLanguageChange}
       >
-        {languages.map((language) => (
+        {languageList.map((language) => (
           <MenuItem key={language} value={language}>
             {language}
           </MenuItem>

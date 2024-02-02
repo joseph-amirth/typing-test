@@ -8,10 +8,9 @@ import RandomTypingTestView from "./view/RandomTypingTestView";
 import ResultsView from "./view/ResultsView";
 import SignInView from "./view/SignInView";
 import SignUpView from "./view/SignUpView";
-import SpecificWordsTypingTest from "./typing-test/words/SpecificTypingTest";
-import SpecificTimeTypingTest from "./typing-test/time/SpecificTypingTest";
-import SpecificQuoteTypingTest from "./typing-test/quote/SpecificTypingTest";
 import TypingRaceView from "./view/TypingRaceView";
+import SpecificTypingTestView from "./view/SpecificTypingTestView";
+import { base64urlToSeed } from "./util/prng";
 
 const router = createBrowserRouter([
   {
@@ -31,15 +30,44 @@ const router = createBrowserRouter([
       },
       {
         path: "words/:language/:length/:base64urlSeed",
-        element: <SpecificWordsTypingTest />,
+        element: <SpecificTypingTestView />,
+        loader: ({ params }) => {
+          return {
+            mode: "words",
+            params: {
+              language: params.language!,
+              length: params.length!,
+              seed: base64urlToSeed(params.base64urlSeed!),
+            },
+          };
+        },
       },
       {
         path: "time/:language/:duration/:base64urlSeed",
-        element: <SpecificTimeTypingTest />,
+        element: <SpecificTypingTestView />,
+        loader: ({ params }) => {
+          return {
+            mode: "time",
+            params: {
+              language: params.language!,
+              duration: parseInt(params.duration!),
+              seed: base64urlToSeed(params.base64urlSeed!),
+            },
+          };
+        },
       },
       {
         path: "quote/:id",
-        element: <SpecificQuoteTypingTest />,
+        element: <SpecificTypingTestView />,
+        loader: ({ params }) => {
+          return {
+            mode: "quote",
+            params: {
+              length: "all",
+              id: parseInt(params.id!),
+            },
+          };
+        },
       },
       {
         path: "results",

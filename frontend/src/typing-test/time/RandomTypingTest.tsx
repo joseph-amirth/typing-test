@@ -1,37 +1,20 @@
-import { useEffect, useState } from "react";
-import { copyTextToClipboard } from "../../util/misc";
-import { generateSeed, seedToBase64url } from "../../util/prng";
+import { useState } from "react";
+import { generateSeed } from "../../util/prng";
 import Buttons from "../Buttons";
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
-import { importLanguage, randomWords } from "../gen";
+import { randomWords } from "../gen";
 import TimedTypingTest from "../TimedTypingTest";
-import { Language } from "../gen";
 
 const RandomTypingTest = ({
-  language,
+  words,
   duration,
 }: {
-  language: Language;
+  words: string[];
   duration: number;
 }) => {
-  const [words, setWords] = useState<string[] | undefined>(undefined);
   const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
-
-  useEffect(() => {
-    const newSeed = generateSeed();
-    setWords(undefined);
-    setSeed(newSeed);
-    setKey(Date.now());
-    importLanguage(language).then(setWords);
-  }, [language]);
-
-  useEffect(() => {
-    const newSeed = generateSeed();
-    setSeed(newSeed);
-    setKey(Date.now());
-  }, [duration]);
 
   const nextTest = () => {
     let newSeed = generateSeed();
@@ -47,16 +30,13 @@ const RandomTypingTest = ({
   };
 
   const shareLinkToTest = () => {
-    copyTextToClipboard(
-      `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(
-        seed,
-      )}`,
-    );
+    // TODO: Make link sharing work again.
+    // copyTextToClipboard(
+    //   `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(
+    //     seed,
+    //   )}`,
+    // );
   };
-
-  if (words === undefined) {
-    return <div className="Loading"></div>;
-  }
 
   const generateTest = (count: number) => {
     return randomWords(seed, words, count);
