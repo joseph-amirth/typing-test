@@ -7,17 +7,19 @@ import "./SeededTypingTest.css";
 import BoundedTypingTest from "../BoundedTypingTest";
 import { randomWords } from "../gen";
 import { Seed } from "../../util/prng";
+import { Language, useLanguage } from "../../context/languages";
 
 const SeededTypingTest = ({
-  words,
+  language,
   length,
   seed,
 }: {
-  words: string[];
+  language: Language;
   length: number;
   seed: Seed;
 }) => {
   const navigate = useNavigate();
+  const words = useLanguage(language);
   const [key, setKey] = useState(Date.now());
 
   const restartTest = () => {
@@ -31,6 +33,10 @@ const SeededTypingTest = ({
   const shareLinkToTest = () => {
     copyTextToClipboard(window.location.href);
   };
+
+  if (words === undefined) {
+    return;
+  }
 
   const test = randomWords(seed, words, length);
 

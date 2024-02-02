@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { generateSeed } from "../../util/prng";
+import { generateSeed, seedToBase64url } from "../../util/prng";
 import Buttons from "../Buttons";
 import "./RandomTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
 import { randomWords } from "../gen";
 import TimedTypingTest from "../TimedTypingTest";
+import { Language, useLanguage } from "../../context/languages";
+import { copyTextToClipboard } from "../../util/misc";
 
 const RandomTypingTest = ({
-  words,
+  language,
   duration,
 }: {
-  words: string[];
+  language: Language;
   duration: number;
 }) => {
+  const words = useLanguage(language);
   const [seed, setSeed] = useState(generateSeed());
   const [key, setKey] = useState(Date.now());
 
@@ -30,13 +33,16 @@ const RandomTypingTest = ({
   };
 
   const shareLinkToTest = () => {
-    // TODO: Make link sharing work again.
-    // copyTextToClipboard(
-    //   `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(
-    //     seed,
-    //   )}`,
-    // );
+    copyTextToClipboard(
+      `${window.location.origin}/time/${language}/${duration}/${seedToBase64url(
+        seed,
+      )}`,
+    );
   };
+
+  if (words === undefined) {
+    return;
+  }
 
   const generateTest = (count: number) => {
     return randomWords(seed, words, count);
