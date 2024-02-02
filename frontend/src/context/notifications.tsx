@@ -1,4 +1,5 @@
-import { createContext, useState } from "react";
+import React, { createContext, useState } from "react";
+import Notifications from "../Notifications";
 
 export const NOTIFICATION_TIMEOUT = 10 * 1000;
 
@@ -23,7 +24,11 @@ export const NotificationsContext = createContext<{
   removeNotification: () => {},
 });
 
-export const useNotificationsContext = () => {
+export function NotificationsContextProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [notifications, setNotifications] = useState<NotificationProps[]>([]);
 
   const removeNotification = (id: string) => {
@@ -32,7 +37,7 @@ export const useNotificationsContext = () => {
     );
   };
 
-  return {
+  const notificationsContext = {
     notifications,
     addNotification: ({ type, title, body }: Omit<NotificationProps, "id">) => {
       const id = Math.random().toString();
@@ -48,4 +53,11 @@ export const useNotificationsContext = () => {
     },
     removeNotification,
   };
-};
+
+  return (
+    <NotificationsContext.Provider value={notificationsContext}>
+      <Notifications notifications={notifications} />
+      {children}
+    </NotificationsContext.Provider>
+  );
+}

@@ -4,7 +4,7 @@ import {
   NotificationProps,
   NotificationType,
   NotificationsContext,
-} from "./context/notification";
+} from "./context/notifications";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
