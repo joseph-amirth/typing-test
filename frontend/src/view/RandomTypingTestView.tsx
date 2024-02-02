@@ -16,8 +16,7 @@ import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { Language, LanguagesContext, languageList } from "../context/languages";
-import { useContext } from "react";
+import { Language, languageList, useLanguage } from "../context/languages";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
@@ -107,11 +106,10 @@ const WordsTypingTestControls = () => {
 };
 
 const WordsTypingTestView = () => {
-  const languages = useContext(LanguagesContext);
   const [language] = usePreference("language");
   const [length] = usePreference("wordsModeLength");
 
-  const words = languages[language];
+  const words = useLanguage(language);
   if (words === undefined) {
     return;
   }
@@ -158,11 +156,10 @@ const TimeTypingTestControls = () => {
 };
 
 const TimeTypingTestView = () => {
-  const languages = useContext(LanguagesContext);
   const [language] = usePreference("language");
   const [duration] = usePreference("timeModeDuration");
 
-  const words = languages[language];
+  const words = useLanguage(language);
   if (words === undefined) {
     return;
   }
