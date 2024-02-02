@@ -12,8 +12,8 @@ const Buttons = ({
 }) => {
   return (
     <ButtonGroup>
-      <Button onClick={restart}>Restart</Button>
       <Button onClick={next}>Next test</Button>
+      <Button onClick={restart}>Restart</Button>
       <Button onClick={share}>Share link</Button>
     </ButtonGroup>
   );
