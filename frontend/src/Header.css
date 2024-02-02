@@ -1,20 +1,6 @@
 .Header {
-    position: relative;
-    color: green;
-    height: 15vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.Login {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
-.UserDetails {
-    position: absolute;
-    top: 0;
-    right: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }

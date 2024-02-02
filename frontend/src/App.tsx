@@ -1,5 +1,4 @@
 import { Outlet, useLoaderData } from "react-router-dom";
-import Footer from "./Footer";
 import Header from "./Header";
 import { UserContext, useUserContext } from "./context/user";
 import {
@@ -57,7 +56,6 @@ const App = () => {
                 <div className="Body">
                   <Outlet />
                 </div>
-                <Footer />
               </LanguagesContextProvider>
             </PreferencesContext.Provider>
           </UserContext.Provider>
