@@ -1,11 +1,11 @@
 # TODOs
 
-### General TODOs
-N/A
+### Bugs
+- [ ] After test is completed, clicking on title recalculates wpm based on current time.
 
 ### Frontend TODOs
+- [ ] Center the test properly.
 - [ ] Refine typing race experience.
-- [ ] Figure out how to style stuff with CSS grid.
 - [ ] Fix heading being a button.
 - [ ] Clean up the /public directory.
 - [ ] Use error notifications when internal server errors are encountered.
