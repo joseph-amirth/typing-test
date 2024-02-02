@@ -23,10 +23,9 @@ const Header = () => {
 
   return (
     <div className="Header">
-      <Button>
-        <h1 onClick={() => navigate("/")}>
-          <KeyboardIcon /> Typing Test
-        </h1>
+      <Button onClick={() => navigate("/")}>
+        <KeyboardIcon />
+        <h2 className="Title">Typing Test</h2>
       </Button>
       {user === undefined && (
         <div className="Login">
