@@ -172,9 +172,7 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
                     _ => {}
                 }
             }
-            mms.send(MmsMsg::Leave { username, lobby_id })
-                .await
-                .unwrap();
+            let _ = mms.send(MmsMsg::Leave { username, lobby_id }).await;
         });
     }
 
@@ -226,12 +224,12 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
             }
 
             for player in disconnected_players {
-                mms.send(MmsMsg::Leave {
-                    username: player,
-                    lobby_id,
-                })
-                .await
-                .unwrap();
+                let _ = mms
+                    .send(MmsMsg::Leave {
+                        username: player,
+                        lobby_id,
+                    })
+                    .await;
             }
 
             disconnected_players = new_disconnected_players;
@@ -239,12 +237,12 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
     }
 
     for player in race {
-        mms.send(MmsMsg::Leave {
-            username: player.username,
-            lobby_id,
-        })
-        .await
-        .unwrap();
+        let _ = mms
+            .send(MmsMsg::Leave {
+                username: player.username,
+                lobby_id,
+            })
+            .await;
     }
 }
 
