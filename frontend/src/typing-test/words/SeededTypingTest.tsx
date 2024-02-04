@@ -7,7 +7,7 @@ import "./SeededTypingTest.css";
 import BoundedTypingTest from "../BoundedTypingTest";
 import { randomWords } from "../gen";
 import { Seed } from "../../util/prng";
-import { Language, useLanguage } from "../../context/languages";
+import { Language, useLanguage } from "../../service/static-content";
 
 const SeededTypingTest = ({
   language,

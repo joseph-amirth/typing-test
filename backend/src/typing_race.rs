@@ -52,6 +52,7 @@ const PING_BYTES: [u8; 4] = [0, 1, 2, 3];
 
 const TIME_UNTIL_EVICTION: Duration = Duration::from_secs(5);
 const MAX_USERS_PER_LOBBY: usize = 5;
+const INACTIVITY_DURATION: Duration = Duration::from_secs(20);
 
 pub fn spawn_matchmaking_service() -> Mms {
     let (tx, mut rx) = mpsc::channel::<MmsMsg>(32);
@@ -150,21 +151,43 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
         player.send(&start_msg).await.unwrap();
     }
 
-    let (tx, mut rx) = mpsc::channel::<RaceMsg>(32);
+    let (race_tx, mut race_rx) = mpsc::channel::<RaceMsg>(32);
 
     let mut race = Vec::new();
     for player in lobby {
-        let tx = tx.clone();
+        let race_tx = race_tx.clone();
         let mms = mms.clone();
-        let (mut player_rx, player) = player.take_receiver();
+
+        let (player_rx, player) = player.take_receiver();
         let username = player.username.clone();
         race.push(player);
         tokio::spawn(async move {
-            while let Some(Ok(message)) = player_rx.next().await {
+            let player_rx = tokio_stream::StreamExt::timeout(player_rx, INACTIVITY_DURATION);
+            tokio::pin!(player_rx);
+
+            while let Some(result) = player_rx.next().await {
+                let Ok(result) = result else {
+                    let _ = race_tx
+                        .send(RaceMsg::Timeout {
+                            username: username.clone(),
+                        })
+                        .await;
+                    break;
+                };
+                let Ok(message) = result else {
+                    break;
+                };
                 match message {
                     Message::Text(message) => {
                         let race_msg = serde_json::from_str(&message).expect("no error");
-                        tx.send(race_msg).await.unwrap();
+                        let is_finished = match &race_msg {
+                            RaceMsg::Finish { .. } => true,
+                            _ => false,
+                        };
+                        race_tx.send(race_msg).await.unwrap();
+                        if is_finished {
+                            break;
+                        }
                     }
                     Message::Close(_) => {
                         break;
@@ -172,79 +195,109 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
                     _ => {}
                 }
             }
-            mms.send(MmsMsg::Leave { username, lobby_id })
-                .await
-                .unwrap();
+            let _ = mms.send(MmsMsg::Leave { username, lobby_id }).await;
         });
     }
 
-    // Doing this lets the channel close automatically once all the players' websocket connections
-    // have closed.
-    drop(tx);
+    drop(race_tx);
 
-    while let Some(message) = rx.recv().await {
-        let username = match &message {
-            RaceMsg::Update { username, .. } => username,
-            RaceMsg::Finish { username, .. } => username,
-            RaceMsg::Disconnect { .. } => {
-                // TODO: Log this meaningfully.
-                println!("Unexpected disconnect message received from a client");
-                continue;
-            }
-        };
-
-        let mut disconnected_players = Vec::new();
-        for player in &mut race {
-            if username == &player.username {
-                continue;
-            }
-            if player.send(&message).await.is_err() {
-                disconnected_players.push(player.username.clone());
-            }
-        }
-
-        while !disconnected_players.is_empty() {
-            race.retain(|player| {
-                disconnected_players
-                    .iter()
-                    .find(|disconnected_player| player.username == **disconnected_player)
-                    .is_none()
-            });
-
-            let mut new_disconnected_players = Vec::new();
-            for player in &mut race {
-                let mut is_disconnected = false;
-                for disconnected_player in &disconnected_players {
-                    let message = RaceMsg::Disconnect {
-                        username: disconnected_player.clone(),
-                    };
-                    if !is_disconnected && player.send(&message).await.is_err() {
-                        new_disconnected_players.push(player.username.clone());
-                        is_disconnected = true;
-                    }
-                }
-            }
-
-            for player in disconnected_players {
-                mms.send(MmsMsg::Leave {
-                    username: player,
+    while let Some(message) = race_rx.recv().await {
+        match message {
+            RaceMsg::Update { ref username, .. } | RaceMsg::Finish { ref username, .. } => {
+                send_msg_to_players(
+                    &mms,
                     lobby_id,
-                })
-                .await
-                .unwrap();
+                    &mut race,
+                    |player| player.username != *username,
+                    &message,
+                )
+                .await;
             }
-
-            disconnected_players = new_disconnected_players;
+            RaceMsg::Timeout { ref username } => {
+                let pos = race
+                    .iter()
+                    .position(|player| player.username == *username)
+                    .expect("Player is present");
+                let _ = race[pos].send(&message).await;
+                race.swap_remove(pos);
+                send_msg_to_players(
+                    &mms,
+                    lobby_id,
+                    &mut race,
+                    |_| true,
+                    &RaceMsg::Disconnect {
+                        username: username.to_owned(),
+                        reason: DisconnectReason::Timeout,
+                    },
+                )
+                .await;
+            }
+            _ => {}
         }
     }
 
     for player in race {
-        mms.send(MmsMsg::Leave {
-            username: player.username,
-            lobby_id,
-        })
-        .await
-        .unwrap();
+        let _ = mms
+            .send(MmsMsg::Leave {
+                username: player.username,
+                lobby_id,
+            })
+            .await;
+    }
+}
+
+// Method for sending messages to players. This takes care of handling send errors, marking them as
+// disconnected and informing the other remaining players of the same.
+async fn send_msg_to_players(
+    mms: &Mms,
+    lobby_id: u32,
+    race: &mut Vec<Player<WithoutRx>>,
+    filter: impl Fn(&Player<WithoutRx>) -> bool,
+    message: &impl Serialize,
+) {
+    let mut disconnected_players = Vec::new();
+    for player in &mut *race {
+        if !filter(player) {
+            continue;
+        }
+        if player.send(&message).await.is_err() {
+            disconnected_players.push(player.username.clone());
+        }
+    }
+
+    while !disconnected_players.is_empty() {
+        race.retain(|player| {
+            disconnected_players
+                .iter()
+                .find(|disconnected_player| player.username == **disconnected_player)
+                .is_none()
+        });
+
+        let mut new_disconnected_players = Vec::new();
+        for player in &mut *race {
+            let mut is_disconnected = false;
+            for disconnected_player in &disconnected_players {
+                let message = RaceMsg::Disconnect {
+                    username: disconnected_player.clone(),
+                    reason: DisconnectReason::Unknown,
+                };
+                if !is_disconnected && player.send(&message).await.is_err() {
+                    new_disconnected_players.push(player.username.clone());
+                    is_disconnected = true;
+                }
+            }
+        }
+
+        for player in disconnected_players {
+            let _ = mms
+                .send(MmsMsg::Leave {
+                    username: player,
+                    lobby_id,
+                })
+                .await;
+        }
+
+        disconnected_players = new_disconnected_players;
     }
 }
 
@@ -253,9 +306,28 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
 #[serde(rename_all_fields = "camelCase")]
 #[serde(tag = "kind", content = "payload")]
 enum RaceMsg {
-    Update { username: String, progress: usize },
-    Finish { username: String, result: f32 },
-    Disconnect { username: String },
+    Update {
+        username: String,
+        progress: usize,
+    },
+    Finish {
+        username: String,
+        result: f32,
+    },
+    Disconnect {
+        username: String,
+        reason: DisconnectReason,
+    },
+    Timeout {
+        username: String,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum DisconnectReason {
+    Unknown,
+    Timeout,
 }
 
 type PlayerTx = SplitSink<WebSocket, Message>;
@@ -282,10 +354,7 @@ impl Player {
 }
 
 impl<Rx> Player<Rx> {
-    pub async fn send<T>(&mut self, message: &T) -> Result<(), axum::Error>
-    where
-        T: Serialize,
-    {
+    pub async fn send(&mut self, message: &impl Serialize) -> Result<(), axum::Error> {
         self.sender
             .send(Message::Text(
                 serde_json::to_string(&message).expect("no error"),

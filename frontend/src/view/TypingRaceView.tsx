@@ -8,14 +8,17 @@ import english from "../static/words/english.json";
 
 const TEST_LENGTH = 20;
 
+type State = "waiting" | "prepare" | "start" | "finish" | "timeout";
+
 const TypingRaceView = () => {
   const { user } = useContext(UserContext);
   const socket = useRef<WebSocket | null>(null);
 
   const [opponents, setOpponents] = useState<Opponent[]>([]);
   const [results, setResults] = useState<Result[]>([]);
-  const [state, setState] = useState("waiting");
   const [seed, setSeed] = useState<Seed | undefined>(undefined);
+
+  const [state, setState] = useState<State>("waiting");
 
   if (
     state === "finish" &&
@@ -32,7 +35,7 @@ const TypingRaceView = () => {
           const { username } = payload;
           setOpponents((opponents) => [
             ...opponents,
-            { username, progress: 0, disconnected: false },
+            { username, progress: 0 },
           ]);
         }
         break;
@@ -59,19 +62,6 @@ const TypingRaceView = () => {
           );
         }
         break;
-      case "disconnect":
-        {
-          const { username } = payload;
-          setOpponents((opponents) =>
-            opponents.map((opponent) => {
-              if (opponent.username === username) {
-                opponent.disconnected = true;
-              }
-              return opponent;
-            }),
-          );
-        }
-        break;
       case "finish":
         {
           const { username, result } = payload;
@@ -83,6 +73,29 @@ const TypingRaceView = () => {
           setResults((results) => [...results, { username, result }]);
         }
         break;
+      case "disconnect":
+        {
+          const { username, reason } = payload;
+          setOpponents((opponents) =>
+            opponents.map((opponent) => {
+              if (opponent.username === username) {
+                opponent.disconnected = reason;
+              }
+              return opponent;
+            }),
+          );
+        }
+        break;
+      case "timeout":
+        {
+          setState((state) => {
+            if (state !== "finish") {
+              return "timeout";
+            }
+            return state;
+          });
+        }
+        break;
     }
   };
 
@@ -91,6 +104,9 @@ const TypingRaceView = () => {
       return;
     }
     socket.current = new WebSocket("ws://localhost:8080/race");
+    socket.current.addEventListener("error", () => {
+      console.log("error has occurred!");
+    });
     socket.current.addEventListener("message", (event) => {
       const msg = JSON.parse(event.data) as Msg;
       handleMessage(msg);
@@ -198,7 +214,7 @@ const RaceProgress = ({
         );
       })}
       {opponents.map(({ username, progress, disconnected }) => {
-        return !disconnected ? (
+        return disconnected === undefined ? (
           <div key={username} className="Opponent">
             {username}{" "}
             <LinearProgress
@@ -208,7 +224,7 @@ const RaceProgress = ({
           </div>
         ) : (
           <div key={username} className="Disconnected" style={{ opacity: 0.5 }}>
-            {username} {"(Disconnected)"}
+            {username} {`(${disconnectReasonToString(disconnected)})`}
             <LinearProgress
               variant="determinate"
               value={(progress / TEST_LENGTH) * 100}
@@ -229,7 +245,13 @@ const RaceProgress = ({
   );
 };
 
-type Msg = JoinedMsg | StartMsg | UpdateMsg | DisconnectMsg | FinishMsg;
+type Msg =
+  | JoinedMsg
+  | StartMsg
+  | UpdateMsg
+  | FinishMsg
+  | DisconnectMsg
+  | TimeoutMsg;
 
 interface JoinedMsg {
   kind: "joined";
@@ -253,13 +275,6 @@ interface UpdateMsg {
   };
 }
 
-interface DisconnectMsg {
-  kind: "disconnect";
-  payload: {
-    username: string;
-  };
-}
-
 interface FinishMsg {
   kind: "finish";
   payload: {
@@ -268,10 +283,36 @@ interface FinishMsg {
   };
 }
 
+interface DisconnectMsg {
+  kind: "disconnect";
+  payload: {
+    username: string;
+    reason: DisconnectReason;
+  };
+}
+
+type DisconnectReason = "unknown" | "timeout";
+
+function disconnectReasonToString(reason: DisconnectReason) {
+  switch (reason) {
+    case "unknown":
+      return "Disconnected";
+    case "timeout":
+      return "Disconnected due to timeout";
+  }
+}
+
+interface TimeoutMsg {
+  kind: "timeout";
+  payload: {
+    username: string;
+  };
+}
+
 interface Opponent {
   username: string;
   progress: number;
-  disconnected: boolean;
+  disconnected?: DisconnectReason;
 }
 
 interface Result {
