@@ -26,5 +26,6 @@ sha2 = "0.10.7"
 sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "json", "chrono"] }
 thiserror = "1.0.52"
 tokio = { version = "1.32.0", features = ["macros", "full"] }
+tokio-stream = "0.1.14"
 tower-http = { version = "0.5.0", features = ["cors"] }
 uuid = { version = "1.4.1", features = ["v4"] }
