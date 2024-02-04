@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
 import { setItem } from "../util/local-storage";
-import { Language } from "./languages";
+import { Language } from "../service/static-content";
 
 export const defaultPreferences: Preferences = {
   currentMode: "words",

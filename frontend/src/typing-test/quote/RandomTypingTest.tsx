@@ -3,12 +3,27 @@ import VerticalSpacer from "../../common/VerticalSpacer";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
-import quotesInfo from "../../static/quotes.json";
 import { randomInt } from "../../util/math";
 import { QuoteModeLength } from "../../context/preference";
+import { Quotes, useQuotes } from "../../service/static-content";
 
 function RandomTypingTest({ length }: { length: QuoteModeLength }) {
-  const [firstQuoteId, firstQuote] = getRandomQuote(length);
+  const quotes = useQuotes();
+  if (quotes === undefined) {
+    return;
+  }
+
+  return <Inner quotes={quotes} length={length} />;
+}
+
+function Inner({
+  quotes,
+  length,
+}: {
+  quotes: Quotes;
+  length: QuoteModeLength;
+}) {
+  const [firstQuoteId, firstQuote] = getRandomQuote(quotes, length);
 
   const [quoteId, setQuoteId] = useState(firstQuoteId);
   const [quote, setQuote] = useState(firstQuote);
@@ -20,6 +35,7 @@ function RandomTypingTest({ length }: { length: QuoteModeLength }) {
 
   const nextTest = () => {
     const [newQuoteId, newQuote] = getRandomQuote(
+      quotes,
       length,
       /* oldQuoteId= */ quoteId,
     );
@@ -42,10 +58,11 @@ function RandomTypingTest({ length }: { length: QuoteModeLength }) {
 }
 
 function getRandomQuote(
+  quotesInfo: Quotes,
   length: QuoteModeLength,
   oldQuoteId: number | undefined = undefined,
 ): [number, string[]] {
-  const [first, last] = quotesInfo[length] as [number, number];
+  const [first, last] = quotesInfo[length];
   const quotes = quotesInfo.quotes;
 
   let newQuoteId = randomInt(first, last);

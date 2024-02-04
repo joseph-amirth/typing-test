@@ -16,7 +16,7 @@ import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { Language, languageList } from "../context/languages";
+import { Language, languageList } from "../service/static-content";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");

@@ -1,4 +1,4 @@
-import { Language } from "../context/languages";
+import { Language } from "../service/static-content";
 import { Seed } from "../util/prng";
 import { QuoteModeLength } from "../context/preference";
 import { useLoaderData } from "react-router-dom";
