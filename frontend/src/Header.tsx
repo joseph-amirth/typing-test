@@ -1,25 +1,13 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "./context/user";
-import { logout } from "./util/backend";
 import "./Header.css";
 import KeyboardIcon from "@mui/icons-material/Keyboard";
 import { Button } from "@mui/material";
+import { AccountService } from "./service/account";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserContext);
-
-  const handleLogout = () => {
-    logout().then((response) => {
-      if (response.status === 200) {
-        setUser();
-      } else {
-        // TODO: Render a proper error to the user.
-        console.error("Unable to logout");
-      }
-    });
-  };
+  const { accountState, logOut } = useContext(AccountService);
 
   return (
     <div className="Header">
@@ -27,7 +15,7 @@ const Header = () => {
         <KeyboardIcon />
         <h2 className="Title">Typing Test</h2>
       </Button>
-      {user === undefined && (
+      {accountState.state !== "signedin" && (
         <div className="Login">
           <Button onClick={() => navigate("/signin")} variant="contained">
             Sign in
@@ -37,10 +25,12 @@ const Header = () => {
           </Button>{" "}
         </div>
       )}
-      {user !== undefined && (
+      {accountState.state === "signedin" && (
         <div className="UserDetails">
-          <Button onClick={() => navigate("/results")}>{user.username}</Button>{" "}
-          <Button variant="contained" onClick={handleLogout}>
+          <Button onClick={() => navigate("/results")}>
+            {accountState.account.username}
+          </Button>{" "}
+          <Button variant="contained" onClick={logOut}>
             Log out
           </Button>
         </div>

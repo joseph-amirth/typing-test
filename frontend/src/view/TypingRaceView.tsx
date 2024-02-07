@@ -1,17 +1,17 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { User, UserContext } from "../context/user";
 import BoundedTypingTest from "../typing-test/BoundedTypingTest";
 import { randomWords } from "../typing-test/gen";
 import { LinearProgress } from "@mui/material";
 import { Seed } from "../util/prng";
 import english from "../static/words/english.json";
+import { Account, AccountService } from "../service/account";
 
 const TEST_LENGTH = 20;
 
 type State = "waiting" | "prepare" | "start" | "finish" | "timeout";
 
 const TypingRaceView = () => {
-  const { user } = useContext(UserContext);
+  const { accountState } = useContext(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
   const [opponents, setOpponents] = useState<Opponent[]>([]);
@@ -100,7 +100,7 @@ const TypingRaceView = () => {
   };
 
   useEffect(() => {
-    if (user === undefined) {
+    if (accountState.state !== "signedin") {
       return;
     }
     socket.current = new WebSocket("ws://localhost:8080/race");
@@ -117,12 +117,12 @@ const TypingRaceView = () => {
         socket.current = null;
       }
     };
-  }, [user]);
+  }, [accountState]);
 
   const [userProgress, setUserProgress] = useState(0);
   const [userResult, setUserResult] = useState<number | undefined>(undefined);
 
-  if (user === undefined) {
+  if (accountState.state !== "signedin") {
     return (
       <div className="TypingRaceView">
         Please sign in to participate in races.
@@ -138,7 +138,7 @@ const TypingRaceView = () => {
         {state === "start" && "Start!"}
       </div>
       <RaceProgress
-        user={user!}
+        account={accountState.account}
         userProgress={userProgress}
         userResult={userResult}
         opponents={opponents}
@@ -154,7 +154,7 @@ const TypingRaceView = () => {
             const msg = JSON.stringify({
               kind: "update",
               payload: {
-                username: user!.username,
+                username: accountState.account.username,
                 progress: userProgress,
               },
             });
@@ -166,7 +166,7 @@ const TypingRaceView = () => {
             const msg = JSON.stringify({
               kind: "finish",
               payload: {
-                username: user!.username,
+                username: accountState.account.username,
                 result: duration,
               },
             });
@@ -179,13 +179,13 @@ const TypingRaceView = () => {
 };
 
 const RaceProgress = ({
-  user,
+  account,
   userProgress,
   userResult,
   opponents,
   results,
 }: {
-  user: User;
+  account: Account;
   userProgress: number;
   userResult?: number;
   opponents: Opponent[];
@@ -193,7 +193,7 @@ const RaceProgress = ({
 }) => {
   const newResults = [...results];
   if (userResult !== undefined) {
-    newResults.push({ username: user.username, result: userResult });
+    newResults.push({ username: account.username, result: userResult });
   }
   newResults.sort((a, b) => {
     if (a.result < b.result) {
@@ -209,7 +209,8 @@ const RaceProgress = ({
       {newResults.map(({ username, result }, i) => {
         return (
           <div key={i} className="RaceResult">
-            {i + 1} {username} {username === user.username && "(You)"} {result}
+            {i + 1} {username} {username === account.username && "(You)"}{" "}
+            {result}
           </div>
         );
       })}
@@ -233,8 +234,8 @@ const RaceProgress = ({
         );
       })}
       {userResult === undefined && (
-        <div className="User">
-          {user.username} {"(You)"}
+        <div className="Account">
+          {account.username} {"(You)"}
           <LinearProgress
             variant="determinate"
             value={(userProgress / TEST_LENGTH) * 100}

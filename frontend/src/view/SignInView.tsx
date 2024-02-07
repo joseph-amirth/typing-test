@@ -1,14 +1,14 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/user";
 import "./SignInView.css";
-import { PreferencesContext } from "../context/preference";
 import { useForm } from "react-hook-form";
 import { RE_EMAIL, RE_USERNAME } from "../util/validation";
-import { signInWithEmail, signInWithUsername } from "../util/backend";
 import { Button, TextField } from "@mui/material";
+import { AccountService } from "../service/account";
 
 const SignInView = () => {
+  const { signIn } = useContext(AccountService);
+
   const {
     register,
     handleSubmit,
@@ -17,9 +17,6 @@ const SignInView = () => {
 
   const navigate = useNavigate();
 
-  const { setUser } = useContext(UserContext);
-  const { receivePreferences } = useContext(PreferencesContext);
-
   const [serverError, setServerError] = useState("");
 
   return (
@@ -27,16 +24,13 @@ const SignInView = () => {
       className="SignIn"
       onSubmit={handleSubmit(({ usernameOrEmail, password }) => {
         (RE_USERNAME.test(usernameOrEmail)
-          ? signInWithUsername({ username: usernameOrEmail, password })
-          : signInWithEmail({ email: usernameOrEmail, password })
-        ).then((json) => {
-          if ("error" in json) {
-            setServerError(json.error);
-          } else {
-            const { username, email } = json;
-            setUser({ username, email });
-            receivePreferences(json.preferences);
+          ? signIn({ usernameOrEmail: { username: usernameOrEmail }, password })
+          : signIn({ usernameOrEmail: { email: usernameOrEmail }, password })
+        ).then((response) => {
+          if (response.status === "ok") {
             navigate("/");
+          } else if (response.status === "err") {
+            setServerError(response.reason);
           }
         });
       })}

@@ -1,14 +1,15 @@
 import "./SignUpView.css";
 import { useForm } from "react-hook-form";
-import { signUp } from "../util/backend";
 import { useContext, useState } from "react";
 import { PreferencesContext } from "../context/preference";
-import { UserContext } from "../context/user";
 import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
+import { AccountService } from "../service/account";
 
 const SignUpView = () => {
+  const { signUp } = useContext(AccountService);
+
   const {
     register,
     handleSubmit,
@@ -17,7 +18,6 @@ const SignUpView = () => {
 
   const navigate = useNavigate();
 
-  const { setUser } = useContext(UserContext);
   const { preferences } = useContext(PreferencesContext);
 
   const [serverError, setServerError] = useState("");
@@ -26,12 +26,11 @@ const SignUpView = () => {
     <form
       className="SignUp"
       onSubmit={handleSubmit(({ username, email, password }) => {
-        signUp({ username, email, password, preferences }).then((json) => {
-          if ("error" in json) {
-            setServerError(json.error);
-          } else {
-            setUser(json);
+        signUp({ username, email, password, preferences }).then((response) => {
+          if (response.status === "ok") {
             navigate("/");
+          } else if (response.status === "err") {
+            setServerError(response.reason);
           }
         });
       })}

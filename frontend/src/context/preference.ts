@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { updatePreferences } from "../util/backend";
-import { setItem } from "../util/local-storage";
+import { getOrInitItem, setItem } from "../util/local-storage";
 import { Language } from "../service/static-content";
 
 export const defaultPreferences: Preferences = {
@@ -24,7 +24,8 @@ export const PreferencesContext = createContext<{
 });
 
 // Hook to initialize the preferences context and return it.
-export const usePreferencesContext = (initialPreferences: Preferences) => {
+export const usePreferencesContext = () => {
+  const initialPreferences = getOrInitItem("preferences", defaultPreferences);
   const [preferences, setPreferences] = useState(initialPreferences);
 
   return {

@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import { currentUser, getResults } from "./util/backend";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import ResultsView from "./view/ResultsView";
 import SignInView from "./view/SignInView";
@@ -16,9 +15,6 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    loader: async () => {
-      return await currentUser();
-    },
     children: [
       {
         index: true,
@@ -72,9 +68,6 @@ const router = createBrowserRouter([
       {
         path: "results",
         element: <ResultsView />,
-        loader: async () => {
-          return await getResults();
-        },
       },
       {
         path: "signup",

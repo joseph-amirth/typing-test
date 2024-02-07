@@ -1,9 +1,9 @@
-export function getItem(itemName: string): object {
+export function getItem<T>(itemName: string): T {
   return JSON.parse(window.localStorage.getItem(itemName)!);
 }
 
-export function getOrInitItem(itemName: string, init: object): object {
-  const item = getItem(itemName);
+export function getOrInitItem<T>(itemName: string, init: T): T {
+  const item = getItem<T>(itemName);
   if (item === null) {
     setItem(itemName, init);
     return init;
@@ -11,6 +11,6 @@ export function getOrInitItem(itemName: string, init: object): object {
   return item;
 }
 
-export function setItem(itemName: string, item: object) {
+export function setItem<T>(itemName: string, item: T) {
   window.localStorage.setItem(itemName, JSON.stringify(item));
 }

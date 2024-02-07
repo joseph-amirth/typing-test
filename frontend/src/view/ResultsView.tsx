@@ -1,5 +1,4 @@
 import {
-  Pagination,
   Paper,
   Table,
   TableBody,
@@ -9,34 +8,27 @@ import {
   TableRow,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import { useState } from "react";
-import { useLoaderData } from "react-router-dom";
 import { TypingTestParams } from "../context/preference";
-
-const PAGE_SIZE = 15;
+import { useContext, useEffect, useState } from "react";
+import { Result, ResultsService } from "../service/results";
 
 const ResultsView = () => {
-  const params = useLoaderData() as
-    | { error: string }
-    | Array<{
-        testParams: TypingTestParams;
-        testCompletedTimestamp: number;
-        wpm: number;
-        rawWpm: number;
-        accuracy: number;
-      }>;
-  const [page, setPage] = useState(1);
+  const { getResults } = useContext(ResultsService);
 
-  if ("error" in params) {
-    return <div>{params.error}</div>;
+  const [results, setResults] = useState<Result[] | undefined>(undefined);
+
+  useEffect(() => {
+    getResults().then((response) => {
+      if (response.status === "ok") {
+        const results = response.body;
+        setResults(results);
+      }
+    });
+  }, []);
+
+  if (results === undefined) {
+    return "Loading results...";
   }
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    page: number,
-  ) => {
-    setPage(page);
-  };
 
   return (
     <Stack
@@ -44,11 +36,6 @@ const ResultsView = () => {
       spacing="1em"
       sx={{ margin: "0 auto", width: "100%" }}
     >
-      <Pagination
-        count={Math.ceil(params.length / PAGE_SIZE)}
-        onChange={handlePageChange}
-        color="primary"
-      />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -61,30 +48,26 @@ const ResultsView = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {params
-              .filter(
-                (_, i) => (page - 1) * PAGE_SIZE <= i && i < page * PAGE_SIZE,
-              )
-              .map(
-                (
-                  { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
-                  i,
-                ) => {
-                  return (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <TypingTestParamsDisplay {...testParams} />
-                      </TableCell>
-                      <TableCell>{wpm}</TableCell>
-                      <TableCell>{accuracy}</TableCell>
-                      <TableCell>{rawWpm}</TableCell>
-                      <TableCell>
-                        {getDateFromTimestampInSecs(testCompletedTimestamp)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                },
-              )}
+            {results.map(
+              (
+                { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
+                i,
+              ) => {
+                return (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <TypingTestParamsDisplay {...testParams} />
+                    </TableCell>
+                    <TableCell>{wpm}</TableCell>
+                    <TableCell>{accuracy}</TableCell>
+                    <TableCell>{rawWpm}</TableCell>
+                    <TableCell>
+                      {getDateFromTimestampInSecs(testCompletedTimestamp)}
+                    </TableCell>
+                  </TableRow>
+                );
+              },
+            )}
           </TableBody>
         </Table>
       </TableContainer>
