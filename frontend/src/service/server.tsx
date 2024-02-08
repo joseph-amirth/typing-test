@@ -14,14 +14,14 @@ export const ServerService = createContext<{
     options: object,
   ) => Promise<ServerResponse<T>>;
 }>({
-  fetchWithContext: () => {
-    return Promise.resolve({ status: "fail" });
+  fetchWithContext: async () => {
+    return { status: "fail" };
   },
-  get: () => {
-    return Promise.resolve({ status: "fail" });
+  get: async () => {
+    return { status: "fail" };
   },
-  post: () => {
-    return Promise.resolve({ status: "fail" });
+  post: async () => {
+    return { status: "fail" };
   },
 });
 

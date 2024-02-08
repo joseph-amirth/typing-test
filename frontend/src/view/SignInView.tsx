@@ -17,12 +17,14 @@ const SignInView = () => {
 
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
   return (
     <form
       className="SignIn"
       onSubmit={handleSubmit(({ usernameOrEmail, password }) => {
+        setLoading(true);
         (RE_USERNAME.test(usernameOrEmail)
           ? signIn({ usernameOrEmail: { username: usernameOrEmail }, password })
           : signIn({ usernameOrEmail: { email: usernameOrEmail }, password })
@@ -32,6 +34,7 @@ const SignInView = () => {
           } else if (response.status === "err") {
             setServerError(response.reason);
           }
+          setLoading(false);
         });
       })}
     >
@@ -71,7 +74,7 @@ const SignInView = () => {
         helperText={errors.password?.message?.toString()}
       />
 
-      <Button type="submit" variant="text">
+      <Button type="submit" variant="text" disabled={loading}>
         Sign in
       </Button>
 

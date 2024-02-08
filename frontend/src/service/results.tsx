@@ -6,11 +6,11 @@ export const ResultsService = createContext<{
   getResults: () => Promise<ServerResponse<Result[]>>;
   postResult: (result: Result) => Promise<ServerResponse<undefined>>;
 }>({
-  getResults: () => {
-    return Promise.resolve({ status: "fail" });
+  getResults: async () => {
+    return { status: "fail" };
   },
-  postResult: () => {
-    return Promise.resolve({ status: "fail" });
+  postResult: async () => {
+    return { status: "fail" };
   },
 });
 

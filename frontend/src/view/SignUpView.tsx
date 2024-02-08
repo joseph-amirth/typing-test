@@ -20,18 +20,21 @@ const SignUpView = () => {
 
   const { preferences } = useContext(PreferencesContext);
 
+  const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
 
   return (
     <form
       className="SignUp"
       onSubmit={handleSubmit(({ username, email, password }) => {
+        setLoading(true);
         signUp({ username, email, password, preferences }).then((response) => {
           if (response.status === "ok") {
             navigate("/");
           } else if (response.status === "err") {
             setServerError(response.reason);
           }
+          setLoading(false);
         });
       })}
     >
@@ -126,7 +129,7 @@ const SignUpView = () => {
         helperText={errors.repeatedPassword?.message?.toString()}
       />
 
-      <Button type="submit" variant="text">
+      <Button type="submit" variant="text" disabled={loading}>
         Sign up
       </Button>
 

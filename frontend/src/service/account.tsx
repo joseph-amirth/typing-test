@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Preferences, PreferencesContext } from "../context/preference";
 import { ServerResponse, ServerService } from "./server";
 import { NotificationsContext } from "../context/notifications";
@@ -7,17 +13,17 @@ export const AccountService = createContext<{
   accountState: AccountState;
   signUp: (params: SignUpParams) => Promise<ServerResponse<SignUpResponse>>;
   signIn: (params: SignInParams) => Promise<ServerResponse<SignInResponse>>;
-  logOut: (params: LogOutParams) => Promise<ServerResponse<LogOutResponse>>;
+  logOut: () => Promise<ServerResponse<LogOutResponse>>;
 }>({
   accountState: { state: "notsignedin" },
-  signUp: () => {
-    return Promise.resolve({ status: "fail" });
+  signUp: async () => {
+    return { status: "fail" };
   },
-  signIn: () => {
-    return Promise.resolve({ status: "fail" });
+  signIn: async () => {
+    return { status: "fail" };
   },
-  logOut: () => {
-    return Promise.resolve({ status: "fail" });
+  logOut: async () => {
+    return { status: "fail" };
   },
 });
 
@@ -30,8 +36,9 @@ export function AccountServiceProvider({
   const { receivePreferences } = useContext(PreferencesContext);
   const { get, post } = useContext(ServerService);
 
+  const initialized = useRef(false);
   const [accountState, setAccountState] = useState<AccountState>({
-    state: "loading",
+    state: "notsignedin",
   });
 
   async function currentUser() {
@@ -48,11 +55,8 @@ export function AccountServiceProvider({
           state: "signedin",
           account: { username, email },
         });
-      } else {
-        setAccountState({
-          state: "notsignedin",
-        });
       }
+      initialized.current = true;
     });
   }, []);
 
@@ -63,8 +67,6 @@ export function AccountServiceProvider({
         title: "Already signed in",
         body: `You are already signed in as ${accountState.account.username}. If this isn't you, please log out and try signing up/signing in again.`,
       });
-      return false;
-    } else if (accountState.state === "loading") {
       return false;
     }
     return true;
@@ -92,8 +94,6 @@ export function AccountServiceProvider({
       return { status: "fail" } as ServerResponse<SignInResponse>;
     }
 
-    setAccountState({ state: "loading" });
-
     const response = await post<SignInResponse>("/signin", params, {
       credentials: "include",
     });
@@ -107,14 +107,12 @@ export function AccountServiceProvider({
     return response;
   }
 
-  async function logOut(params: LogOutParams) {
+  async function logOut() {
     if (accountState.state !== "signedin") {
       return { status: "fail" } as ServerResponse<LogOutResponse>;
     }
 
-    setAccountState({ state: "loading" });
-
-    const response = await post<LogOutResponse>("/logout", params, {
+    const response = await get<LogOutResponse>("/logout", {
       credentials: "include",
     });
 
@@ -136,15 +134,10 @@ export function AccountServiceProvider({
   );
 }
 
-export type AccountState = NotSignedInState | LoadingState | SignedInState;
+export type AccountState = NotSignedInState | SignedInState;
 
 interface NotSignedInState {
   state: "notsignedin";
-}
-
-// Indicates that some request is in-flight.
-interface LoadingState {
-  state: "loading";
 }
 
 interface SignedInState {
@@ -186,8 +179,6 @@ interface CurrentUserResponse {
   preferences: Preferences;
 }
 
-interface LogOutParams {}
-
-interface LogOutResponse {}
+type LogOutResponse = null;
 
 type UsernameOrEmail = { username: string } | { email: string };
