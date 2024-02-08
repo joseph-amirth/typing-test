@@ -1,17 +1,18 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BoundedTypingTest from "../typing-test/BoundedTypingTest";
 import { randomWords } from "../typing-test/gen";
 import { LinearProgress } from "@mui/material";
 import { Seed } from "../util/prng";
 import english from "../static/words/english.json";
 import { Account, AccountService } from "../service/account";
+import { useService } from "../service";
 
 const TEST_LENGTH = 20;
 
 type State = "waiting" | "prepare" | "start" | "finish" | "timeout";
 
 const TypingRaceView = () => {
-  const { accountState } = useContext(AccountService);
+  const { accountState } = useService(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
   const [opponents, setOpponents] = useState<Opponent[]>([]);

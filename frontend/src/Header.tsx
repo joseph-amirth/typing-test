@@ -1,13 +1,14 @@
-import { useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import KeyboardIcon from "@mui/icons-material/Keyboard";
 import { Button } from "@mui/material";
-import { AccountService } from "./service/account";
+import { Account, AccountService } from "./service/account";
+import { useService } from "./service";
 
-const Header = () => {
+function Header() {
   const navigate = useNavigate();
-  const { accountState, logOut } = useContext(AccountService);
+  const { accountState } = useService(AccountService);
 
   return (
     <div className="Header">
@@ -26,17 +27,35 @@ const Header = () => {
         </div>
       )}
       {accountState.state === "signedin" && (
-        <div className="UserDetails">
-          <Button onClick={() => navigate("/results")}>
-            {accountState.account.username}
-          </Button>{" "}
-          <Button variant="contained" onClick={logOut}>
-            Log out
-          </Button>
-        </div>
+        <UserDetails account={accountState.account} />
       )}
     </div>
   );
-};
+}
+
+function UserDetails({ account }: { account: Account }) {
+  const navigate = useNavigate();
+  const accountService = useService(AccountService);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleLogOutButtonClick = () => {
+    setLoading(true);
+    accountService.logOut().then(() => setLoading(false));
+  };
+
+  return (
+    <div className="UserDetails">
+      <Button onClick={() => navigate("/results")}>{account.username}</Button>{" "}
+      <Button
+        variant="contained"
+        onClick={handleLogOutButtonClick}
+        disabled={loading}
+      >
+        Log out
+      </Button>
+    </div>
+  );
+}
 
 export default Header;

@@ -2,7 +2,8 @@
  * Exports hooks to lazy-load static content.
  */
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { createService, useService } from ".";
 
 export const languageList = [
   "english",
@@ -33,7 +34,7 @@ export type Quotes = {
   ];
 };
 
-export const StaticContentService = createContext<{
+export const StaticContentService = createService<{
   languages: Languages;
   quotes: Quotes | undefined;
   requestLanguage: (language: Language) => void;
@@ -46,7 +47,7 @@ export const StaticContentService = createContext<{
 });
 
 export function useLanguage(language: Language): string[] | undefined {
-  const { languages, requestLanguage } = useContext(StaticContentService);
+  const { languages, requestLanguage } = useService(StaticContentService);
 
   useEffect(() => {
     requestLanguage(language);
@@ -56,7 +57,7 @@ export function useLanguage(language: Language): string[] | undefined {
 }
 
 export function useQuotes(): Quotes | undefined {
-  const { quotes, requestQuotes } = useContext(StaticContentService);
+  const { quotes, requestQuotes } = useService(StaticContentService);
 
   useEffect(() => {
     requestQuotes();

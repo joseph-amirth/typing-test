@@ -1,8 +1,8 @@
-import { createContext, useContext } from "react";
 import { NotificationsContext } from "../context/notifications";
 import { AccountServiceProvider } from "./account";
+import { createService, useService } from ".";
 
-export const ServerService = createContext<{
+export const ServerService = createService<{
   fetchWithContext: <T>(
     path: string,
     options: object,
@@ -30,7 +30,7 @@ export function ServerServiceProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { addNotification } = useContext(NotificationsContext);
+  const { addNotification } = useService(NotificationsContext);
 
   async function fetchWithContext<T>(
     path: string,

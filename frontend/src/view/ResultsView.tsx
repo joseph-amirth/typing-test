@@ -9,11 +9,12 @@ import {
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { TypingTestParams } from "../context/preference";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Result, ResultsService } from "../service/results";
+import { useService } from "../service";
 
 const ResultsView = () => {
-  const { getResults } = useContext(ResultsService);
+  const { getResults } = useService(ResultsService);
 
   const [results, setResults] = useState<Result[] | undefined>(undefined);
 

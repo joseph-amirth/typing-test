@@ -1,15 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Preferences, PreferencesContext } from "../context/preference";
 import { ServerResponse, ServerService } from "./server";
 import { NotificationsContext } from "../context/notifications";
+import { createService, useService } from ".";
 
-export const AccountService = createContext<{
+export const AccountService = createService<{
   accountState: AccountState;
   signUp: (params: SignUpParams) => Promise<ServerResponse<SignUpResponse>>;
   signIn: (params: SignInParams) => Promise<ServerResponse<SignInResponse>>;
@@ -32,9 +27,9 @@ export function AccountServiceProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { addNotification } = useContext(NotificationsContext);
-  const { receivePreferences } = useContext(PreferencesContext);
-  const { get, post } = useContext(ServerService);
+  const { addNotification } = useService(NotificationsContext);
+  const { receivePreferences } = useService(PreferencesContext);
+  const { get, post } = useService(ServerService);
 
   const initialized = useRef(false);
   const [accountState, setAccountState] = useState<AccountState>({
@@ -60,7 +55,7 @@ export function AccountServiceProvider({
     });
   }, []);
 
-  async function canSignUpOrSignIn() {
+  function canSignUpOrSignIn() {
     if (accountState.state === "signedin") {
       addNotification({
         type: "Error",

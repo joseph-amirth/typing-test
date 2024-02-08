@@ -6,9 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
 import { AccountService } from "../service/account";
+import { useService } from "../service";
 
 const SignUpView = () => {
-  const { signUp } = useContext(AccountService);
+  const accountService = useService(AccountService);
 
   const {
     register,
@@ -28,14 +29,16 @@ const SignUpView = () => {
       className="SignUp"
       onSubmit={handleSubmit(({ username, email, password }) => {
         setLoading(true);
-        signUp({ username, email, password, preferences }).then((response) => {
-          if (response.status === "ok") {
-            navigate("/");
-          } else if (response.status === "err") {
-            setServerError(response.reason);
-          }
-          setLoading(false);
-        });
+        accountService
+          .signUp({ username, email, password, preferences })
+          .then((response) => {
+            if (response.status === "ok") {
+              navigate("/");
+            } else if (response.status === "err") {
+              setServerError(response.reason);
+            }
+            setLoading(false);
+          });
       })}
     >
       <TextField

@@ -1,13 +1,14 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignInView.css";
 import { useForm } from "react-hook-form";
 import { RE_EMAIL, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
 import { AccountService } from "../service/account";
+import { useService } from "../service";
 
 const SignInView = () => {
-  const { signIn } = useContext(AccountService);
+  const { signIn } = useService(AccountService);
 
   const {
     register,

@@ -1,8 +1,9 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 import { TypingTestParams } from "../context/preference";
 import { ServerResponse, ServerService } from "./server";
+import { createService, useService } from ".";
 
-export const ResultsService = createContext<{
+export const ResultsService = createService<{
   getResults: () => Promise<ServerResponse<Result[]>>;
   postResult: (result: Result) => Promise<ServerResponse<undefined>>;
 }>({
@@ -19,7 +20,7 @@ export function ResultsServiceProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { get, post } = useContext(ServerService);
+  const { get, post } = useService(ServerService);
 
   async function postResult(result: Result) {
     return post<undefined>("/result", result, { credentials: "include" });
