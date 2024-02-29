@@ -161,7 +161,7 @@ const TypingRaceView = () => {
             });
             socket.current?.send(msg);
           }}
-          onTestFinish={(_, duration) => {
+          onTestFinish={({ duration }) => {
             setUserResult(duration);
             setState("finish");
             const msg = JSON.stringify({

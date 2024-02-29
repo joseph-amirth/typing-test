@@ -16,5 +16,6 @@ CREATE TABLE result (
   wpm FLOAT UNSIGNED NOT NULL,
   raw_wpm FLOAT UNSIGNED NOT NULL,
   accuracy FLOAT UNSIGNED NOT NULL,
-  CONSTRAINT `fk_user_result` FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE ON UPDATE RESTRICT
+  CONSTRAINT `fk_user_result` FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `unique_result` UNIQUE KEY (test_params, test_completed_timestamp, wpm, raw_wpm, accuracy)
 );

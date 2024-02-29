@@ -1,7 +1,8 @@
-import { createContext, useContext, useState } from "react";
-import { updatePreferences } from "../util/backend";
-import { getOrInitItem, setItem } from "../util/local-storage";
-import { Language } from "../service/static-content";
+import { useState } from "react";
+import { updatePreferences } from "../../util/backend";
+import { getOrInitItem, setItem } from "../../util/local-storage";
+import { Language } from "../staticcontent";
+import { createService } from "..";
 
 export const defaultPreferences: Preferences = {
   currentMode: "words",
@@ -13,7 +14,7 @@ export const defaultPreferences: Preferences = {
   showAllLines: false,
 };
 
-export const PreferencesContext = createContext<{
+export const PreferencesService = createService<{
   preferences: Preferences;
   receivePreferences: (newPreferences: Preferences) => void;
   addPreferences: (newPreferences: Partial<Preferences>) => void;
@@ -24,7 +25,7 @@ export const PreferencesContext = createContext<{
 });
 
 // Hook to initialize the preferences context and return it.
-export const usePreferencesContext = () => {
+export const usePreferencesService = () => {
   const initialPreferences = getOrInitItem("preferences", defaultPreferences);
   const [preferences, setPreferences] = useState(initialPreferences);
 
@@ -48,51 +49,6 @@ export const usePreferencesContext = () => {
       });
     },
   };
-};
-
-// Hook to use and update a preference with the given name.
-export function usePreference<T extends keyof Preferences>(
-  preferenceName: T,
-): [Preferences[T], (value: Preferences[T]) => void] {
-  const { preferences, addPreferences } = useContext(PreferencesContext);
-  return [
-    preferences[preferenceName],
-    (value: Preferences[T]) => {
-      const preference = { [preferenceName]: value };
-      addPreferences(preference);
-    },
-  ];
-}
-
-export const useTypingTestParams = (): TypingTestParams => {
-  const { preferences } = useContext(PreferencesContext);
-  const { currentMode } = preferences;
-
-  switch (currentMode) {
-    case "words":
-      return {
-        mode: currentMode,
-        params: {
-          language: preferences.language,
-          length: preferences.wordsModeLength,
-        },
-      };
-    case "time":
-      return {
-        mode: currentMode,
-        params: {
-          language: preferences.language,
-          duration: preferences.timeModeDuration,
-        },
-      };
-    case "quote":
-      return {
-        mode: currentMode,
-        params: {
-          length: preferences.quoteModeLength,
-        },
-      };
-  }
 };
 
 export interface Preferences {

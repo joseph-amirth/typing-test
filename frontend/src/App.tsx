@@ -1,14 +1,11 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
-import {
-  PreferencesContext,
-  usePreferencesContext,
-} from "./context/preference";
-import { NotificationsContextProvider } from "./context/notifications";
+import PreferencesServiceProvider from "./service/preferences/Provider";
+import { NotificationsServiceProvider } from "./service/notifications/Provider";
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline } from "@mui/material";
-import { StaticContentServiceProvider } from "./service/static-content";
+import { StaticContentServiceProvider } from "./service/staticcontent/Provider";
 import { ServerServiceProvider } from "./service/server";
 
 const App = () => {
@@ -30,14 +27,12 @@ const App = () => {
     },
   });
 
-  const preferencesContext = usePreferencesContext();
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="App">
-        <NotificationsContextProvider>
-          <PreferencesContext.Provider value={preferencesContext}>
+        <NotificationsServiceProvider>
+          <PreferencesServiceProvider>
             <ServerServiceProvider>
               <StaticContentServiceProvider>
                 <Header />
@@ -46,8 +41,8 @@ const App = () => {
                 </div>
               </StaticContentServiceProvider>
             </ServerServiceProvider>
-          </PreferencesContext.Provider>
-        </NotificationsContextProvider>
+          </PreferencesServiceProvider>
+        </NotificationsServiceProvider>
       </div>
     </ThemeProvider>
   );

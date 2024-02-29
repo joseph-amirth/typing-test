@@ -1,6 +1,6 @@
-import { Language } from "../service/static-content";
+import { Language } from "../service/staticcontent";
 import { Seed } from "../util/prng";
-import { QuoteModeLength } from "../context/preference";
+import { QuoteModeLength } from "../service/preferences";
 import { useLoaderData } from "react-router-dom";
 import WordsTypingTest from "../typing-test/words/SeededTypingTest";
 import TimeTypingTest from "../typing-test/time/SeededTypingTest";

@@ -1,4 +1,5 @@
 import {
+  Button,
   Paper,
   Table,
   TableBody,
@@ -8,26 +9,56 @@ import {
   TableRow,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import { TypingTestParams } from "../context/preference";
+import { TypingTestParams } from "../service/preferences";
 import { useEffect, useState } from "react";
 import { Result, ResultsService } from "../service/results";
 import { useService } from "../service";
 
-const ResultsView = () => {
-  const { getResults } = useService(ResultsService);
+const LIMIT = 10;
 
-  const [results, setResults] = useState<Result[] | undefined>(undefined);
+type FetchState =
+  | { state: "none" }
+  | { state: "some"; cursor: number }
+  | { state: "all" };
+
+function ResultsView() {
+  const resultsService = useService(ResultsService);
+
+  const [fetchState, setFetchState] = useState<FetchState>({
+    state: "none",
+  });
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<Result[]>([]);
+
+  const getResults = () => {
+    if (loading) {
+      return;
+    }
+    const cursor = fetchState.state === "some" ? fetchState.cursor : undefined;
+    setLoading(true);
+    resultsService.getResults({ cursor, limit: LIMIT }).then((response) => {
+      if (response.status === "ok") {
+        const { cursor, results } = response.body;
+        if (cursor === 0) {
+          setFetchState({ state: "all" });
+        } else {
+          setFetchState({ state: "some", cursor });
+          setResults((oldResults) => {
+            const sortedResults = sortByTimestamp([...oldResults, ...results]);
+            const uniqueResults = dedupByTimestamp(sortedResults);
+            return uniqueResults;
+          });
+        }
+      }
+      setLoading(false);
+    });
+  };
 
   useEffect(() => {
-    getResults().then((response) => {
-      if (response.status === "ok") {
-        const results = response.body;
-        setResults(results);
-      }
-    });
+    getResults();
   }, []);
 
-  if (results === undefined) {
+  if (fetchState.state === "none") {
     return "Loading results...";
   }
 
@@ -50,12 +81,15 @@ const ResultsView = () => {
           </TableHead>
           <TableBody>
             {results.map(
-              (
-                { testParams, testCompletedTimestamp, wpm, rawWpm, accuracy },
-                i,
-              ) => {
+              ({
+                testParams,
+                testCompletedTimestamp,
+                wpm,
+                rawWpm,
+                accuracy,
+              }) => {
                 return (
-                  <TableRow key={i}>
+                  <TableRow key={testCompletedTimestamp}>
                     <TableCell>
                       <TypingTestParamsDisplay {...testParams} />
                     </TableCell>
@@ -63,7 +97,7 @@ const ResultsView = () => {
                     <TableCell>{accuracy}</TableCell>
                     <TableCell>{rawWpm}</TableCell>
                     <TableCell>
-                      {getDateFromTimestampInSecs(testCompletedTimestamp)}
+                      <TimestampDisplay timestamp={testCompletedTimestamp} />
                     </TableCell>
                   </TableRow>
                 );
@@ -72,11 +106,20 @@ const ResultsView = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {fetchState.state === "some" &&
+        (!loading ? (
+          <Button variant="contained" onClick={getResults}>
+            Load more
+          </Button>
+        ) : (
+          "Loading results..."
+        ))}
+      {fetchState.state === "all" && "All results loaded"}
     </Stack>
   );
-};
+}
 
-const TypingTestParamsDisplay = ({ mode, params }: TypingTestParams) => {
+function TypingTestParamsDisplay({ mode, params }: TypingTestParams) {
   const stat = (() => {
     if (mode === "words" || mode === "quote") {
       return params.length;
@@ -90,11 +133,32 @@ const TypingTestParamsDisplay = ({ mode, params }: TypingTestParams) => {
       {stat} {mode} {"language" in params ? params.language : undefined}
     </div>
   );
-};
+}
 
-const getDateFromTimestampInSecs = (timestampInSecs: number) => {
-  const datetime = new Date(timestampInSecs * 1000);
+function TimestampDisplay({ timestamp }: { timestamp: number }) {
+  const datetime = new Date(timestamp);
   return datetime.toLocaleDateString() + " " + datetime.toLocaleTimeString();
-};
+}
+
+function sortByTimestamp(results: Result[]): Result[] {
+  const sortedResults = [...results];
+  sortedResults.sort(
+    (a, b) => b.testCompletedTimestamp - a.testCompletedTimestamp,
+  );
+  return sortedResults;
+}
+
+function dedupByTimestamp(results: Result[]): Result[] {
+  const uniqueResults = [results[0]];
+  for (let i = 1; i < results.length; i++) {
+    if (
+      results[i].testCompletedTimestamp !==
+      results[i - 1].testCompletedTimestamp
+    ) {
+      uniqueResults.push(results[i]);
+    }
+  }
+  return uniqueResults;
+}
 
 export default ResultsView;

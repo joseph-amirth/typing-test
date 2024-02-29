@@ -7,16 +7,13 @@ import {
 } from "@mui/material";
 import VerticalSpacer from "../common/VerticalSpacer";
 import HorizontalSpacer from "../common/HorizontalSpacer";
-import {
-  QuoteModeLength,
-  TypingTestMode,
-  usePreference,
-} from "../context/preference";
+import { QuoteModeLength, TypingTestMode } from "../service/preferences";
+import { usePreference } from "../service/preferences/hooks";
 import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { Language, languageList } from "../service/static-content";
+import { Language, languageList } from "../service/staticcontent";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");

@@ -23,6 +23,8 @@ use preferences::*;
 
 mod experimental;
 use experimental::*;
+use tower_http::trace::{DefaultMakeSpan, TraceLayer};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[allow(dead_code)]
 fn get_email() -> Result<Message, anyhow::Error> {
@@ -37,6 +39,14 @@ fn get_email() -> Result<Message, anyhow::Error> {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "example_websockets=debug,tower_http=debug".into()),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     dotenv().ok();
 
     let app = Router::new()
@@ -62,10 +72,15 @@ async fn main() {
                 .allow_methods([Method::GET, Method::POST])
                 .allow_headers([CONTENT_TYPE])
                 .allow_credentials(true),
+        )
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::default().include_headers(true)),
         );
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await
         .expect("no error");
+    tracing::debug!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.expect("no error");
 }

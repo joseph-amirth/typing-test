@@ -1,4 +1,4 @@
-import { Preferences, TypingTestParams } from "../context/preference";
+import { Preferences, TypingTestParams } from "../service/preferences";
 
 const backendUrl = "http://localhost:8080";
 

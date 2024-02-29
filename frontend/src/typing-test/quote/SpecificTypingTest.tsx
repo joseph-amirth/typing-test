@@ -5,8 +5,9 @@ import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
 import "./SpecificTypingTest.css";
 import VerticalSpacer from "../../common/VerticalSpacer";
-import { QuoteModeLength } from "../../context/preference";
-import { Quotes, useQuotes } from "../../service/static-content";
+import { QuoteModeLength } from "../../service/preferences";
+import { Quotes } from "../../service/staticcontent";
+import { useQuotes } from "../../service/staticcontent/hooks";
 
 const getQuote = (quotesInfo: Quotes, quoteId: number) => {
   return quotesInfo.quotes[quoteId].text.split(" ");

@@ -1,34 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Preferences, PreferencesContext } from "../context/preference";
-import { ServerResponse, ServerService } from "./server";
-import { NotificationsContext } from "../context/notifications";
-import { createService, useService } from ".";
-
-export const AccountService = createService<{
-  accountState: AccountState;
-  signUp: (params: SignUpParams) => Promise<ServerResponse<SignUpResponse>>;
-  signIn: (params: SignInParams) => Promise<ServerResponse<SignInResponse>>;
-  logOut: () => Promise<ServerResponse<LogOutResponse>>;
-}>({
-  accountState: { state: "notsignedin" },
-  signUp: async () => {
-    return { status: "fail" };
-  },
-  signIn: async () => {
-    return { status: "fail" };
-  },
-  logOut: async () => {
-    return { status: "fail" };
-  },
-});
+import { PreferencesService } from "../../service/preferences";
+import { ServerResponse, ServerService } from "../server";
+import { NotificationsService } from "../notifications";
+import { useService } from "..";
+import {
+  AccountService,
+  AccountState,
+  CurrentUserResponse,
+  LogOutResponse,
+  SignInParams,
+  SignInResponse,
+  SignUpParams,
+  SignUpResponse,
+} from ".";
 
 export function AccountServiceProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { addNotification } = useService(NotificationsContext);
-  const { receivePreferences } = useService(PreferencesContext);
+  const { addNotification } = useService(NotificationsService);
+  const { receivePreferences } = useService(PreferencesService);
   const { get, post } = useService(ServerService);
 
   const initialized = useRef(false);
@@ -128,52 +120,3 @@ export function AccountServiceProvider({
     </AccountService.Provider>
   );
 }
-
-export type AccountState = NotSignedInState | SignedInState;
-
-interface NotSignedInState {
-  state: "notsignedin";
-}
-
-interface SignedInState {
-  state: "signedin";
-  account: Account;
-}
-
-export interface Account {
-  username: string;
-  email: string;
-}
-
-interface SignUpParams {
-  username: string;
-  email: string;
-  password: string;
-  preferences: Preferences;
-}
-
-interface SignUpResponse extends Account {
-  username: string;
-  email: string;
-}
-
-interface SignInParams {
-  usernameOrEmail: UsernameOrEmail;
-  password: string;
-}
-
-interface SignInResponse {
-  username: string;
-  email: string;
-  preferences: Preferences;
-}
-
-interface CurrentUserResponse {
-  username: string;
-  email: string;
-  preferences: Preferences;
-}
-
-type LogOutResponse = null;
-
-type UsernameOrEmail = { username: string } | { email: string };

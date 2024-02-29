@@ -37,10 +37,10 @@ pub async fn get_results(
     auth_token: AuthToken,
     Query(GetResultsParams { cursor, limit }): Query<GetResultsParams>,
 ) -> Result<Json<GetResultsResponse>, AppError> {
-    let results_with_id = match cursor {
+    let results = match cursor {
         Some(cursor) => sqlx::query_as!(
-                TestResultWithId,
-                "SELECT id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ? AND id < ? ORDER BY id DESC LIMIT ?",
+            TestResultWithId,
+                "SELECT id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ? AND id < ? LIMIT ?",
                 auth_token.user_id,
                 cursor,
                 limit,
@@ -49,7 +49,7 @@ pub async fn get_results(
             .await?,
         None => sqlx::query_as!(
             TestResultWithId,
-            "SELECT id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ? ORDER BY id DESC LIMIT ?",
+            "SELECT id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy FROM result WHERE user_id = ? LIMIT ?",
             auth_token.user_id,
             limit,
         )
@@ -57,14 +57,10 @@ pub async fn get_results(
         .await?,
     };
 
-    let cursor = match results_with_id.last() {
-        Some(last_result) => last_result.id,
-        None => 0,
+    let cursor = match results.last() {
+        Some(last_result) => Some(last_result.id),
+        None => None,
     };
-    let results = results_with_id
-        .into_iter()
-        .map(|result_with_id| result_with_id.into())
-        .collect();
 
     Ok(Json(GetResultsResponse { cursor, results }))
 }
@@ -105,26 +101,6 @@ impl IntoResponse for PostResultError {
     }
 }
 
-impl Into<TestResult> for TestResultWithId {
-    fn into(self) -> TestResult {
-        let TestResultWithId {
-            test_params,
-            test_completed_timestamp,
-            wpm,
-            raw_wpm,
-            accuracy,
-            ..
-        } = self;
-        TestResult {
-            test_params,
-            test_completed_timestamp,
-            wpm,
-            raw_wpm,
-            accuracy,
-        }
-    }
-}
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetResultsParams {
@@ -135,7 +111,7 @@ pub struct GetResultsParams {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GetResultsResponse {
-    cursor: u32,
+    cursor: Option<u32>,
     results: Vec<TestResult>,
 }
 

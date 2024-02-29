@@ -1,17 +1,18 @@
-import { NotificationsContext } from "../context/notifications";
-import { AccountServiceProvider } from "./account";
+import { NotificationsService } from "./notifications";
+import { AccountServiceProvider } from "./account/Provider";
 import { createService, useService } from ".";
+import { ResultsServiceProvider } from "./results/Provider";
 
 export const ServerService = createService<{
   fetchWithContext: <T>(
     path: string,
-    options: object,
+    options?: RequestInit,
   ) => Promise<ServerResponse<T>>;
-  get: <T>(path: string, obj: object) => Promise<ServerResponse<T>>;
+  get: <T>(path: string, options?: RequestInit) => Promise<ServerResponse<T>>;
   post: <T>(
     path: string,
-    obj: object,
-    options: object,
+    data: object,
+    options?: RequestInit,
   ) => Promise<ServerResponse<T>>;
 }>({
   fetchWithContext: async () => {
@@ -30,11 +31,11 @@ export function ServerServiceProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { addNotification } = useService(NotificationsContext);
+  const { addNotification } = useService(NotificationsService);
 
   async function fetchWithContext<T>(
     path: string,
-    options: object,
+    options?: RequestInit,
   ): Promise<ServerResponse<T>> {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     if (backendUrl === undefined || backendUrl.length === 0) {
@@ -67,7 +68,7 @@ export function ServerServiceProvider({
       });
   }
 
-  async function post<T>(path: string, obj: object, options = {}) {
+  async function post<T>(path: string, obj: object, options?: RequestInit) {
     return fetchWithContext<T>(path, {
       method: "POST",
       headers: {
@@ -78,7 +79,7 @@ export function ServerServiceProvider({
     });
   }
 
-  async function get<T>(path: string, options = {}) {
+  async function get<T>(path: string, options?: RequestInit) {
     return fetchWithContext<T>(path, options);
   }
 
@@ -86,7 +87,9 @@ export function ServerServiceProvider({
 
   return (
     <ServerService.Provider value={serverService}>
-      <AccountServiceProvider>{children}</AccountServiceProvider>
+      <AccountServiceProvider>
+        <ResultsServiceProvider>{children}</ResultsServiceProvider>
+      </AccountServiceProvider>
     </ServerService.Provider>
   );
 }

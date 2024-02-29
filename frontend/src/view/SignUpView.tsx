@@ -1,7 +1,7 @@
 import "./SignUpView.css";
 import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
-import { PreferencesContext } from "../context/preference";
+import { PreferencesService } from "../service/preferences";
 import { useNavigate } from "react-router-dom";
 import { RE_EMAIL, RE_PASSWORD, RE_USERNAME } from "../util/validation";
 import { Button, TextField } from "@mui/material";
@@ -19,7 +19,7 @@ const SignUpView = () => {
 
   const navigate = useNavigate();
 
-  const { preferences } = useContext(PreferencesContext);
+  const { preferences } = useContext(PreferencesService);
 
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");

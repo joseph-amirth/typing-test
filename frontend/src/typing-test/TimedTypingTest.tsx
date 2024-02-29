@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./TimedTypingTest.css";
-import { usePreference } from "../context/preference";
+import { usePreference } from "../service/preferences/hooks";
 import VerticalSpacer from "../common/VerticalSpacer";
 import {
   CharCounts,
@@ -11,9 +11,9 @@ import {
   getActualTest,
 } from "./stat";
 import Input, { InputOptions } from "./Input";
-import { TypingTestEventListeners } from "./props";
+import { TypingTestCallbacks } from "./props";
 
-interface TimedTypingTestProps extends InputOptions, TypingTestEventListeners {
+interface TimedTypingTestProps extends InputOptions, TypingTestCallbacks {
   generateTest: (length: number) => string[];
   duration: number;
 }
@@ -33,7 +33,7 @@ const TimedTypingTest = ({
   const [attempt, setAttempt] = useState("".split(" "));
 
   const [start, setStart] = useState<number | undefined>(undefined);
-  const [end, setEnd] = useState(false);
+  const [end, setEnd] = useState<number | undefined>(undefined);
 
   const [charCounts, setCharCounts] = useState<CharCounts>({
     correctChars: 0,
@@ -45,20 +45,31 @@ const TimedTypingTest = ({
   const stats = calculateStats({
     test: getActualTest(test, attempt),
     attempt,
-    duration: (performance.now() - start!) / 1000,
+    duration: ((end ?? performance.now()) - start!) / 1000,
     charCounts,
   });
 
+  useEffect(() => {
+    if (start !== undefined && onTestStart) {
+      onTestStart();
+    }
+  }, [start]);
+
+  useEffect(() => {
+    if (end !== undefined && onTestFinish) {
+      const duration = (end! - start!) / 1000;
+      onTestFinish({ attempt, duration, ...stats });
+    }
+  }, [end]);
+
   const handleAttemptUpdate = (newAttempt: string[]) => {
     if (!start) {
-      if (onTestStart) onTestStart();
       setStart(performance.now());
       const intervalId = setInterval(() => {
         setProgress((progress) => {
           if (progress === 1) {
             clearInterval(intervalId);
-            setEnd(true);
-            if (onTestFinish) onTestFinish(attempt, performance.now() - start!);
+            setEnd(performance.now());
           }
           return progress - 1;
         });
@@ -89,7 +100,10 @@ const TimedTypingTest = ({
 
   return (
     <div className="TimedTypingTest" onClick={handleClick}>
-      <Progress progress={progress} hide={!start || end} />
+      <Progress
+        progress={progress}
+        hide={start === undefined || end !== undefined}
+      />
       <Diff test={test} attempt={attempt} showAllLines={false} />
       <Input
         ref={inputRef}

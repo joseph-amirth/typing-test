@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../common/VerticalSpacer";
-import { usePreference } from "../context/preference";
+import { usePreference } from "../service/preferences/hooks";
 import {
   CharCounts,
   calculateCharCounts,
@@ -11,11 +11,11 @@ import {
   getActualTest,
 } from "./stat";
 import Input, { InputOptions } from "./Input";
-import { TypingTestEventListeners } from "./props";
+import { TypingTestCallbacks } from "./props";
 
 export interface BoundedTypingTestProps
   extends InputOptions,
-    TypingTestEventListeners {
+    TypingTestCallbacks {
   test: string[];
 }
 
@@ -43,14 +43,26 @@ const BoundedTypingTest = ({
   const stats = calculateStats({
     test: getActualTest(test, attempt),
     attempt,
-    duration: (performance.now() - start!) / 1000,
+    duration: ((end ?? performance.now()) - start!) / 1000,
     charCounts,
   });
+
+  useEffect(() => {
+    if (start !== undefined && onTestStart) {
+      onTestStart();
+    }
+  }, [start, onTestStart]);
+
+  useEffect(() => {
+    if (end !== undefined && onTestFinish) {
+      const duration = (end! - start!) / 1000;
+      onTestFinish({ attempt, duration, ...stats });
+    }
+  }, [end]);
 
   const handleAttemptUpdate = (newAttempt: string[]) => {
     if (!start) {
       setStart(performance.now());
-      if (onTestStart) onTestStart();
     }
     if (!end) {
       setAttempt(newAttempt);
@@ -62,9 +74,7 @@ const BoundedTypingTest = ({
       if (onTestUpdate) onTestUpdate(attempt, newAttempt);
 
       if (isTestDone(test, newAttempt)) {
-        const end = performance.now();
-        setEnd(end);
-        if (onTestFinish) onTestFinish(newAttempt, end - start!);
+        setEnd(performance.now());
       }
     }
   };

@@ -3,8 +3,8 @@ import "./Notifications.css";
 import {
   NotificationProps,
   NotificationType,
-  NotificationsContext,
-} from "./context/notifications";
+  NotificationsService,
+} from "./service/notifications";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
@@ -25,13 +25,13 @@ const Notifications = ({
 };
 
 const Notification = ({ id, type, title, body }: NotificationProps) => {
-  const { removeNotification } = useContext(NotificationsContext);
+  const { removeNotification } = useContext(NotificationsService);
 
   return (
     <button className="UnstyledButton" onClick={() => removeNotification(id)}>
       <div className={`Notification ${type}`}>
         <div className="IconAndTitle">
-          <TypeIcon type={type} />
+          <Icon type={type} />
           <h2 className="Title">{title}</h2>
         </div>
         <p>{body}</p>
@@ -40,7 +40,7 @@ const Notification = ({ id, type, title, body }: NotificationProps) => {
   );
 };
 
-const TypeIcon = ({ type }: { type: NotificationType }) => {
+const Icon = ({ type }: { type: NotificationType }) => {
   switch (type) {
     case "Success":
       return <CheckCircleOutlinedIcon />;

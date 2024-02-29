@@ -10,14 +10,14 @@ pub async fn update_preferences(
     db: Db,
     auth_token: AuthToken,
     Json(preferences): Json<Preferences>,
-) -> Result<(), AppError> {
+) -> Result<Json<()>, AppError> {
     let preferences = preferences.to_string();
     sqlx::query("UPDATE user SET preferences = ? WHERE id = ?")
         .bind(preferences)
         .bind(auth_token.user_id)
         .execute(&db)
         .await?;
-    Ok(())
+    Ok(Json(()))
 }
 
 #[derive(Debug, Serialize, Deserialize)]

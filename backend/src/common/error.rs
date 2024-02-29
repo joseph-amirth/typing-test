@@ -14,6 +14,6 @@ where
 
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
+        (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
     }
 }

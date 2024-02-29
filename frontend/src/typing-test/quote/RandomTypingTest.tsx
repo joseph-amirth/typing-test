@@ -4,8 +4,12 @@ import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";
 import { randomInt } from "../../util/math";
-import { QuoteModeLength } from "../../context/preference";
-import { Quotes, useQuotes } from "../../service/static-content";
+import { QuoteModeLength } from "../../service/preferences";
+import { Quotes } from "../../service/staticcontent";
+import { useQuotes } from "../../service/staticcontent/hooks";
+import { TestFinishEvent } from "../props";
+import { useService } from "../../service";
+import { ResultsService } from "../../service/results";
 
 function RandomTypingTest({ length }: { length: QuoteModeLength }) {
   const quotes = useQuotes();
@@ -23,15 +27,14 @@ function Inner({
   quotes: Quotes;
   length: QuoteModeLength;
 }) {
+  const resultsService = useService(ResultsService);
+
   const [firstQuoteId, firstQuote] = getRandomQuote(quotes, length);
 
   const [quoteId, setQuoteId] = useState(firstQuoteId);
   const [quote, setQuote] = useState(firstQuote);
   const [key, setKey] = useState(Date.now());
-
-  const restartTest = () => {
-    setKey(Date.now());
-  };
+  const [restarted, setRestarted] = useState(false);
 
   const nextTest = () => {
     const [newQuoteId, newQuote] = getRandomQuote(
@@ -42,15 +45,45 @@ function Inner({
     setQuoteId(newQuoteId);
     setQuote(newQuote);
     setKey(Date.now());
+    setRestarted(false);
+  };
+
+  const restartTest = () => {
+    setRestarted(false);
+    setKey(Date.now());
+    setRestarted(true);
   };
 
   const shareLinkToTest = () => {
     copyTextToClipboard(`${window.location.origin}/quote/${quoteId}`);
   };
 
+  const handleTestFinish = (event: TestFinishEvent) => {
+    if (restarted) {
+      return;
+    }
+    const { wpm, rawWpm, accuracy } = event;
+    resultsService.reportResult({
+      testParams: {
+        mode: "quote",
+        params: {
+          length,
+        },
+      },
+      testCompletedTimestamp: Date.now(),
+      wpm,
+      rawWpm,
+      accuracy,
+    });
+  };
+
   return (
     <div className="RandomTypingTest">
-      <BoundedTypingTest key={key} test={quote} />
+      <BoundedTypingTest
+        key={key}
+        test={quote}
+        onTestFinish={handleTestFinish}
+      />
       <VerticalSpacer />
       <Buttons restart={restartTest} next={nextTest} share={shareLinkToTest} />
     </div>
