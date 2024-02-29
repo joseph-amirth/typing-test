@@ -3,6 +3,7 @@ import { getOrInitItem, setItem } from "../../util/local-storage";
 import { Preferences, PreferencesService, defaultPreferences } from ".";
 import { useService } from "..";
 import { ServerService } from "../server";
+import { AccountService } from "../account";
 
 function PreferencesServiceProvider({
   children,
@@ -10,12 +11,15 @@ function PreferencesServiceProvider({
   children: React.ReactNode;
 }) {
   const { post } = useService(ServerService);
+  const { accountState } = useService(AccountService);
 
   const initialPreferences = getOrInitItem("preferences", defaultPreferences);
   const [preferences, setPreferences] = useState(initialPreferences);
 
   const updatePreferences = (preferences: Preferences) => {
-    return post<null>("/prefs", preferences, { credentials: "include" });
+    if (accountState.state === "signedin") {
+      post<null>("/prefs", preferences, { credentials: "include" });
+    }
   };
 
   const preferencesService = {

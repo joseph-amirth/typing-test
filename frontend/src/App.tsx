@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
-import PreferencesServiceProvider from "./service/preferences/Provider";
 import { NotificationsServiceProvider } from "./service/notifications/Provider";
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
@@ -32,16 +31,14 @@ const App = () => {
       <CssBaseline />
       <div className="App">
         <NotificationsServiceProvider>
-          <PreferencesServiceProvider>
+          <StaticContentServiceProvider>
             <ServerServiceProvider>
-              <StaticContentServiceProvider>
-                <Header />
-                <div className="Body">
-                  <Outlet />
-                </div>
-              </StaticContentServiceProvider>
+              <Header />
+              <div className="Body">
+                <Outlet />
+              </div>
             </ServerServiceProvider>
-          </PreferencesServiceProvider>
+          </StaticContentServiceProvider>
         </NotificationsServiceProvider>
       </div>
     </ThemeProvider>

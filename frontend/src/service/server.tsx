@@ -2,6 +2,7 @@ import { NotificationsService } from "./notifications";
 import { AccountServiceProvider } from "./account/Provider";
 import { createService, useService } from ".";
 import { ResultsServiceProvider } from "./results/Provider";
+import PreferencesServiceProvider from "./preferences/Provider";
 
 export const ServerService = createService<{
   fetchWithContext: <T>(
@@ -88,7 +89,9 @@ export function ServerServiceProvider({
   return (
     <ServerService.Provider value={serverService}>
       <AccountServiceProvider>
-        <ResultsServiceProvider>{children}</ResultsServiceProvider>
+        <PreferencesServiceProvider>
+          <ResultsServiceProvider>{children}</ResultsServiceProvider>
+        </PreferencesServiceProvider>
       </AccountServiceProvider>
     </ServerService.Provider>
   );

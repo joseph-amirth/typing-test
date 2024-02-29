@@ -21,10 +21,18 @@ export function ResultsServiceProvider({
   const { get, post } = useService(ServerService);
   const { accountState } = useService(AccountService);
 
-  // Clear the results queue when user logs out.
   useEffect(() => {
+    // Clear the results queue when user logs out.
     if (accountState.state === "notsignedin") {
       resultsQueue = [];
+    }
+
+    // When user signs in, try posting results of tests done so far.
+    if (accountState.state === "signedin") {
+      postingResults = true;
+      tryPostResults().then(() => {
+        postingResults = false;
+      });
     }
   }, [accountState]);
 
@@ -44,7 +52,7 @@ export function ResultsServiceProvider({
 
   function reportResult(result: Result) {
     resultsQueue.push(result);
-    if (!postingResults) {
+    if (!postingResults && accountState.state === "signedin") {
       postingResults = true;
       tryPostResults().then(() => {
         postingResults = false;
