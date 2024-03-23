@@ -40,6 +40,7 @@ const SignInView = () => {
       })}
     >
       <TextField
+        className="SignInInput"
         variant="filled"
         margin="normal"
         fullWidth
@@ -60,6 +61,7 @@ const SignInView = () => {
       />
 
       <TextField
+        className="SignInInput"
         variant="filled"
         margin="normal"
         fullWidth
@@ -75,7 +77,12 @@ const SignInView = () => {
         helperText={errors.password?.message?.toString()}
       />
 
-      <Button type="submit" variant="text" disabled={loading}>
+      <Button
+        sx={{ marginTop: "10px" }}
+        type="submit"
+        variant="text"
+        disabled={loading}
+      >
         Sign in
       </Button>
 

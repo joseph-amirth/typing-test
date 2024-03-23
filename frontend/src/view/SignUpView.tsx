@@ -161,7 +161,12 @@ const SignUpView = () => {
         helperText={errors.repeatedPassword?.message?.toString()}
       />
 
-      <Button type="submit" variant="text" disabled={loading}>
+      <Button
+        sx={{ marginTop: "10px" }}
+        type="submit"
+        variant="text"
+        disabled={loading}
+      >
         Sign up
       </Button>
 
