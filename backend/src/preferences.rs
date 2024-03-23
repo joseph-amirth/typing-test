@@ -26,7 +26,7 @@ pub struct Preferences {
     current_mode: TypingTestMode,
     words_mode_length: u32,
     time_mode_duration: u32,
-    language: String,
+    language: Language,
     quote_mode_length: QuoteModeLength,
     max_chars_in_line: u32,
     show_all_lines: bool,
@@ -38,6 +38,17 @@ pub enum TypingTestMode {
     Words,
     Time,
     Quote,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Language {
+    English,
+    English1k,
+    English5k,
+    English10k,
+    English25k,
+    English450k,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
