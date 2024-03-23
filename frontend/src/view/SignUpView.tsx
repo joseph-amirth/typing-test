@@ -27,21 +27,30 @@ const SignUpView = () => {
   return (
     <form
       className="SignUp"
-      onSubmit={handleSubmit(({ username, email, password }) => {
-        setLoading(true);
-        accountService
-          .signUp({ username, email, password, preferences })
-          .then((response) => {
-            if (response.status === "ok") {
-              navigate("/");
-            } else if (response.status === "err") {
-              setServerError(response.reason);
-            }
-            setLoading(false);
-          });
-      })}
+      onSubmit={handleSubmit(
+        ({ username, email, verificationCode, password }) => {
+          setLoading(true);
+          accountService
+            .signUp({
+              username,
+              email,
+              verificationCode,
+              password,
+              preferences,
+            })
+            .then((response) => {
+              if (response.status === "ok") {
+                navigate("/");
+              } else if (response.status === "err") {
+                setServerError(response.reason);
+              }
+              setLoading(false);
+            });
+        },
+      )}
     >
       <TextField
+        className="SignUpInput"
         variant="filled"
         margin="normal"
         fullWidth
@@ -71,6 +80,7 @@ const SignUpView = () => {
       />
 
       <TextField
+        className="SignUpInput"
         variant="filled"
         margin="normal"
         fullWidth
@@ -91,6 +101,24 @@ const SignUpView = () => {
       />
 
       <TextField
+        className="SignUpInput"
+        variant="filled"
+        margin="normal"
+        fullWidth
+        type="password"
+        label="Verification code"
+        {...register("verificationCode", {
+          required: {
+            value: true,
+            message: "Verification code is required",
+          },
+        })}
+        error={errors.verificationCode !== undefined}
+        helperText={errors.verificationCode?.message?.toString()}
+      />
+
+      <TextField
+        className="SignUpInput"
         variant="filled"
         margin="normal"
         fullWidth
@@ -116,6 +144,7 @@ const SignUpView = () => {
       />
 
       <TextField
+        className="SignUpInput"
         variant="filled"
         margin="normal"
         fullWidth

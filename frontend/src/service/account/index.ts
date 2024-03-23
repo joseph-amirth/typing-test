@@ -39,6 +39,7 @@ export interface Account {
 export interface SignUpParams {
   username: string;
   email: string;
+  verificationCode: string;
   password: string;
   preferences: Preferences;
 }

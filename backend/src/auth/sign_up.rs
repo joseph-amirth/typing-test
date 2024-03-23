@@ -1,5 +1,6 @@
 use axum::http::StatusCode;
 use axum::{response::IntoResponse, Json};
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 use super::AuthToken;
@@ -7,11 +8,15 @@ use crate::auth::password_hash;
 use crate::common::state::Db;
 use crate::preferences::Preferences;
 
+static VERIFICATION_CODE: Lazy<String> =
+    Lazy::new(|| std::env::var("VERIFICATION_CODE").expect("VERIFICATION_CODE must be set"));
+
 pub async fn sign_up(
     db: Db,
     Json(SignUpParams {
         username,
         email,
+        verification_code,
         password,
         preferences,
     }): Json<SignUpParams>,
@@ -20,6 +25,11 @@ pub async fn sign_up(
     validate_username(&username)?;
     validate_email(&email)?;
     validate_password(&password)?;
+
+    // TODO: Send verification code via email.
+    if verification_code != *VERIFICATION_CODE {
+        return Err(SignUpError::IncorrectVerificationCode);
+    }
 
     // TODO: Check that quality of randomness here is sufficient.
     let salt: Vec<u8> = (0..32).map(|_| rand::random()).collect();
@@ -75,6 +85,10 @@ impl IntoResponse for SignUpError {
                 StatusCode::UNPROCESSABLE_ENTITY,
                 format!("Invalid password: {reason}"),
             ),
+            Self::IncorrectVerificationCode => (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                format!("Incorrect verification code"),
+            ),
             Self::UsernameTaken => (
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "Username already taken".to_string(),
@@ -94,9 +108,11 @@ impl IntoResponse for SignUpError {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SignUpParams {
     username: String,
     email: String,
+    verification_code: String,
     password: String,
     preferences: Preferences,
 }
@@ -112,6 +128,7 @@ pub enum SignUpError {
     InvalidUsername(&'static str),
     InvalidEmail,
     InvalidPassword(&'static str),
+    IncorrectVerificationCode,
     UsernameTaken,
     EmailTaken,
     Other,
