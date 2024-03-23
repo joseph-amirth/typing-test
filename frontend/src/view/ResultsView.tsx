@@ -43,12 +43,12 @@ function ResultsView() {
           setFetchState({ state: "all" });
         } else {
           setFetchState({ state: "some", cursor });
-          setResults((oldResults) => {
-            const sortedResults = sortByTimestamp([...oldResults, ...results]);
-            const uniqueResults = dedupByTimestamp(sortedResults);
-            return uniqueResults;
-          });
         }
+        setResults((oldResults) => {
+          const sortedResults = sortByTimestamp([...oldResults, ...results]);
+          const uniqueResults = dedupByTimestamp(sortedResults);
+          return uniqueResults;
+        });
       }
       setLoading(false);
     });
