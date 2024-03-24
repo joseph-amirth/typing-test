@@ -16,9 +16,9 @@ const Diff = ({
   const diffRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
 
-  // Scroll diff and set position of the caret.
+  // Set scroll of diff and set position of the caret.
   useLayoutEffect(() => {
-    if (showAllLines || diffRef.current === null || caretRef.current === null) {
+    if (diffRef.current === null || caretRef.current === null) {
       return;
     }
 
@@ -31,7 +31,10 @@ const Diff = ({
       )!;
 
       // Set caret's new horizontal position.
-      const firstUntypedLetter = focusedWord.querySelector(".Untyped");
+      const firstUntypedLetter =
+        attempt.length <= test.length
+          ? focusedWord.querySelector(".Untyped")
+          : null;
       const diffLeft = diff.getBoundingClientRect().left;
       if (firstUntypedLetter !== null) {
         caret.style.left = `${
@@ -43,17 +46,21 @@ const Diff = ({
         }px`;
       }
 
-      // Scroll diff.
-      const diffTop = diff.getBoundingClientRect().top;
-      const focusedWordTop = focusedWord.getBoundingClientRect().top;
-      const oldDiffScroll = diff.scrollTop;
-      scrollDiff(diff, diffTop, focusedWordTop);
+      if (!showAllLines) {
+        // Scroll diff.
+        const diffTop = diff.getBoundingClientRect().top;
+        const focusedWordTop = focusedWord.getBoundingClientRect().top;
+        const oldDiffScroll = diff.scrollTop;
+        scrollDiff(diff, diffTop, focusedWordTop);
 
-      // Set caret's new vertical position.
-      const newDiffScroll = diff.scrollTop;
-      const deltaScroll = newDiffScroll - oldDiffScroll;
-      const newFocusedWordTop = focusedWordTop - deltaScroll;
-      caret.style.top = `${newFocusedWordTop - diffTop + newDiffScroll}px`;
+        // Set caret's new vertical position.
+        const newDiffScroll = diff.scrollTop;
+        const deltaScroll = newDiffScroll - oldDiffScroll;
+        const newFocusedWordTop = focusedWordTop - deltaScroll;
+        caret.style.top = `${newFocusedWordTop - diffTop + newDiffScroll}px`;
+      } else {
+        caret.style.top = `${focusedWord.getBoundingClientRect().top - diff.getBoundingClientRect().top}px`;
+      }
     };
 
     fixScrollAndCaretPosition();
@@ -77,7 +84,12 @@ const Diff = ({
   });
 
   if (showAllLines) {
-    return <div className="Diff">{diffWordSpans}</div>;
+    return (
+      <div className="Diff" ref={diffRef} {...ANTI_CHEAT_PROPS}>
+        <div ref={caretRef} className="Caret"></div>
+        {diffWordSpans}
+      </div>
+    );
   } else {
     return (
       <div
