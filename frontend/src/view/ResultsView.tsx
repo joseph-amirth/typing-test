@@ -59,7 +59,7 @@ function ResultsView() {
   }, []);
 
   if (fetchState.state === "none") {
-    return "Loading results...";
+    return <LoadingText text="Loading results..." />;
   }
 
   return (
@@ -112,11 +112,15 @@ function ResultsView() {
             Load more
           </Button>
         ) : (
-          "Loading results..."
+          <LoadingText text="Loading results..." />
         ))}
-      {fetchState.state === "all" && "All results loaded"}
+      {fetchState.state === "all" && <LoadingText text="All results loaded" />}
     </Stack>
   );
+}
+
+function LoadingText({ text }: { text: string }) {
+  return <div className="LoadingText">{text}</div>;
 }
 
 function TypingTestParamsDisplay({ mode, params }: TypingTestParams) {
