@@ -10,7 +10,6 @@ export const defaultPreferences: Preferences = {
   timeModeDuration: 30,
   language: "english",
   quoteModeLength: "medium",
-  maxCharsInLine: 60,
   showAllLines: false,
 };
 
@@ -57,7 +56,6 @@ export interface Preferences {
   timeModeDuration: number;
   language: Language;
   quoteModeLength: QuoteModeLength;
-  maxCharsInLine: number;
   showAllLines: boolean;
 }
 

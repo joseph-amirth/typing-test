@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./TimedTypingTest.css";
-import { usePreference } from "../service/preferences/hooks";
 import VerticalSpacer from "../common/VerticalSpacer";
 import {
   CharCounts,
@@ -18,6 +17,8 @@ interface TimedTypingTestProps extends InputOptions, TypingTestCallbacks {
   duration: number;
 }
 
+const PADDING = 60;
+
 const TimedTypingTest = ({
   generateTest,
   duration,
@@ -26,10 +27,7 @@ const TimedTypingTest = ({
   onTestFinish,
   ...inputOptions
 }: TimedTypingTestProps) => {
-  const [maxCharsInLine] = usePreference("maxCharsInLine");
-  const padding = maxCharsInLine; // test is always "padded" with this many more words compared to attempt.
-
-  const [test, setTest] = useState(generateTest(padding));
+  const [test, setTest] = useState(generateTest(PADDING));
   const [attempt, setAttempt] = useState("".split(" "));
 
   const [start, setStart] = useState<number | undefined>(undefined);
@@ -78,8 +76,8 @@ const TimedTypingTest = ({
     if (!end) {
       setAttempt(newAttempt);
       if (onTestUpdate) onTestUpdate(attempt, newAttempt);
-      if (newAttempt.length + padding > test.length) {
-        setTest(generateTest(newAttempt.length + padding));
+      if (newAttempt.length + PADDING > test.length) {
+        setTest(generateTest(newAttempt.length + PADDING));
       }
 
       setCharCounts(

@@ -28,7 +28,6 @@ pub struct Preferences {
     time_mode_duration: u32,
     language: Language,
     quote_mode_length: QuoteModeLength,
-    max_chars_in_line: u32,
     show_all_lines: bool,
 }
 
