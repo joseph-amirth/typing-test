@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import KeyboardIcon from "@mui/icons-material/Keyboard";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { Account, AccountService } from "./service/account";
 import { useService } from "./service";
+import { Settings } from "@mui/icons-material";
 
 function Header() {
   const navigate = useNavigate();
@@ -12,10 +13,7 @@ function Header() {
 
   return (
     <div className="Header">
-      <Button onClick={() => navigate("/")}>
-        <KeyboardIcon />
-        <h2 className="Title">Typing Test</h2>
-      </Button>
+      <NavigationBar />
       {accountState.state !== "signedin" && (
         <div className="Login">
           <Button onClick={() => navigate("/signin")} variant="contained">
@@ -29,6 +27,21 @@ function Header() {
       {accountState.state === "signedin" && (
         <UserDetails account={accountState.account} />
       )}
+    </div>
+  );
+}
+
+function NavigationBar() {
+  const navigate = useNavigate();
+  return (
+    <div className="NavigationBar">
+      <Button onClick={() => navigate("/")}>
+        <KeyboardIcon />
+        <h2 className="Title">Typing Test</h2>
+      </Button>
+      <IconButton onClick={() => navigate("/settings")}>
+        <Settings />
+      </IconButton>
     </div>
   );
 }
