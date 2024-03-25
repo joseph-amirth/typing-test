@@ -15,10 +15,12 @@ pub async fn post_result(
         accuracy,
     }): Json<TestResult>,
 ) -> Result<Json<()>, PostResultError> {
+    let test_params = serde_json::to_string(&test_params)?;
+
     sqlx::query!(
-        "INSERT INTO result (user_id, test_params, test_completed_timestamp, wpm, raw_wpm, accuracy) VALUES (?, ?, ?, ?, ?, ?)",
+        "CALL insert_result (?, ?, ?, ?, ?, ?)",
         auth_token.user_id,
-        serde_json::to_string(&test_params)?,
+        test_params,
         test_completed_timestamp,
         wpm,
         raw_wpm,
