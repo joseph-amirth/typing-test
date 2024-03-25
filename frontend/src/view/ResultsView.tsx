@@ -153,6 +153,9 @@ function sortByTimestamp(results: Result[]): Result[] {
 }
 
 function dedupByTimestamp(results: Result[]): Result[] {
+  if (results.length === 0) {
+    return results;
+  }
   const uniqueResults = [results[0]];
   for (let i = 1; i < results.length; i++) {
     if (
