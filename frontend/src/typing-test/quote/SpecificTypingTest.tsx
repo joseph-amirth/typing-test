@@ -4,7 +4,7 @@ import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "./../Buttons";
 import "./SpecificTypingTest.css";
-import VerticalSpacer from "../../common/VerticalSpacer";
+import VerticalSpacer from "../../component/spacing/VerticalSpacer";
 import { QuoteModeLength } from "../../service/preferences";
 import { Quotes } from "../../service/staticcontent";
 import { useQuotes } from "../../service/staticcontent/hooks";

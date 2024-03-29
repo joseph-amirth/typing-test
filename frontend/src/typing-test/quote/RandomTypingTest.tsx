@@ -1,5 +1,5 @@
 import { useState } from "react";
-import VerticalSpacer from "../../common/VerticalSpacer";
+import VerticalSpacer from "../../component/spacing/VerticalSpacer";
 import { copyTextToClipboard } from "../../util/misc";
 import BoundedTypingTest from "../BoundedTypingTest";
 import Buttons from "../Buttons";

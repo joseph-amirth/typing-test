@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./TimedTypingTest.css";
-import VerticalSpacer from "../common/VerticalSpacer";
+import VerticalSpacer from "../component/spacing/VerticalSpacer";
 import {
   CharCounts,
   calculateCharCounts,

@@ -5,8 +5,8 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import VerticalSpacer from "../common/VerticalSpacer";
-import HorizontalSpacer from "../common/HorizontalSpacer";
+import VerticalSpacer from "../component/spacing/VerticalSpacer";
+import HorizontalSpacer from "../component/spacing/HorizontalSpacer";
 import { QuoteModeLength, TypingTestMode } from "../service/preferences";
 import { usePreference } from "../service/preferences/hooks";
 import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";

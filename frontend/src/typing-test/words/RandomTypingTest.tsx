@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Buttons from "../Buttons";
 import "./RandomTypingTest.css";
-import VerticalSpacer from "../../common/VerticalSpacer";
+import VerticalSpacer from "../../component/spacing/VerticalSpacer";
 import { generateSeed, seedToBase64url } from "../../util/prng";
 import { randomWords } from "../gen";
 import BoundedTypingTest from "../BoundedTypingTest";
