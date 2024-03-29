@@ -2,7 +2,11 @@ use axum::{extract::Query, http::StatusCode, response::IntoResponse, Json};
 use chrono::{serde::ts_milliseconds, DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::{auth::AuthToken, common::state::Db, typing_test::RandomTestParams};
+use crate::{
+    auth::AuthToken,
+    common::{error::AppError, state::Db},
+    typing_test::RandomTestParams,
+};
 
 pub async fn post_result(
     db: Db,
@@ -82,6 +86,32 @@ pub async fn get_results(
         .collect();
 
     Ok(Json(GetResultsResponse { cursor, results }))
+}
+
+pub async fn get_stats(db: Db, auth_token: AuthToken) -> Result<Json<GetStatsResponse>, AppError> {
+    let results = sqlx::query!(
+        "SELECT test_params, best_wpm, best_raw_wpm, best_accuracy, sum_wpm, sum_raw_wpm, sum_accuracy, n_results FROM stat WHERE user_id = ?",
+        auth_token.user_id,
+    )
+    .fetch_all(&db).await?;
+
+    let stats = results
+        .into_iter()
+        .map(|record| {
+            let n_results = record.n_results as f32;
+            Stat {
+                test_params: record.test_params.into(),
+                best_wpm: record.best_wpm,
+                best_raw_wpm: record.best_raw_wpm,
+                best_accuracy: record.best_accuracy,
+                avg_wpm: record.sum_wpm / n_results,
+                avg_raw_wpm: record.sum_raw_wpm / n_results,
+                avg_accuracy: record.sum_accuracy / n_results,
+            }
+        })
+        .collect();
+
+    Ok(Json(GetStatsResponse { stats }))
 }
 
 impl From<serde_json::Error> for PostResultError {
@@ -186,6 +216,11 @@ pub enum PostResultError {
     Other,
 }
 
+#[derive(Debug, Serialize)]
+pub struct GetStatsResponse {
+    stats: Vec<Stat>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TestResult {
@@ -212,6 +247,18 @@ pub struct TestResultWithId {
     wpm: f32,
     raw_wpm: f32,
     accuracy: f32,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Stat {
+    test_params: RandomTestParams,
+    best_wpm: f32,
+    best_raw_wpm: f32,
+    best_accuracy: f32,
+    avg_wpm: f32,
+    avg_raw_wpm: f32,
+    avg_accuracy: f32,
 }
 
 impl From<String> for RandomTestParams {

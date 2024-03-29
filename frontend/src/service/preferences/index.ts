@@ -6,7 +6,7 @@ import { createService } from "..";
 
 export const defaultPreferences: Preferences = {
   currentMode: "words",
-  wordsModeLength: 20,
+  wordsModeLength: 25,
   timeModeDuration: 30,
   language: "english",
   quoteModeLength: "medium",
@@ -60,7 +60,7 @@ export interface Preferences {
 }
 
 export type TypingTestMode = "words" | "time" | "quote";
-export type QuoteModeLength = "short" | "medium" | "long" | "veryLong" | "all";
+export type QuoteModeLength = (typeof quoteLengths)[number];
 
 export type TypingTestParams =
   | WordsTypingTestParams
@@ -75,6 +75,8 @@ export interface WordsTypingTestParams {
   };
 }
 
+export const wordsLengths = [10, 25, 50, 100] as const;
+
 export interface TimeTypingTestParams {
   mode: "time";
   params: {
@@ -83,9 +85,19 @@ export interface TimeTypingTestParams {
   };
 }
 
+export const timeDurations = [15, 30, 60, 120] as const;
+
 export interface QuoteTypingTestParams {
   mode: "quote";
   params: {
     length: QuoteModeLength;
   };
 }
+
+export const quoteLengths = [
+  "all",
+  "short",
+  "medium",
+  "long",
+  "veryLong",
+] as const;

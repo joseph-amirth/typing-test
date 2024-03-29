@@ -58,6 +58,7 @@ async fn main() {
         )
         .route("/logout", get(auth::log_out))
         .route("/result", get(get_results).post(post_result))
+        .route("/stat", get(get_stats))
         .route("/prefs", post(update_preferences))
         .route("/race", get(typing_race::join_matchmaking))
         .route("/experimental", get(experimental))

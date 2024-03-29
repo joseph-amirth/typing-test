@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import {
   GetResultsParams,
   GetResultsResponse,
+  GetStatsParams,
+  GetStatsResponse,
   PostResultResponse,
   Result,
   ResultsService,
@@ -73,9 +75,18 @@ export function ResultsServiceProvider({
     return response;
   }
 
+  async function getStats(_params: GetStatsParams, options?: RequestInit) {
+    const response = await get<GetStatsResponse>("/stat", {
+      credentials: "include",
+      ...options,
+    });
+    return response;
+  }
+
   const resultsService = {
     getResults,
     reportResult,
+    getStats,
   };
 
   return (

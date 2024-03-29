@@ -11,6 +11,7 @@ import TypingRaceView from "./view/TypingRaceView";
 import SpecificTypingTestView from "./view/SpecificTypingTestView";
 import { base64urlToSeed } from "./util/prng";
 import SettingsView from "./view/SettingsView";
+import ProfileView from "./view/profile";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
       {
         path: "settings",
         element: <SettingsView />,
+      },
+      {
+        path: "profile",
+        element: <ProfileView />,
       },
     ],
   },

@@ -59,7 +59,7 @@ function UserDetails({ account }: { account: Account }) {
 
   return (
     <div className="UserDetails">
-      <Button onClick={() => navigate("/results")}>{account.username}</Button>{" "}
+      <Button onClick={() => navigate("/profile")}>{account.username}</Button>{" "}
       <Button
         variant="contained"
         onClick={handleLogOutButtonClick}

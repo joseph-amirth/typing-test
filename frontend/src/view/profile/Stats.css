@@ -1,0 +1,30 @@
+.Stats {
+  display: flex;
+  flex-direction: column;
+}
+
+.MainStats {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.MainStats {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.MainStats {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow: scroll;
+}
+
+.MainStat {
+  background-color: #000c13;
+  padding: 15px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
