@@ -36,21 +36,23 @@ function Stats() {
 
   return (
     <div className="Stats">
-      <h3>Words</h3>
+      <h3 className="StatsTitle">Stats</h3>
+
+      <h4 className="MainStatsTitle">Words</h4>
       <div className="MainStats">
         {mainWordsStats.map((stat) => (
           <MainStatDisplay stat={stat} />
         ))}
       </div>
 
-      <h3>Time</h3>
+      <h4 className="MainStatsTitle">Time</h4>
       <div className="MainStats">
         {mainTimeStats.map((stat) => (
           <MainStatDisplay stat={stat} />
         ))}
       </div>
 
-      <h3>Quote</h3>
+      <h4 className="MainStatsTitle">Quote</h4>
       <div className="MainStats">
         {mainQuoteStats.map((stat) => (
           <MainStatDisplay stat={stat} />

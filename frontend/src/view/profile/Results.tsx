@@ -9,10 +9,10 @@ import {
   TableRow,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import { TypingTestParams } from "../service/preferences";
+import { TypingTestParams } from "../../service/preferences";
 import { useEffect, useState } from "react";
-import { Result, ResultsService } from "../service/results";
-import { useService } from "../service";
+import { Result, ResultsService } from "../../service/results";
+import { useService } from "../../service";
 
 const LIMIT = 10;
 
@@ -21,7 +21,7 @@ type FetchState =
   | { state: "some"; cursor: number }
   | { state: "all" };
 
-function ResultsView() {
+function Results() {
   const resultsService = useService(ResultsService);
 
   const [fetchState, setFetchState] = useState<FetchState>({
@@ -63,59 +63,64 @@ function ResultsView() {
   }
 
   return (
-    <Stack
-      alignItems="center"
-      spacing="1em"
-      sx={{ margin: "0 auto", width: "100%" }}
-    >
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Mode</TableCell>
-              <TableCell>WPM</TableCell>
-              <TableCell>Accuracy</TableCell>
-              <TableCell>Raw WPM</TableCell>
-              <TableCell>Timestamp</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.map(
-              ({
-                testParams,
-                testCompletedTimestamp,
-                wpm,
-                rawWpm,
-                accuracy,
-              }) => {
-                return (
-                  <TableRow key={testCompletedTimestamp}>
-                    <TableCell>
-                      <TypingTestParamsDisplay {...testParams} />
-                    </TableCell>
-                    <TableCell>{wpm}</TableCell>
-                    <TableCell>{accuracy}</TableCell>
-                    <TableCell>{rawWpm}</TableCell>
-                    <TableCell>
-                      <TimestampDisplay timestamp={testCompletedTimestamp} />
-                    </TableCell>
-                  </TableRow>
-                );
-              },
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {fetchState.state === "some" &&
-        (!loading ? (
-          <Button variant="contained" onClick={getResults}>
-            Load more
-          </Button>
-        ) : (
-          <LoadingText text="Loading results..." />
-        ))}
-      {fetchState.state === "all" && <LoadingText text="All results loaded" />}
-    </Stack>
+    <div className="Results">
+      <h3 className="ResultsTitle">Results</h3>
+      <Stack
+        alignItems="center"
+        spacing="1em"
+        sx={{ margin: "0 auto", width: "100%" }}
+      >
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Mode</TableCell>
+                <TableCell>WPM</TableCell>
+                <TableCell>Accuracy</TableCell>
+                <TableCell>Raw WPM</TableCell>
+                <TableCell>Timestamp</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {results.map(
+                ({
+                  testParams,
+                  testCompletedTimestamp,
+                  wpm,
+                  rawWpm,
+                  accuracy,
+                }) => {
+                  return (
+                    <TableRow key={testCompletedTimestamp}>
+                      <TableCell>
+                        <TypingTestParamsDisplay {...testParams} />
+                      </TableCell>
+                      <TableCell>{wpm}</TableCell>
+                      <TableCell>{accuracy}</TableCell>
+                      <TableCell>{rawWpm}</TableCell>
+                      <TableCell>
+                        <TimestampDisplay timestamp={testCompletedTimestamp} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                },
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {fetchState.state === "some" &&
+          (!loading ? (
+            <Button variant="contained" onClick={getResults}>
+              Load more
+            </Button>
+          ) : (
+            <LoadingText text="Loading results..." />
+          ))}
+        {fetchState.state === "all" && (
+          <LoadingText text="All results loaded" />
+        )}
+      </Stack>
+    </div>
   );
 }
 
@@ -168,4 +173,4 @@ function dedupByTimestamp(results: Result[]): Result[] {
   return uniqueResults;
 }
 
-export default ResultsView;
+export default Results;

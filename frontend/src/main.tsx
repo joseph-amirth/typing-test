@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import RandomTypingTestView from "./view/RandomTypingTestView";
-import ResultsView from "./view/ResultsView";
 import SignInView from "./view/SignInView";
 import SignUpView from "./view/SignUpView";
 import TypingRaceView from "./view/TypingRaceView";
@@ -66,10 +65,6 @@ const router = createBrowserRouter([
             },
           };
         },
-      },
-      {
-        path: "results",
-        element: <ResultsView />,
       },
       {
         path: "signup",

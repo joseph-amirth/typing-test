@@ -3,6 +3,15 @@
   flex-direction: column;
 }
 
+.StatsTitle {
+  margin-bottom: 0;
+}
+
+.MainStatsTitle {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
 .MainStats {
   display: flex;
   flex-direction: row;
