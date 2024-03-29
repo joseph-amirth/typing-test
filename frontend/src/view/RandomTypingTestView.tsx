@@ -13,7 +13,11 @@ import QuoteTypingTest from "../typing-test/quote/RandomTypingTest";
 import TimeTypingTest from "../typing-test/time/RandomTypingTest";
 import WordsTypingTest from "../typing-test/words/RandomTypingTest";
 import "./RandomTypingTestView.css";
-import { Language, languageList } from "../service/staticcontent";
+import { Language } from "../service/staticcontent";
+import SelectWordsLength from "../component/input/SelectWordsLength";
+import SelectLanguage from "../component/input/SelectLanguage";
+import SelectTimeDuration from "../component/input/SelectTimeDuration";
+import SelectQuoteLength from "../component/input/SelectQuoteLength";
 
 const RandomTypingTestView = () => {
   const [currentMode, setCurrentMode] = usePreference("currentMode");
@@ -73,31 +77,16 @@ const getTypingTestView = (mode: TypingTestMode) => {
 const WordsTypingTestControls = () => {
   const [length, setLength] = usePreference("wordsModeLength");
 
-  const handleLengthChange = (event: SelectChangeEvent) => {
-    const value = event.target.value;
-    setLength(parseInt(value));
+  const handleLengthChange = (length: number) => {
+    setLength(length);
   };
 
   return (
     <>
       <HorizontalSpacer />
-      <SelectLanguage />
+      <SelectLanguagePreference />
       <HorizontalSpacer />
-      <FormControl>
-        <InputLabel id="Length">Length</InputLabel>
-        <Select
-          variant="outlined"
-          labelId="Length"
-          label="Length"
-          value={length.toString()}
-          onChange={handleLengthChange}
-        >
-          <MenuItem value={10}>10 words</MenuItem>
-          <MenuItem value={20}>20 words</MenuItem>
-          <MenuItem value={50}>50 words</MenuItem>
-          <MenuItem value={100}>100 words</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectWordsLength length={length} onLengthChange={handleLengthChange} />
     </>
   );
 };
@@ -118,31 +107,19 @@ const WordsTypingTestView = () => {
 const TimeTypingTestControls = () => {
   const [duration, setDuration] = usePreference("timeModeDuration");
 
-  const handleDurationChange = (event: SelectChangeEvent) => {
-    const value = event.target.value;
-    setDuration(parseInt(value));
+  const handleDurationChange = (duration: number) => {
+    setDuration(duration);
   };
 
   return (
     <>
       <HorizontalSpacer />
-      <SelectLanguage />
+      <SelectLanguagePreference />
       <HorizontalSpacer />
-      <FormControl>
-        <InputLabel id="Duration">Duration</InputLabel>
-        <Select
-          variant="outlined"
-          labelId="Duration"
-          label="Duration"
-          value={duration.toString()}
-          onChange={handleDurationChange}
-        >
-          <MenuItem value={15}>15 seconds</MenuItem>
-          <MenuItem value={30}>30 seconds</MenuItem>
-          <MenuItem value={60}>60 seconds</MenuItem>
-          <MenuItem value={120}>120 seconds</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectTimeDuration
+        duration={duration}
+        onDurationChange={handleDurationChange}
+      />
     </>
   );
 };
@@ -163,30 +140,14 @@ const TimeTypingTestView = () => {
 const QuoteTypingTestControls = () => {
   const [length, setLength] = usePreference("quoteModeLength");
 
-  const handleLengthChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as QuoteModeLength;
-    setLength(value);
+  const handleLengthChange = (length: QuoteModeLength) => {
+    setLength(length);
   };
 
   return (
     <>
       <HorizontalSpacer />
-      <FormControl>
-        <InputLabel id="Length">Length</InputLabel>
-        <Select
-          variant="outlined"
-          labelId="Length"
-          label="Length"
-          value={length}
-          onChange={handleLengthChange}
-        >
-          <MenuItem value="short">Short</MenuItem>
-          <MenuItem value="medium">Medium</MenuItem>
-          <MenuItem value="long">Long</MenuItem>
-          <MenuItem value="veryLong">Very long</MenuItem>
-          <MenuItem value="all">All</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectQuoteLength length={length} onLengthChange={handleLengthChange} />
     </>
   );
 };
@@ -197,31 +158,18 @@ const QuoteTypingTestView = () => {
   return <QuoteTypingTest key={length} length={length} />;
 };
 
-function SelectLanguage() {
+function SelectLanguagePreference() {
   const [language, setLanguage] = usePreference("language");
 
-  const handleLanguageChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as Language;
-    setLanguage(value);
+  const handleLanguageChange = (language: Language) => {
+    setLanguage(language);
   };
 
   return (
-    <FormControl>
-      <InputLabel id="Language">Language</InputLabel>
-      <Select
-        variant="outlined"
-        labelId="Language"
-        label="Language"
-        value={language}
-        onChange={handleLanguageChange}
-      >
-        {languageList.map((language) => (
-          <MenuItem key={language} value={language}>
-            {language}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <SelectLanguage
+      language={language}
+      onLanguageChange={handleLanguageChange}
+    />
   );
 }
 
