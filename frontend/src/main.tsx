@@ -11,6 +11,7 @@ import SpecificTypingTestView from "./view/SpecificTypingTestView";
 import { base64urlToSeed } from "./util/prng";
 import SettingsView from "./view/SettingsView";
 import ProfileView from "./view/profile";
+import LeaderboardView from "./view/LeaderboardView";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: "signin",
         element: <SignInView />,
+      },
+      {
+        path: "leaderboard",
+        element: <LeaderboardView />,
       },
       {
         path: "settings",
