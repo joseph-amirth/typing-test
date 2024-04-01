@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import BoundedTypingTest from "../typing-test/BoundedTypingTest";
-import { randomWords } from "../typing-test/gen";
+import BoundedTypingTest from "../../typing-test/BoundedTypingTest";
+import { randomWords } from "../../typing-test/gen";
 import { LinearProgress } from "@mui/material";
-import { Seed } from "../util/prng";
-import english from "../static/words/english.json";
-import { Account, AccountService } from "../service/account";
-import { useService } from "../service";
+import { Seed } from "../../util/prng";
+import english from "../../static/words/english.json";
+import { Account, AccountService } from "../../service/account";
+import { useService } from "../../service";
 
 const TEST_LENGTH = 20;
 

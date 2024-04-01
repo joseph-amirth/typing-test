@@ -6,7 +6,7 @@ import "./index.css";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import SignInView from "./view/SignInView";
 import SignUpView from "./view/SignUpView";
-import TypingRaceView from "./view/TypingRaceView";
+import TypingRaceView from "./view/race";
 import SpecificTypingTestView from "./view/SpecificTypingTestView";
 import { base64urlToSeed } from "./util/prng";
 import SettingsView from "./view/SettingsView";
