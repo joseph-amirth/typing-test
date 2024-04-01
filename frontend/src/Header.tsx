@@ -5,7 +5,7 @@ import KeyboardIcon from "@mui/icons-material/Keyboard";
 import { Button, IconButton } from "@mui/material";
 import { Account, AccountService } from "./service/account";
 import { useService } from "./service";
-import { Leaderboard, Settings } from "@mui/icons-material";
+import { Leaderboard, Settings, SportsScore } from "@mui/icons-material";
 
 function Header() {
   const navigate = useNavigate();
@@ -39,6 +39,9 @@ function NavigationBar() {
         <KeyboardIcon />
         <h2 className="Title">Typing Test</h2>
       </Button>
+      <IconButton onClick={() => navigate("/race")}>
+        <SportsScore />
+      </IconButton>
       <IconButton onClick={() => navigate("/leaderboard")}>
         <Leaderboard />
       </IconButton>
