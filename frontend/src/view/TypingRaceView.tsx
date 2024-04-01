@@ -148,7 +148,7 @@ const TypingRaceView = () => {
       {state === "start" && (
         <BoundedTypingTest
           test={randomWords(seed!, english, TEST_LENGTH)}
-          allowSkipping={false}
+          allowSkippingWords={false}
           onTestUpdate={(_, attempt) => {
             const userProgress = attempt.length - 1;
             setUserProgress(userProgress);

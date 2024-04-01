@@ -29,6 +29,8 @@ pub struct Preferences {
     language: Language,
     quote_mode_length: QuoteModeLength,
     show_all_lines: bool,
+    allow_skipping_words: bool,
+    allow_backspacing_words: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

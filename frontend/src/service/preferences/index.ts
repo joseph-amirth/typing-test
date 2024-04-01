@@ -11,6 +11,8 @@ export const defaultPreferences: Preferences = {
   language: "english",
   quoteModeLength: "medium",
   showAllLines: false,
+  allowSkippingWords: true,
+  allowBackspacingWords: true,
 };
 
 export const PreferencesService = createService<{
@@ -57,6 +59,8 @@ export interface Preferences {
   language: Language;
   quoteModeLength: QuoteModeLength;
   showAllLines: boolean;
+  allowSkippingWords: boolean;
+  allowBackspacingWords: boolean;
 }
 
 export type TypingTestMode = "words" | "time" | "quote";

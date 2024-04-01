@@ -1,10 +1,11 @@
 import { forwardRef } from "react";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import "./Input.css";
+import { usePreference } from "../service/preferences/hooks";
 
 export interface InputOptions {
-  allowSkipping?: boolean;
-  allowBackpedal?: boolean;
+  allowSkippingWords?: boolean;
+  allowBackspacingWords?: boolean;
 }
 
 interface InputProps extends InputOptions {
@@ -20,11 +21,24 @@ function Input(
     test,
     attempt,
     onAttemptUpdate,
-    allowSkipping,
-    allowBackpedal,
+    allowSkippingWords: allowSkippingWordsParam,
+    allowBackspacingWords: allowBackspacingWordsParam,
   }: InputProps,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
+  const [allowSkippingWordsPref] = usePreference("allowSkippingWords");
+  const [allowBackspacingWordsPref] = usePreference("allowBackspacingWords");
+
+  const allowSkippingWords =
+    allowSkippingWordsParam !== undefined
+      ? allowSkippingWordsParam
+      : allowSkippingWordsPref;
+
+  const allowBackspacingWords =
+    allowBackspacingWordsParam !== undefined
+      ? allowBackspacingWordsParam
+      : allowBackspacingWordsPref;
+
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!enabled) {
       return;
@@ -41,10 +55,9 @@ function Input(
       return;
     }
 
-    // Don't allow user to skip words if allowSkipping is true.
+    // Don't allow user to skip words.
     if (
-      allowSkipping !== undefined &&
-      !allowSkipping &&
+      !allowSkippingWords &&
       newAttempt.length > attempt.length &&
       newAttempt[attempt.length - 1] !== test[attempt.length - 1]
     ) {
@@ -52,11 +65,7 @@ function Input(
     }
 
     // Don't allow user to backspace words.
-    if (
-      allowBackpedal !== undefined &&
-      !allowBackpedal &&
-      newAttempt.length < attempt.length
-    ) {
+    if (!allowBackspacingWords && newAttempt.length < attempt.length) {
       return;
     }
 
