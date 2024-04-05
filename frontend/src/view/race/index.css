@@ -1,0 +1,15 @@
+.RaceHomeView {
+  display: flex;
+  flex-direction: column;
+}
+
+.RaceHomeView .Menu {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.Menu .MenuButton {
+  margin: 10px;
+}

@@ -11,7 +11,7 @@ const TEST_LENGTH = 20;
 
 type State = "waiting" | "prepare" | "start" | "finish" | "timeout";
 
-const PublicTypingRace = () => {
+const RaceView = () => {
   const { accountState } = useService(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
@@ -322,4 +322,4 @@ interface Result {
   result: number;
 }
 
-export default PublicTypingRace;
+export default RaceView;

@@ -6,12 +6,14 @@ import "./index.css";
 import RandomTypingTestView from "./view/RandomTypingTestView";
 import SignInView from "./view/SignInView";
 import SignUpView from "./view/SignUpView";
-import TypingRaceView from "./view/race";
+import RaceHomeView from "./view/race";
 import SpecificTypingTestView from "./view/SpecificTypingTestView";
 import { base64urlToSeed } from "./util/prng";
 import SettingsView from "./view/SettingsView";
 import ProfileView from "./view/profile";
 import LeaderboardView from "./view/LeaderboardView";
+import RaceView from "./view/race/RaceView";
+import RoomView from "./view/race/RoomView";
 
 const router = createBrowserRouter([
   {
@@ -24,7 +26,15 @@ const router = createBrowserRouter([
       },
       {
         path: "race",
-        element: <TypingRaceView />,
+        element: <RaceHomeView />,
+      },
+      {
+        path: "race/public",
+        element: <RaceView />,
+      },
+      {
+        path: "race/room/:room",
+        element: <RoomView />,
       },
       {
         path: "words/:language/:length/:base64urlSeed",
