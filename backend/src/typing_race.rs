@@ -32,8 +32,7 @@ pub async fn join_matchmaking(
 
 async fn handle_socket(state: AppState, auth_token: AuthToken, socket: WebSocket) {
     let matchmaking = state.matchmaking();
-    let username = auth_token.username;
-    let mut player = Player::new(username, socket);
+    let mut player = Player::new(auth_token.user_id, auth_token.username, socket);
     if !player.ping().await {
         return;
     }
@@ -61,7 +60,7 @@ pub fn spawn_matchmaking_service() -> Mms {
     tokio::spawn(async move {
         let mut lobby_id: u32 = 0;
         let mut lobby = Vec::<Player>::new();
-        let mut players = BTreeMap::<String, u32>::new();
+        let mut players = BTreeMap::<u32, u32>::new();
 
         while let Some(mms_msg) = rx.recv().await {
             match mms_msg {
@@ -69,7 +68,7 @@ pub fn spawn_matchmaking_service() -> Mms {
                     player: mut new_player,
                     responder,
                 } => {
-                    if players.get(&new_player.username).is_some() {
+                    if players.get(&new_player.id).is_some() {
                         responder
                             .send(Err(MmsError::JoinError(new_player)))
                             .unwrap();
@@ -77,7 +76,7 @@ pub fn spawn_matchmaking_service() -> Mms {
                     }
 
                     responder.send(Ok(())).unwrap();
-                    players.insert(new_player.username.clone(), lobby_id);
+                    players.insert(new_player.id.clone(), lobby_id);
                     for player in &mut lobby {
                         player
                             .send(&joined_msg(&new_player.username))
@@ -110,9 +109,9 @@ pub fn spawn_matchmaking_service() -> Mms {
                         tokio::spawn(start_race(mms, lobby_id, lobby.drain(..).collect()));
                     }
                 }
-                MmsMsg::Leave { username, lobby_id } => {
-                    if players.get(&username) == Some(&lobby_id) {
-                        players.remove(&username);
+                MmsMsg::Leave { id, lobby_id } => {
+                    if players.get(&id) == Some(&lobby_id) {
+                        players.remove(&id);
                     }
                 }
             }
@@ -133,7 +132,7 @@ pub enum MmsMsg {
         responder: Responder<()>,
     },
     Leave {
-        username: String,
+        id: u32,
         lobby_id: u32,
     },
     Evict(u32),
@@ -159,6 +158,7 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
         let mms = mms.clone();
 
         let (player_rx, player) = player.take_receiver();
+        let player_id = player.id;
         let username = player.username.clone();
         race.push(player);
         tokio::spawn(async move {
@@ -167,11 +167,7 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
 
             while let Some(result) = player_rx.next().await {
                 let Ok(result) = result else {
-                    let _ = race_tx
-                        .send(RaceMsg::Timeout {
-                            username: username.clone(),
-                        })
-                        .await;
+                    let _ = race_tx.send(RaceMsg::Timeout { username }).await;
                     break;
                 };
                 let Ok(message) = result else {
@@ -195,7 +191,12 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
                     _ => {}
                 }
             }
-            let _ = mms.send(MmsMsg::Leave { username, lobby_id }).await;
+            let _ = mms
+                .send(MmsMsg::Leave {
+                    id: player_id,
+                    lobby_id,
+                })
+                .await;
         });
     }
 
@@ -239,7 +240,7 @@ async fn start_race(mms: Mms, lobby_id: u32, mut lobby: Vec<Player<WithRx>>) {
     for player in race {
         let _ = mms
             .send(MmsMsg::Leave {
-                username: player.username,
+                id: player.id,
                 lobby_id,
             })
             .await;
@@ -261,7 +262,7 @@ async fn send_msg_to_players(
             continue;
         }
         if player.send(&message).await.is_err() {
-            disconnected_players.push(player.username.clone());
+            disconnected_players.push((player.id, player.username.clone()));
         }
     }
 
@@ -269,7 +270,7 @@ async fn send_msg_to_players(
         race.retain(|player| {
             disconnected_players
                 .iter()
-                .find(|disconnected_player| player.username == **disconnected_player)
+                .find(|disconnected_player| player.id == disconnected_player.0)
                 .is_none()
         });
 
@@ -278,11 +279,11 @@ async fn send_msg_to_players(
             let mut is_disconnected = false;
             for disconnected_player in &disconnected_players {
                 let message = RaceMsg::Disconnect {
-                    username: disconnected_player.clone(),
+                    username: disconnected_player.1.clone(),
                     reason: DisconnectReason::Unknown,
                 };
                 if !is_disconnected && player.send(&message).await.is_err() {
-                    new_disconnected_players.push(player.username.clone());
+                    new_disconnected_players.push((player.id, player.username.clone()));
                     is_disconnected = true;
                 }
             }
@@ -291,7 +292,7 @@ async fn send_msg_to_players(
         for player in disconnected_players {
             let _ = mms
                 .send(MmsMsg::Leave {
-                    username: player,
+                    id: player.0,
                     lobby_id,
                 })
                 .await;
@@ -337,15 +338,17 @@ type WithRx = PlayerRx;
 type WithoutRx = ();
 
 pub struct Player<Rx = WithRx> {
+    pub id: u32,
     pub username: String,
     pub sender: PlayerTx,
     receiver: Rx,
 }
 
 impl Player {
-    fn new(username: String, socket: WebSocket) -> Self {
+    fn new(id: u32, username: String, socket: WebSocket) -> Self {
         let (sender, receiver) = socket.split();
         Self {
+            id,
             username,
             sender,
             receiver,
@@ -387,6 +390,7 @@ impl Player<WithRx> {
         (
             self.receiver,
             Player::<WithoutRx> {
+                id: self.id,
                 username: self.username,
                 sender: self.sender,
                 receiver: (),
@@ -417,6 +421,6 @@ fn start_msg(seed: Seed) -> impl Serialize {
 
 impl<State> Debug for Player<State> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.username)
+        write!(f, "{}", self.id)
     }
 }
