@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import "./Input.css";
 import { usePreference } from "../service/preferences/hooks";
@@ -6,6 +6,12 @@ import { usePreference } from "../service/preferences/hooks";
 export interface InputOptions {
   allowSkippingWords?: boolean;
   allowBackspacingWords?: boolean;
+  autoFocus?: boolean;
+}
+
+export interface InputHandle {
+  focus: () => void;
+  blur: () => void;
 }
 
 interface InputProps extends InputOptions {
@@ -23,8 +29,9 @@ function Input(
     onAttemptUpdate,
     allowSkippingWords: allowSkippingWordsParam,
     allowBackspacingWords: allowBackspacingWordsParam,
+    autoFocus: autoFocusParam,
   }: InputProps,
-  ref: React.ForwardedRef<HTMLInputElement>,
+  ref: React.ForwardedRef<InputHandle>,
 ) {
   const [allowSkippingWordsPref] = usePreference("allowSkippingWords");
   const [allowBackspacingWordsPref] = usePreference("allowBackspacingWords");
@@ -72,14 +79,17 @@ function Input(
     onAttemptUpdate(newAttempt);
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  useImperativeHandle(ref, () => inputRef.current!, []);
+
   return (
     <input
       type="text"
       value={attempt.join(" ")}
-      ref={ref}
+      ref={inputRef}
       className="Input"
       onInput={handleInput}
-      autoFocus
+      autoFocus={autoFocusParam !== undefined ? autoFocusParam : true}
       {...ANTI_CHEAT_PROPS}
     />
   );

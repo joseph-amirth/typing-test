@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import Diff from "./Diff";
 import Result from "./Result";
 import "./BoundedTypingTest.css";
@@ -10,7 +16,7 @@ import {
   calculateStats,
   getActualTest,
 } from "./stat";
-import Input, { InputOptions } from "./Input";
+import Input, { InputHandle, InputOptions } from "./Input";
 import { TypingTestCallbacks } from "./props";
 
 export interface BoundedTypingTestProps
@@ -19,13 +25,16 @@ export interface BoundedTypingTestProps
   test: string[];
 }
 
-const BoundedTypingTest = ({
-  test,
-  onTestStart,
-  onTestUpdate,
-  onTestFinish,
-  ...inputOptions
-}: BoundedTypingTestProps) => {
+const BoundedTypingTest = (
+  {
+    test,
+    onTestStart,
+    onTestUpdate,
+    onTestFinish,
+    ...inputOptions
+  }: BoundedTypingTestProps,
+  ref: React.ForwardedRef<InputHandle>,
+) => {
   const [showAllLines] = usePreference("showAllLines");
 
   const [attempt, setAttempt] = useState("".split(" "));
@@ -79,7 +88,9 @@ const BoundedTypingTest = ({
     }
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<InputHandle>(null);
+  useImperativeHandle(ref, () => inputRef.current!, []);
+
   const handleClick = () => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -120,4 +131,6 @@ function isTestDone(test: string[], attempt: string[]): boolean {
   );
 }
 
-export default BoundedTypingTest;
+const BoundedTypingTestWithForwardedRef = forwardRef(BoundedTypingTest);
+
+export default BoundedTypingTestWithForwardedRef;
