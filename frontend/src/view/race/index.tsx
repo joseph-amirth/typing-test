@@ -1,6 +1,9 @@
 import { Button } from "@mui/material";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
+import { useService } from "../../service";
+import { ServerService } from "../../service/server";
+import { useState } from "react";
 
 function RaceHomeView() {
   return (
@@ -12,13 +15,37 @@ function RaceHomeView() {
 
 function Menu() {
   const navigate = useNavigate();
+  const { post } = useService(ServerService);
 
-  const createRoom = () => {};
+  const [roomCreationFailure, setRoomCreationFailure] = useState<string | null>(
+    null,
+  );
+
+  const createRoom = () => {
+    post<{ roomId: number }>(
+      "/room/create",
+      {},
+      { credentials: "include" },
+    ).then((response) => {
+      switch (response.status) {
+        case "ok":
+          const { roomId } = response.body;
+          navigate(`/race/room/${roomId}`);
+          break;
+        case "err":
+          setRoomCreationFailure(response.reason);
+          break;
+        case "fail":
+          setRoomCreationFailure("Unexpected failure while creating a room");
+      }
+    });
+  };
 
   return (
     <div className="Menu">
       <MenuButton onClick={() => navigate("/race/public")}>Race</MenuButton>
       <MenuButton onClick={createRoom}>Create room</MenuButton>
+      {roomCreationFailure !== null && roomCreationFailure}
     </div>
   );
 }

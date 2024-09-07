@@ -106,7 +106,7 @@ const RaceView = () => {
     }
     socket.current = new WebSocket("ws://localhost:8080/race");
     socket.current.addEventListener("error", () => {
-      console.log("error has occurred!");
+      console.error("error has occurred!");
     });
     socket.current.addEventListener("message", (event) => {
       const msg = JSON.parse(event.data) as Msg;

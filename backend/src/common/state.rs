@@ -3,9 +3,11 @@ use std::{convert::Infallible, env};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
 use lettre::{transport::smtp::authentication::Credentials, AsyncSmtpTransport, Tokio1Executor};
 use sqlx::mysql::MySqlPoolOptions;
-use tokio::sync::mpsc::Sender;
 
-use crate::typing_race::{spawn_matchmaking_service, MmsMsg};
+use crate::typing_race::{
+    room::{spawn_room_manager, RoomMgr},
+    spawn_matchmaking_service, Mms,
+};
 
 pub type Db = sqlx::MySqlPool;
 pub type Mailer = AsyncSmtpTransport<Tokio1Executor>;
@@ -14,7 +16,8 @@ pub type Mailer = AsyncSmtpTransport<Tokio1Executor>;
 pub struct AppState {
     db: Db,
     mailer: Mailer,
-    matchmaking: Sender<MmsMsg>,
+    matchmaking: Mms,
+    room_mgr: RoomMgr,
 }
 
 impl AppState {
@@ -23,6 +26,7 @@ impl AppState {
             db: Self::get_db().await,
             mailer: Self::get_mailer(),
             matchmaking: spawn_matchmaking_service(),
+            room_mgr: spawn_room_manager(),
         }
     }
 
@@ -34,8 +38,12 @@ impl AppState {
         self.mailer.to_owned()
     }
 
-    pub fn matchmaking(&self) -> Sender<MmsMsg> {
+    pub fn matchmaking(&self) -> Mms {
         self.matchmaking.clone()
+    }
+
+    pub fn room_mgr(&self) -> RoomMgr {
+        self.room_mgr.clone()
     }
 
     async fn get_db() -> Db {

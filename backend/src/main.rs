@@ -61,6 +61,8 @@ async fn main() {
         .route("/stat", get(get_stats))
         .route("/prefs", post(update_preferences))
         .route("/race", get(typing_race::join_matchmaking))
+        .route("/room/create", post(typing_race::room::create_room))
+        .route("/room/join", get(typing_race::room::join_room))
         .route("/experimental", get(experimental))
         .with_state(AppState::new().await)
         .layer(

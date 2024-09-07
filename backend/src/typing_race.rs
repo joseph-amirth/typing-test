@@ -22,6 +22,8 @@ use tokio::{
 
 use crate::{auth::AuthToken, common::state::AppState, typing_test::Seed};
 
+pub mod room;
+
 pub async fn join_matchmaking(
     State(state): State<AppState>,
     auth_token: AuthToken,
