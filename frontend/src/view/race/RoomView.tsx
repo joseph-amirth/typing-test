@@ -3,6 +3,14 @@ import { useParams } from "react-router-dom";
 import { useService } from "../../service";
 import { AccountService } from "../../service/account";
 import { Button } from "@mui/material";
+import BoundedTypingTest from "../../typing-test/BoundedTypingTest";
+import { TestFinishEvent } from "../../typing-test/props";
+
+const TEST = (
+  "Hey what is going on right now? Nobody told me about this. " +
+  "Could somebody please tell me what the hell is going on in " +
+  "this place for god's sake?!"
+).split(" ");
 
 function RoomView() {
   const { room } = useParams();
@@ -22,14 +30,14 @@ function RoomView() {
       case "init":
         setOtherPlayers(
           payload.otherPlayerUsernames.map((username) => {
-            return { username, state: "NotReady" };
+            return { username, state: { kind: "notReady" } };
           }),
         );
         break;
       case "join":
         setOtherPlayers((players) => [
           ...players,
-          { username: payload.joiningPlayer, state: "NotReady" },
+          { username: payload.joiningPlayer, state: { kind: "notReady" } },
         ]);
         break;
       case "leave":
@@ -41,7 +49,7 @@ function RoomView() {
         setOtherPlayers((players) =>
           players.map((player) =>
             player.username == payload.readyPlayer
-              ? { ...player, state: "Ready" }
+              ? { ...player, state: { kind: "ready" } }
               : player,
           ),
         );
@@ -50,7 +58,7 @@ function RoomView() {
         setOtherPlayers((players) =>
           players.map((player) =>
             player.username == payload.notReadyPlayer
-              ? { ...player, state: "NotReady" }
+              ? { ...player, state: { kind: "notReady" } }
               : player,
           ),
         );
@@ -58,34 +66,58 @@ function RoomView() {
       case "prepare":
         setState({
           kind: "ready",
-          subState: {
-            preparing: {
-              timeUntilRaceStart: payload.timeUntilRaceStart,
-            },
-          },
+          timeUntilRaceStart: payload.timeUntilRaceStart,
         });
         const interval = setInterval(() => {
           setState((state) => {
             if (state.kind !== "ready") {
               return state;
             }
-            const timeLeft =
-              state.subState.preparing!.timeUntilRaceStart.secs - 1;
+            const timeLeft = state.timeUntilRaceStart!.secs - 1;
             if (timeLeft == 0) {
+              setState({ kind: "racing" });
+              setOtherPlayers((otherPlayers) =>
+                otherPlayers.map((otherPlayer) => {
+                  return {
+                    ...otherPlayer,
+                    state: { kind: "racing", progress: 0 },
+                  };
+                }),
+              );
               clearInterval(interval);
             }
             return {
               kind: "ready",
-              subState: {
-                preparing: {
-                  timeUntilRaceStart: {
-                    secs: timeLeft,
-                  },
-                },
+              timeUntilRaceStart: {
+                secs: timeLeft,
               },
             };
           });
         }, 1000);
+        break;
+      case "update":
+        const { player: updatingPlayer, progress } = payload;
+        setOtherPlayers((otherPlayers) => {
+          const index = otherPlayers.findIndex(
+            (otherPlayer) => otherPlayer.username === updatingPlayer,
+          );
+          return otherPlayers.with(index, {
+            username: updatingPlayer,
+            state: { kind: "racing", progress },
+          });
+        });
+        break;
+      case "finish":
+        const { player: finishedPlayer, duration } = payload;
+        setOtherPlayers((otherPlayers) => {
+          const index = otherPlayers.findIndex(
+            (otherPlayer) => otherPlayer.username === finishedPlayer,
+          );
+          return otherPlayers.with(index, {
+            username: finishedPlayer,
+            state: { kind: "finished", duration },
+          });
+        });
         break;
     }
   };
@@ -96,7 +128,7 @@ function RoomView() {
     }
     const msg = { kind: "ready", payload: {} };
     socket.current.send(JSON.stringify(msg));
-    setState({ kind: "ready", subState: {} });
+    setState({ kind: "ready" });
   };
 
   const sendNotReady = () => {
@@ -106,6 +138,38 @@ function RoomView() {
     const msg = { kind: "notReady", payload: {} };
     socket.current.send(JSON.stringify(msg));
     setState({ kind: "notReady" });
+  };
+
+  const handleTestUpdate = (attempt: string[], newAttempt: string[]) => {
+    if (socket.current === null || attempt.length === newAttempt.length) {
+      return;
+    }
+    const msg = { kind: "update", payload: { progress: newAttempt.length } };
+    socket.current.send(JSON.stringify(msg));
+  };
+
+  const handleTestFinish = (event: TestFinishEvent) => {
+    if (socket.current === null) {
+      return;
+    }
+    const { duration } = event;
+    const msg = {
+      kind: "finish",
+      payload: {
+        duration: {
+          secs: Math.floor(duration),
+          nanos: Math.floor(duration * 1_000_000_000) % 1_000_000_000,
+        },
+      },
+    };
+    socket.current.send(JSON.stringify(msg));
+    setState({
+      kind: "finished",
+      duration: {
+        secs: Math.floor(duration),
+        nanos: Math.floor(duration * 1_000_000_000) % 1_000_000_000,
+      },
+    });
   };
 
   useEffect(() => {
@@ -141,23 +205,46 @@ function RoomView() {
         </Button>
       )}
       {state.kind === "ready" &&
-        (state.subState.preparing ? (
-          `Race starts in ${state.subState.preparing.timeUntilRaceStart.secs} seconds`
+        (state.timeUntilRaceStart ? (
+          `Race starts in ${state.timeUntilRaceStart.secs} seconds`
         ) : (
           <Button variant="contained" onClick={sendNotReady}>
             NotReady
           </Button>
         ))}
-      {otherPlayers.map((player, i) => (
-        <div key={i}>
-          {player.username} {player.state}
-        </div>
-      ))}
+      {(state.kind === "ready" || state.kind === "notReady") &&
+        otherPlayers.map((player, i) => (
+          <div key={i}>
+            {player.username} {player.state.kind}
+          </div>
+        ))}
+      {state.kind === "racing" && (
+        <BoundedTypingTest
+          test={TEST}
+          onTestUpdate={handleTestUpdate}
+          onTestFinish={handleTestFinish}
+          allowSkippingWords={false}
+        />
+      )}
+      {state.kind === "finished" && (
+        <>
+          You finished the race in{" "}
+          {state.duration.secs + state.duration.nanos / 1_000_000_000} seconds!
+          {otherPlayers.map(({ username, state }, i) => (
+            <div key={i}>
+              {username} {state.kind === "racing" && state.progress}
+              {state.kind === "finished" &&
+                `Finished in ${state.duration.secs + state.duration.nanos / 1_000_000_000
+                }`}
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }
 
-type State = NotReadyState | ReadyState;
+type State = NotReadyState | ReadyState | RacingState | FinishedState;
 
 interface NotReadyState {
   kind: "notReady";
@@ -165,21 +252,35 @@ interface NotReadyState {
 
 interface ReadyState {
   kind: "ready";
-  subState: {
-    preparing?: {
-      timeUntilRaceStart: { secs: number };
-    };
-  };
+  // Not populated for other player states.
+  timeUntilRaceStart?: { secs: number };
+}
+
+interface RacingState {
+  kind: "racing";
+  // Populated only for other player states.
+  progress?: number;
+}
+
+interface FinishedState {
+  kind: "finished";
+  duration: { secs: number; nanos: number };
 }
 
 interface OtherPlayer {
   username: string;
-  state: OtherPlayerState;
+  state: State;
 }
 
-type OtherPlayerState = "NotReady" | "Ready";
-
-type Msg = InitMsg | JoinMsg | LeaveMsg | ReadyMsg | NotReadyMsg | PrepareMsg;
+type Msg =
+  | InitMsg
+  | JoinMsg
+  | LeaveMsg
+  | ReadyMsg
+  | NotReadyMsg
+  | PrepareMsg
+  | UpdateMsg
+  | FinishMsg;
 
 interface InitMsg {
   kind: "init";
@@ -220,6 +321,22 @@ interface PrepareMsg {
   kind: "prepare";
   payload: {
     timeUntilRaceStart: { secs: number };
+  };
+}
+
+interface UpdateMsg {
+  kind: "update";
+  payload: {
+    player: string;
+    progress: number;
+  };
+}
+
+interface FinishMsg {
+  kind: "finish";
+  payload: {
+    player: string;
+    duration: { secs: number; nanos: number };
   };
 }
 

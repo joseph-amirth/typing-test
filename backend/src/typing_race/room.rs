@@ -246,6 +246,56 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     .into_iter()
                     .for_each(Result::unwrap);
                 }
+                RoomMsg::Update {
+                    player_id,
+                    progress,
+                } => {
+                    let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
+                        continue;
+                    };
+
+                    let update_msg = serde_json::to_string(&ToPlayerMsg::Update {
+                        player: &player_usernames[player_idx],
+                        progress,
+                    })
+                    .unwrap();
+
+                    join_all(
+                        senders
+                            .iter_mut()
+                            .enumerate()
+                            .filter(|(i, _)| *i != player_idx)
+                            .map(|(_, sender)| sender.send(Message::Text(update_msg.clone()))),
+                    )
+                    .await
+                    .into_iter()
+                    .for_each(Result::unwrap);
+                }
+                RoomMsg::Finish {
+                    player_id,
+                    duration,
+                } => {
+                    let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
+                        continue;
+                    };
+
+                    let finish_msg = serde_json::to_string(&ToPlayerMsg::Finish {
+                        player: &player_usernames[player_idx],
+                        duration,
+                    })
+                    .unwrap();
+
+                    join_all(
+                        senders
+                            .iter_mut()
+                            .enumerate()
+                            .filter(|(i, _)| *i != player_idx)
+                            .map(|(_, sender)| sender.send(Message::Text(finish_msg.clone()))),
+                    )
+                    .await
+                    .into_iter()
+                    .for_each(Result::unwrap);
+                }
             }
         }
 
@@ -273,6 +323,22 @@ fn spawn_player_listener(player_id: u32, room: Room, mut receiver: PlayerRx) {
                 FromPlayerMsg::NotReady {} => {
                     room.send(RoomMsg::NotReady { player_id }).await.unwrap()
                 }
+                FromPlayerMsg::Update { progress } => {
+                    room.send(RoomMsg::Update {
+                        player_id,
+                        progress,
+                    })
+                    .await
+                    .unwrap();
+                }
+                FromPlayerMsg::Finish { duration } => {
+                    room.send(RoomMsg::Finish {
+                        player_id,
+                        duration,
+                    })
+                    .await
+                    .unwrap();
+                }
             }
         }
 
@@ -296,6 +362,8 @@ enum RoomMsg {
     Ready { player_id: u32 },
     NotReady { player_id: u32 },
     Leave { player_id: u32 },
+    Update { player_id: u32, progress: u32 },
+    Finish { player_id: u32, duration: Duration },
 }
 
 #[derive(Debug, Serialize)]
@@ -322,6 +390,15 @@ enum ToPlayerMsg<'a> {
 
     /// Sent to players when all players are ready.
     Prepare { time_until_race_start: Duration },
+
+    /// Sent to players when another player progresses in the race.
+    Update { player: &'a String, progress: u32 },
+
+    /// Sent to players when another player completes the race.
+    Finish {
+        player: &'a String,
+        duration: Duration,
+    },
 }
 
 #[derive(Debug, Deserialize)]
@@ -331,4 +408,6 @@ enum ToPlayerMsg<'a> {
 enum FromPlayerMsg {
     Ready {},
     NotReady {},
+    Update { progress: u32 },
+    Finish { duration: Duration },
 }
