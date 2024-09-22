@@ -193,18 +193,25 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     }
                 }
                 RoomMsg::NotReady { player_id } => {
+                    let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
+                        continue;
+                    };
+
                     // If all players are already ready, then it is too late to back out.
                     if player_states
                         .iter()
                         .all(|player_state| *player_state == PlayerState::Ready)
                     {
+                        let error_msg = serde_json::to_string(&ToPlayerMsg::Error {
+                            title: "Too late to back out!",
+                            body: "The racing phase has begun, so you cannot back out now",
+                        })
+                        .unwrap();
+                        let _ = senders[player_idx].send(Message::Text(error_msg)).await;
                         continue;
                     }
 
-                    let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
-                        continue;
-                    };
-                    player_states[player_idx] = PlayerState::Ready;
+                    player_states[player_idx] = PlayerState::NotReady;
 
                     let not_ready_msg = serde_json::to_string(&ToPlayerMsg::NotReady {
                         not_ready_player: &player_usernames[player_idx],
@@ -399,6 +406,9 @@ enum ToPlayerMsg<'a> {
         player: &'a String,
         duration: Duration,
     },
+
+    /// Sent to players when an error happens.
+    Error { title: &'a str, body: &'a str },
 }
 
 #[derive(Debug, Deserialize)]

@@ -5,6 +5,7 @@ import { AccountService } from "../../service/account";
 import { Button } from "@mui/material";
 import BoundedTypingTest from "../../typing-test/BoundedTypingTest";
 import { TestFinishEvent } from "../../typing-test/props";
+import { NotificationsService } from "../../service/notifications";
 
 const TEST = (
   "Hey what is going on right now? Nobody told me about this. " +
@@ -15,6 +16,7 @@ const TEST = (
 function RoomView() {
   const { room } = useParams();
 
+  const { addNotification } = useService(NotificationsService);
   const { accountState } = useService(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
@@ -118,6 +120,10 @@ function RoomView() {
             state: { kind: "finished", duration },
           });
         });
+        break;
+      case "error":
+        const { title, body } = payload;
+        addNotification({ type: "Error", title, body });
         break;
     }
   };
@@ -280,7 +286,8 @@ type Msg =
   | NotReadyMsg
   | PrepareMsg
   | UpdateMsg
-  | FinishMsg;
+  | FinishMsg
+  | ErrorMsg;
 
 interface InitMsg {
   kind: "init";
@@ -337,6 +344,14 @@ interface FinishMsg {
   payload: {
     player: string;
     duration: { secs: number; nanos: number };
+  };
+}
+
+interface ErrorMsg {
+  kind: "error";
+  payload: {
+    title: string;
+    body: string;
   };
 }
 
