@@ -150,7 +150,10 @@ function RoomView() {
     if (socket.current === null || attempt.length === newAttempt.length) {
       return;
     }
-    const msg = { kind: "update", payload: { progress: newAttempt.length } };
+    const msg = {
+      kind: "update",
+      payload: { progress: newAttempt.length - 1 },
+    };
     socket.current.send(JSON.stringify(msg));
   };
 
