@@ -141,9 +141,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                         .iter_mut()
                         .map(|sender: &mut PlayerTx| sender.send(Message::Text(join_msg.clone())));
 
-                    let (_, other_player_results) =
-                        join(new_player_future, join_all(other_player_futures)).await;
-                    other_player_results.into_iter().for_each(Result::unwrap);
+                    let _ = join(new_player_future, join_all(other_player_futures)).await;
 
                     player_ids.push(player.id);
                     player_usernames.push(player.username);
@@ -163,7 +161,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     })
                     .unwrap();
 
-                    join_all(
+                    let _ = join_all(
                         senders
                             .iter_mut()
                             .enumerate()
@@ -171,8 +169,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                             .map(|(_, sender)| sender.send(Message::Text(ready_msg.clone()))),
                     )
                     .await
-                    .into_iter()
-                    .for_each(Result::unwrap);
+                    .into_iter();
 
                     if player_states
                         .iter()
@@ -182,14 +179,13 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                             time_until_race_start: Duration::from_secs(10),
                         })
                         .unwrap();
-                        join_all(
+                        let _ = join_all(
                             senders
                                 .iter_mut()
                                 .map(|sender| sender.send(Message::Text(prepare_msg.clone()))),
                         )
                         .await
-                        .into_iter()
-                        .for_each(Result::unwrap);
+                        .into_iter();
                     }
                 }
                 RoomMsg::NotReady { player_id } => {
@@ -218,7 +214,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     })
                     .unwrap();
 
-                    join_all(
+                    let _ = join_all(
                         senders
                             .iter_mut()
                             .enumerate()
@@ -226,8 +222,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                             .map(|(_, sender)| sender.send(Message::Text(not_ready_msg.clone()))),
                     )
                     .await
-                    .into_iter()
-                    .for_each(Result::unwrap);
+                    .into_iter();
                 }
                 RoomMsg::Leave { player_id } => {
                     let Some(index) = player_ids.iter().position(|id| *id == player_id) else {
@@ -244,14 +239,13 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     let _ = senders.remove(index);
                     player_states.remove(index);
 
-                    join_all(
+                    let _ = join_all(
                         senders
                             .iter_mut()
                             .map(|sender| sender.send(Message::Text(leave_msg.clone()))),
                     )
                     .await
-                    .into_iter()
-                    .for_each(Result::unwrap);
+                    .into_iter();
                 }
                 RoomMsg::Update {
                     player_id,
@@ -267,7 +261,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     })
                     .unwrap();
 
-                    join_all(
+                    let _ = join_all(
                         senders
                             .iter_mut()
                             .enumerate()
@@ -275,8 +269,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                             .map(|(_, sender)| sender.send(Message::Text(update_msg.clone()))),
                     )
                     .await
-                    .into_iter()
-                    .for_each(Result::unwrap);
+                    .into_iter();
                 }
                 RoomMsg::Finish {
                     player_id,
@@ -292,7 +285,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     })
                     .unwrap();
 
-                    join_all(
+                    let _ = join_all(
                         senders
                             .iter_mut()
                             .enumerate()
@@ -300,8 +293,7 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                             .map(|(_, sender)| sender.send(Message::Text(finish_msg.clone()))),
                     )
                     .await
-                    .into_iter()
-                    .for_each(Result::unwrap);
+                    .into_iter();
                 }
             }
         }
