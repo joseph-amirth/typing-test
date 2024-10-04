@@ -31,8 +31,8 @@ function RoomView() {
     switch (kind) {
       case "init":
         setOtherPlayers(
-          payload.otherPlayerUsernames.map((username) => {
-            return { username, state: { kind: "notReady" } };
+          payload.otherPlayers.map(({ username, state }) => {
+            return { username, state: { kind: state } };
           }),
         );
         break;
@@ -243,7 +243,8 @@ function RoomView() {
             <div key={i}>
               {username} {state.kind === "racing" && state.progress}
               {state.kind === "finished" &&
-                `Finished in ${state.duration.secs + state.duration.nanos / 1_000_000_000
+                `Finished in ${
+                  state.duration.secs + state.duration.nanos / 1_000_000_000
                 }`}
             </div>
           ))}
@@ -253,32 +254,21 @@ function RoomView() {
   );
 }
 
-type State = NotReadyState | ReadyState | RacingState | FinishedState;
+type State =
+  | { kind: "notReady" }
+  | { kind: "ready"; timeUntilRaceStart?: { secs: number } }
+  | { kind: "racing" }
+  | { kind: "finished"; duration: { secs: number; nanos: number } };
 
-interface NotReadyState {
-  kind: "notReady";
-}
-
-interface ReadyState {
-  kind: "ready";
-  // Not populated for other player states.
-  timeUntilRaceStart?: { secs: number };
-}
-
-interface RacingState {
-  kind: "racing";
-  // Populated only for other player states.
-  progress?: number;
-}
-
-interface FinishedState {
-  kind: "finished";
-  duration: { secs: number; nanos: number };
-}
+type OtherPlayerState =
+  | { kind: "notReady" }
+  | { kind: "ready" }
+  | { kind: "racing"; progress: number }
+  | { kind: "finished"; duration: { secs: number; nanos: number } };
 
 interface OtherPlayer {
   username: string;
-  state: State;
+  state: OtherPlayerState;
 }
 
 type Msg =
@@ -295,7 +285,10 @@ type Msg =
 interface InitMsg {
   kind: "init";
   payload: {
-    otherPlayerUsernames: string[];
+    otherPlayers: {
+      username: string;
+      state: "notReady" | "ready";
+    }[];
   };
 }
 

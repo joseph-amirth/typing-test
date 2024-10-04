@@ -1,4 +1,4 @@
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, iter::zip, time::Duration};
 
 use axum::{
     extract::{
@@ -118,17 +118,23 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
 
     let room_tx = tx.clone();
     tokio::spawn(async move {
-        let mut player_ids = Vec::new();
-        let mut player_usernames = Vec::new();
-        let mut senders = Vec::new();
-        let mut player_states = Vec::new();
+        let mut player_ids = Vec::<PlayerId>::new();
+        let mut player_usernames = Vec::<String>::new();
+        let mut senders = Vec::<PlayerTx>::new();
+        let mut player_states = Vec::<PlayerState>::new();
 
         while let Some(room_msg) = rx.recv().await {
             dbg!(&room_msg);
             match room_msg {
                 RoomMsg::Join { mut player } => {
                     let init_msg = serde_json::to_string(&ToPlayerMsg::Init {
-                        other_player_usernames: &player_usernames,
+                        other_players: zip(&player_usernames, &player_states)
+                            .into_iter()
+                            .map(|(username, state)| OtherPlayer {
+                                username,
+                                state: *state,
+                            })
+                            .collect(),
                     })
                     .unwrap();
                     let join_msg = serde_json::to_string(&ToPlayerMsg::Join {
@@ -347,9 +353,12 @@ fn spawn_player_listener(player_id: u32, room: Room, mut receiver: PlayerRx) {
 
 pub type RoomId = u32;
 
+type PlayerId = u32;
+
 type Room = Sender<RoomMsg>;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 enum PlayerState {
     NotReady,
     Ready,
@@ -371,9 +380,7 @@ enum RoomMsg {
 #[serde(tag = "kind", content = "payload")]
 enum ToPlayerMsg<'a> {
     /// Sent to players when they join the room.
-    Init {
-        other_player_usernames: &'a Vec<String>,
-    },
+    Init { other_players: Vec<OtherPlayer<'a>> },
 
     /// Sent to players when another player joins the room.
     Join { joining_player: &'a String },
@@ -401,6 +408,12 @@ enum ToPlayerMsg<'a> {
 
     /// Sent to players when an error happens.
     Error { title: &'a str, body: &'a str },
+}
+
+#[derive(Debug, Serialize)]
+struct OtherPlayer<'a> {
+    username: &'a str,
+    state: PlayerState,
 }
 
 #[derive(Debug, Deserialize)]
