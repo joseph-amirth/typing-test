@@ -13,9 +13,12 @@ use futures::{
     SinkExt, StreamExt,
 };
 use serde::{Deserialize, Serialize};
-use tokio::sync::{
-    mpsc::{self, Sender},
-    oneshot,
+use tokio::{
+    sync::{
+        mpsc::{self, Sender},
+        oneshot,
+    },
+    time::sleep,
 };
 
 use crate::{
@@ -86,8 +89,9 @@ pub fn spawn_room_manager() -> RoomMgr {
     tokio::spawn(async move {
         let mut rooms = HashMap::<RoomId, Room>::new();
 
-        while let Some(race_mgmt_msg) = rx.recv().await {
-            match race_mgmt_msg {
+        while let Some(room_mgmt_msg) = rx.recv().await {
+            dbg!(&room_mgmt_msg);
+            match room_mgmt_msg {
                 RoomMgmtMsg::CreateRoom {
                     creator_id,
                     responder,
@@ -128,6 +132,8 @@ pub enum RoomMgmtMsg {
 
 pub type RoomMgr = Sender<RoomMgmtMsg>;
 
+const ROOM_INACTIVITY_DURATION: Duration = Duration::from_secs(60);
+
 fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
     let (tx, mut rx) = mpsc::channel(32);
 
@@ -139,9 +145,10 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
         let mut player_states = Vec::<PlayerState>::new();
 
         let mut host_id: Option<u32> = None;
+        let mut delete_room_request_id: Option<u32> = None;
 
         while let Some(room_msg) = rx.recv().await {
-            dbg!(&room_msg);
+            dbg!(id, &room_msg);
             match room_msg {
                 RoomMsg::Join { mut player } => {
                     let is_host = if player_ids.is_empty() || player.id == creator_id {
@@ -180,6 +187,8 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                     player_states.push(PlayerState::NotReady);
 
                     spawn_player_listener(player.id, room_tx.clone(), player.receiver);
+
+                    delete_room_request_id = None;
                 }
                 RoomMsg::Ready { player_id } => {
                     let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
@@ -310,6 +319,16 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                     )
                     .await
                     .into_iter();
+
+                    if player_ids.is_empty() {
+                        let room_tx = room_tx.clone();
+                        let request_id = rand::random();
+                        delete_room_request_id = Some(request_id);
+                        tokio::spawn(async move {
+                            sleep(ROOM_INACTIVITY_DURATION).await;
+                            room_tx.send(RoomMsg::Delete { request_id }).await.unwrap();
+                        });
+                    }
                 }
                 RoomMsg::Update {
                     player_id,
@@ -360,6 +379,11 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                     )
                     .await
                     .into_iter();
+                }
+                RoomMsg::Delete { request_id } => {
+                    if Some(request_id) == delete_room_request_id {
+                        break;
+                    }
                 }
             }
         }
@@ -436,6 +460,7 @@ enum RoomMsg {
     Leave { player_id: u32 },
     Update { player_id: u32, progress: u32 },
     Finish { player_id: u32, duration: Duration },
+    Delete { request_id: u32 },
 }
 
 #[derive(Debug, Serialize)]

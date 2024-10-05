@@ -10,7 +10,7 @@ import { Seed } from "../../util/prng";
 import { randomWords } from "../../typing-test/gen";
 import english from "../../static/words/english.json";
 
-const TEST_LENGTH = 25;
+const TEST_LENGTH = 10;
 
 function RoomView() {
   const { room } = useParams();
