@@ -20,6 +20,7 @@ function RoomView() {
   const { accountState } = useService(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
+  const [isHost, setIsHost] = useState(false);
   const [state, setState] = useState<State>({ kind: "notReady" });
   const [otherPlayers, setOtherPlayers] = useState<OtherPlayer[]>([]);
 
@@ -30,6 +31,7 @@ function RoomView() {
 
     switch (kind) {
       case "init":
+        setIsHost(payload.isHost);
         setOtherPlayers(
           payload.otherPlayers.map(({ username, state }) => {
             return { username, state: { kind: state } };
@@ -146,6 +148,14 @@ function RoomView() {
     setState({ kind: "notReady" });
   };
 
+  const sendStart = () => {
+    if (socket.current === null) {
+      return;
+    }
+    const msg = { kind: "start", payload: {} };
+    socket.current.send(JSON.stringify(msg));
+  };
+
   const handleTestUpdate = (attempt: string[], newAttempt: string[]) => {
     if (socket.current === null || attempt.length === newAttempt.length) {
       return;
@@ -217,9 +227,16 @@ function RoomView() {
         (state.timeUntilRaceStart ? (
           `Race starts in ${state.timeUntilRaceStart.secs} seconds`
         ) : (
-          <Button variant="contained" onClick={sendNotReady}>
-            NotReady
-          </Button>
+          <>
+            <Button variant="contained" onClick={sendNotReady}>
+              NotReady
+            </Button>
+            {isHost && (
+              <Button variant="contained" onClick={sendStart}>
+                Start
+              </Button>
+            )}
+          </>
         ))}
       {(state.kind === "ready" || state.kind === "notReady") &&
         otherPlayers.map((player, i) => (
@@ -285,6 +302,7 @@ type Msg =
 interface InitMsg {
   kind: "init";
   payload: {
+    isHost: boolean;
     otherPlayers: {
       username: string;
       state: "notReady" | "ready";

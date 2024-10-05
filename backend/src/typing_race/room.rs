@@ -27,13 +27,16 @@ use super::{Player, PlayerRx, PlayerTx};
 
 pub async fn create_room(
     State(state): State<AppState>,
-    _auth_token: AuthToken,
+    auth_token: AuthToken,
 ) -> Result<Json<CreateRoomResponse>, AppError> {
     let (tx, rx) = oneshot::channel();
 
     state
         .room_mgr()
-        .send(RoomMgmtMsg::CreateRoom { responder: tx })
+        .send(RoomMgmtMsg::CreateRoom {
+            creator_id: auth_token.user_id,
+            responder: tx,
+        })
         .await?;
 
     let room_id = rx.await?;
@@ -84,9 +87,12 @@ pub fn spawn_room_manager() -> RoomMgr {
 
         while let Some(race_mgmt_msg) = rx.recv().await {
             match race_mgmt_msg {
-                RoomMgmtMsg::CreateRoom { responder } => {
+                RoomMgmtMsg::CreateRoom {
+                    creator_id,
+                    responder,
+                } => {
                     let room_id = rand::random();
-                    let room = spawn_room(room_id, self_tx.clone());
+                    let room = spawn_room(room_id, creator_id, self_tx.clone());
                     rooms.insert(room_id, room);
                     responder.send(room_id).unwrap();
                 }
@@ -106,14 +112,22 @@ pub fn spawn_room_manager() -> RoomMgr {
 
 #[derive(Debug)]
 pub enum RoomMgmtMsg {
-    CreateRoom { responder: oneshot::Sender<RoomId> },
-    JoinRoom { room_id: RoomId, player: Player },
-    DeleteRoom { room_id: RoomId },
+    CreateRoom {
+        creator_id: PlayerId,
+        responder: oneshot::Sender<RoomId>,
+    },
+    JoinRoom {
+        room_id: RoomId,
+        player: Player,
+    },
+    DeleteRoom {
+        room_id: RoomId,
+    },
 }
 
 pub type RoomMgr = Sender<RoomMgmtMsg>;
 
-fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
+fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
     let (tx, mut rx) = mpsc::channel(32);
 
     let room_tx = tx.clone();
@@ -123,11 +137,21 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
         let mut senders = Vec::<PlayerTx>::new();
         let mut player_states = Vec::<PlayerState>::new();
 
+        let mut host_id: Option<u32> = None;
+
         while let Some(room_msg) = rx.recv().await {
             dbg!(&room_msg);
             match room_msg {
                 RoomMsg::Join { mut player } => {
+                    let is_host = if player_ids.is_empty() || player.id == creator_id {
+                        host_id = Some(player.id);
+                        true
+                    } else {
+                        false
+                    };
+
                     let init_msg = serde_json::to_string(&ToPlayerMsg::Init {
+                        is_host,
                         other_players: zip(&player_usernames, &player_states)
                             .into_iter()
                             .map(|(username, state)| OtherPlayer {
@@ -160,6 +184,20 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
                         continue;
                     };
+
+                    if player_states.iter().any(|state| {
+                        *state == PlayerState::Racing || *state == PlayerState::Finished
+                    }) {
+                        let error_msg = serde_json::to_string(&ToPlayerMsg::Error {
+                            title: "Too late!",
+                            body:
+                                "The racing phase has begun, you cannot join or leave the race now",
+                        })
+                        .unwrap();
+                        let _ = senders[player_idx].send(Message::Text(error_msg)).await;
+                        continue;
+                    }
+
                     player_states[player_idx] = PlayerState::Ready;
 
                     let ready_msg = serde_json::to_string(&ToPlayerMsg::Ready {
@@ -176,37 +214,19 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     )
                     .await
                     .into_iter();
-
-                    if player_states
-                        .iter()
-                        .all(|player_state| *player_state == PlayerState::Ready)
-                    {
-                        let prepare_msg = serde_json::to_string(&ToPlayerMsg::Prepare {
-                            time_until_race_start: Duration::from_secs(10),
-                        })
-                        .unwrap();
-                        let _ = join_all(
-                            senders
-                                .iter_mut()
-                                .map(|sender| sender.send(Message::Text(prepare_msg.clone()))),
-                        )
-                        .await
-                        .into_iter();
-                    }
                 }
                 RoomMsg::NotReady { player_id } => {
                     let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
                         continue;
                     };
 
-                    // If all players are already ready, then it is too late to back out.
-                    if player_states
-                        .iter()
-                        .all(|player_state| *player_state == PlayerState::Ready)
-                    {
+                    if player_states.iter().any(|state| {
+                        *state == PlayerState::Racing || *state == PlayerState::Finished
+                    }) {
                         let error_msg = serde_json::to_string(&ToPlayerMsg::Error {
-                            title: "Too late to back out!",
-                            body: "The racing phase has begun, so you cannot back out now",
+                            title: "Too late!",
+                            body:
+                                "The racing phase has begun, you cannot join or leave the race now",
                         })
                         .unwrap();
                         let _ = senders[player_idx].send(Message::Text(error_msg)).await;
@@ -230,7 +250,43 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                     .await
                     .into_iter();
                 }
+                RoomMsg::Start { player_id } => {
+                    let Some(player_idx) = player_ids.iter().position(|id| *id == player_id) else {
+                        continue;
+                    };
+
+                    if host_id != Some(player_id) {
+                        let error_msg = serde_json::to_string(&ToPlayerMsg::Error {
+                            title: "You aren't the host!",
+                            body: "How the hell did you manage to send this message?",
+                        })
+                        .unwrap();
+                        let _ = senders[player_idx].send(Message::Text(error_msg)).await;
+                        continue;
+                    }
+
+                    let prepare_msg = serde_json::to_string(&ToPlayerMsg::Prepare {
+                        time_until_race_start: Duration::from_secs(10),
+                    })
+                    .unwrap();
+
+                    let _ = join_all(
+                        senders
+                            .iter_mut()
+                            .map(|sender| sender.send(Message::Text(prepare_msg.clone()))),
+                    )
+                    .await
+                    .into_iter();
+
+                    player_states
+                        .iter_mut()
+                        .filter(|state| **state == PlayerState::Ready)
+                        .for_each(|state| {
+                            *state = PlayerState::Racing;
+                        });
+                }
                 RoomMsg::Leave { player_id } => {
+                    // TODO: Handle case where the leaving player is the host.
                     let Some(index) = player_ids.iter().position(|id| *id == player_id) else {
                         continue;
                     };
@@ -285,6 +341,8 @@ fn spawn_room(id: RoomId, room_mgr: RoomMgr) -> Room {
                         continue;
                     };
 
+                    player_states[player_idx] = PlayerState::Finished;
+
                     let finish_msg = serde_json::to_string(&ToPlayerMsg::Finish {
                         player: &player_usernames[player_idx],
                         duration,
@@ -328,6 +386,7 @@ fn spawn_player_listener(player_id: u32, room: Room, mut receiver: PlayerRx) {
                 FromPlayerMsg::NotReady {} => {
                     room.send(RoomMsg::NotReady { player_id }).await.unwrap()
                 }
+                FromPlayerMsg::Start {} => room.send(RoomMsg::Start { player_id }).await.unwrap(),
                 FromPlayerMsg::Update { progress } => {
                     room.send(RoomMsg::Update {
                         player_id,
@@ -362,6 +421,8 @@ type Room = Sender<RoomMsg>;
 enum PlayerState {
     NotReady,
     Ready,
+    Racing,
+    Finished,
 }
 
 #[derive(Debug)]
@@ -369,6 +430,7 @@ enum RoomMsg {
     Join { player: Player },
     Ready { player_id: u32 },
     NotReady { player_id: u32 },
+    Start { player_id: u32 },
     Leave { player_id: u32 },
     Update { player_id: u32, progress: u32 },
     Finish { player_id: u32, duration: Duration },
@@ -380,7 +442,10 @@ enum RoomMsg {
 #[serde(tag = "kind", content = "payload")]
 enum ToPlayerMsg<'a> {
     /// Sent to players when they join the room.
-    Init { other_players: Vec<OtherPlayer<'a>> },
+    Init {
+        is_host: bool,
+        other_players: Vec<OtherPlayer<'a>>,
+    },
 
     /// Sent to players when another player joins the room.
     Join { joining_player: &'a String },
@@ -423,6 +488,7 @@ struct OtherPlayer<'a> {
 enum FromPlayerMsg {
     Ready {},
     NotReady {},
+    Start {},
     Update { progress: u32 },
     Finish { duration: Duration },
 }
