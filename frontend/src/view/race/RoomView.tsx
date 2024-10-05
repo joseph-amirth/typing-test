@@ -69,15 +69,15 @@ function RoomView() {
         break;
       case "prepare":
         setState({
-          kind: "ready",
+          kind: "preparing",
           timeUntilRaceStart: payload.timeUntilRaceStart,
         });
         const interval = setInterval(() => {
           setState((state) => {
-            if (state.kind !== "ready") {
+            if (state.kind !== "preparing") {
               return state;
             }
-            const timeLeft = state.timeUntilRaceStart!.secs - 1;
+            const timeLeft = state.timeUntilRaceStart.secs - 1;
             if (timeLeft == 0) {
               setState({ kind: "racing" });
               setOtherPlayers((otherPlayers) =>
@@ -91,7 +91,7 @@ function RoomView() {
               clearInterval(interval);
             }
             return {
-              kind: "ready",
+              kind: "preparing",
               timeUntilRaceStart: {
                 secs: timeLeft,
               },
@@ -223,21 +223,20 @@ function RoomView() {
           Ready
         </Button>
       )}
-      {state.kind === "ready" &&
-        (state.timeUntilRaceStart ? (
-          `Race starts in ${state.timeUntilRaceStart.secs} seconds`
-        ) : (
-          <>
-            <Button variant="contained" onClick={sendNotReady}>
-              NotReady
+      {state.kind === "ready" && (
+        <>
+          <Button variant="contained" onClick={sendNotReady}>
+            NotReady
+          </Button>
+          {isHost && (
+            <Button variant="contained" onClick={sendStart}>
+              Start
             </Button>
-            {isHost && (
-              <Button variant="contained" onClick={sendStart}>
-                Start
-              </Button>
-            )}
-          </>
-        ))}
+          )}
+        </>
+      )}
+      {state.kind === "preparing" &&
+        `Race starts in ${state.timeUntilRaceStart.secs} seconds`}
       {(state.kind === "ready" || state.kind === "notReady") &&
         otherPlayers.map((player, i) => (
           <div key={i}>
@@ -273,7 +272,8 @@ function RoomView() {
 
 type State =
   | { kind: "notReady" }
-  | { kind: "ready"; timeUntilRaceStart?: { secs: number } }
+  | { kind: "ready" }
+  | { kind: "preparing"; timeUntilRaceStart: { secs: number } }
   | { kind: "racing" }
   | { kind: "finished"; duration: { secs: number; nanos: number } };
 
