@@ -6,12 +6,11 @@ import { Button } from "@mui/material";
 import BoundedTypingTest from "../../typing-test/BoundedTypingTest";
 import { TestFinishEvent } from "../../typing-test/props";
 import { NotificationsService } from "../../service/notifications";
+import { Seed } from "../../util/prng";
+import { randomWords } from "../../typing-test/gen";
+import english from "../../static/words/english.json";
 
-const TEST = (
-  "Hey what is going on right now? Nobody told me about this. " +
-  "Could somebody please tell me what the hell is going on in " +
-  "this place for god's sake?!"
-).split(" ");
+const TEST_LENGTH = 25;
 
 function RoomView() {
   const { room } = useParams();
@@ -70,7 +69,7 @@ function RoomView() {
       case "prepare":
         setState({
           kind: "preparing",
-          timeUntilRaceStart: payload.timeUntilRaceStart,
+          ...payload,
         });
         const interval = setInterval(() => {
           setState((state) => {
@@ -79,7 +78,7 @@ function RoomView() {
             }
             const timeLeft = state.timeUntilRaceStart.secs - 1;
             if (timeLeft == 0) {
-              setState({ kind: "racing" });
+              setState({ kind: "racing", seed: state.seed });
               setOtherPlayers((otherPlayers) =>
                 otherPlayers.map((otherPlayer) => {
                   return {
@@ -90,12 +89,7 @@ function RoomView() {
               );
               clearInterval(interval);
             }
-            return {
-              kind: "preparing",
-              timeUntilRaceStart: {
-                secs: timeLeft,
-              },
-            };
+            return { ...state, timeUntilRaceStart: { secs: timeLeft } };
           });
         }, 1000);
         break;
@@ -245,7 +239,7 @@ function RoomView() {
         ))}
       {state.kind === "racing" && (
         <BoundedTypingTest
-          test={TEST}
+          test={randomWords(state.seed, english, TEST_LENGTH)}
           onTestUpdate={handleTestUpdate}
           onTestFinish={handleTestFinish}
           allowSkippingWords={false}
@@ -273,8 +267,8 @@ function RoomView() {
 type State =
   | { kind: "notReady" }
   | { kind: "ready" }
-  | { kind: "preparing"; timeUntilRaceStart: { secs: number } }
-  | { kind: "racing" }
+  | { kind: "preparing"; timeUntilRaceStart: { secs: number }; seed: Seed }
+  | { kind: "racing"; seed: Seed }
   | { kind: "finished"; duration: { secs: number; nanos: number } };
 
 type OtherPlayerState =
@@ -342,6 +336,7 @@ interface PrepareMsg {
   kind: "prepare";
   payload: {
     timeUntilRaceStart: { secs: number };
+    seed: Seed;
   };
 }
 

@@ -21,6 +21,7 @@ use tokio::sync::{
 use crate::{
     auth::AuthToken,
     common::{error::AppError, state::AppState},
+    typing_test::Seed,
 };
 
 use super::{Player, PlayerRx, PlayerTx};
@@ -267,6 +268,7 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
 
                     let prepare_msg = serde_json::to_string(&ToPlayerMsg::Prepare {
                         time_until_race_start: Duration::from_secs(10),
+                        seed: rand::random(),
                     })
                     .unwrap();
 
@@ -460,7 +462,10 @@ enum ToPlayerMsg<'a> {
     NotReady { not_ready_player: &'a String },
 
     /// Sent to players when all players are ready.
-    Prepare { time_until_race_start: Duration },
+    Prepare {
+        time_until_race_start: Duration,
+        seed: Seed,
+    },
 
     /// Sent to players when another player progresses in the race.
     Update { player: &'a String, progress: u32 },
