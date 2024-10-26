@@ -144,22 +144,25 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
         let mut senders = Vec::<PlayerTx>::new();
         let mut player_states = Vec::<PlayerState>::new();
 
-        let mut host_id: Option<u32> = None;
+        let mut host_id: Option<PlayerId> = None;
         let mut delete_room_request_id: Option<u32> = None;
 
         while let Some(room_msg) = rx.recv().await {
             dbg!(id, &room_msg);
             match room_msg {
                 RoomMsg::Join { mut player } => {
-                    let is_host = if player_ids.is_empty() || player.id == creator_id {
+                    let host_username = if player_ids.is_empty() || player.id == creator_id {
                         host_id = Some(player.id);
-                        true
+                        &player.username
                     } else {
-                        false
+                        let host_pos = player_ids
+                            .iter()
+                            .position(|&id| id == host_id.expect("host assigned"))
+                            .expect("player exists");
+                        &player_usernames[host_pos]
                     };
 
                     let init_msg = serde_json::to_string(&ToPlayerMsg::Init {
-                        is_host,
                         other_players: zip(&player_usernames, &player_states)
                             .into_iter()
                             .map(|(username, state)| OtherPlayer {
@@ -167,6 +170,7 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                                 state: *state,
                             })
                             .collect(),
+                        host: host_username,
                     })
                     .unwrap();
                     let join_msg = serde_json::to_string(&ToPlayerMsg::Join {
@@ -470,8 +474,8 @@ enum RoomMsg {
 enum ToPlayerMsg<'a> {
     /// Sent to players when they join the room.
     Init {
-        is_host: bool,
         other_players: Vec<OtherPlayer<'a>>,
+        host: &'a str,
     },
 
     /// Sent to players when another player joins the room.

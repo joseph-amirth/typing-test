@@ -19,9 +19,14 @@ function RoomView() {
   const { accountState } = useService(AccountService);
   const socket = useRef<WebSocket | null>(null);
 
-  const [isHost, setIsHost] = useState(false);
+  // TODO: Make it so that the component exists only after the initialization message?
+  // This would help keep host always defined.
+  const [host, setHost] = useState<string | null>(null);
   const [state, setState] = useState<State>({ kind: "notReady" });
   const [otherPlayers, setOtherPlayers] = useState<OtherPlayer[]>([]);
+
+  const isHost =
+    accountState.state === "signedin" && host === accountState.account.username;
 
   const handleMessage = (msg: Msg) => {
     console.log(msg);
@@ -30,12 +35,12 @@ function RoomView() {
 
     switch (kind) {
       case "init":
-        setIsHost(payload.isHost);
         setOtherPlayers(
           payload.otherPlayers.map(({ username, state }) => {
             return { username, state: { kind: state } };
           }),
         );
+        setHost(payload.host);
         break;
       case "join":
         setOtherPlayers((players) => [
@@ -234,7 +239,8 @@ function RoomView() {
       {(state.kind === "ready" || state.kind === "notReady") &&
         otherPlayers.map((player, i) => (
           <div key={i}>
-            {player.username} {player.state.kind}
+            {player.username}
+            {host === player.username && "*"} {player.state.kind}
           </div>
         ))}
       {state.kind === "racing" && (
@@ -296,11 +302,11 @@ type Msg =
 interface InitMsg {
   kind: "init";
   payload: {
-    isHost: boolean;
     otherPlayers: {
       username: string;
       state: "notReady" | "ready";
     }[];
+    host: string;
   };
 }
 
