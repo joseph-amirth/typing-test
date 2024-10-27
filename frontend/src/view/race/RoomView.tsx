@@ -47,11 +47,39 @@ function RoomView() {
           ...players,
           { username: payload.joiningPlayer, state: { kind: "notReady" } },
         ]);
+        if (payload.isHost) {
+          setHost(payload.joiningPlayer);
+          addNotification({
+            type: "Info",
+            title: `${payload.joiningPlayer} is the host now`,
+            body: `${payload.joiningPlayer} is the creator of the room and has been auto-assigned the role of host`,
+          });
+        }
         break;
       case "leave":
         setOtherPlayers((players) =>
           players.filter((player) => player.username != payload.leavingPlayer),
         );
+        if (payload.newHost !== undefined) {
+          setHost(payload.newHost);
+          // TODO: Consider moving race into a component where accountState is guaranteed to be signedin.
+          if (
+            accountState.state === "signedin" &&
+            accountState.account.username === payload.newHost
+          ) {
+            addNotification({
+              type: "Info",
+              title: "You are the host!",
+              body: "The previous host of the room left and you have been assigned the role of host",
+            });
+          } else {
+            addNotification({
+              type: "Info",
+              title: `${payload.newHost} is the host now`,
+              body: "The previous host of the room left and the role of host has been reassigned",
+            });
+          }
+        }
         break;
       case "ready":
         setOtherPlayers((players) =>
@@ -314,6 +342,7 @@ interface JoinMsg {
   kind: "join";
   payload: {
     joiningPlayer: string;
+    isHost: string;
   };
 }
 
@@ -321,6 +350,7 @@ interface LeaveMsg {
   kind: "leave";
   payload: {
     leavingPlayer: string;
+    newHost?: string;
   };
 }
 

@@ -12,6 +12,7 @@ use futures::{
     future::{join, join_all},
     SinkExt, StreamExt,
 };
+use rand::seq::IteratorRandom;
 use serde::{Deserialize, Serialize};
 use tokio::{
     sync::{
@@ -175,6 +176,7 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                     .unwrap();
                     let join_msg = serde_json::to_string(&ToPlayerMsg::Join {
                         joining_player: &player.username,
+                        is_host: *host_username == player.username,
                     })
                     .unwrap();
 
@@ -301,28 +303,18 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                         });
                 }
                 RoomMsg::Leave { player_id } => {
-                    // TODO: Handle case where the leaving player is the host.
                     let Some(index) = player_ids.iter().position(|id| *id == player_id) else {
                         continue;
                     };
 
-                    let leave_msg = serde_json::to_string(&ToPlayerMsg::Leave {
-                        leaving_player: &player_usernames[index],
-                    })
-                    .unwrap();
-
                     player_ids.remove(index);
-                    player_usernames.remove(index);
+                    let player_username = player_usernames.remove(index);
                     let _ = senders.remove(index);
                     player_states.remove(index);
 
-                    let _ = join_all(
-                        senders
-                            .iter_mut()
-                            .map(|sender| sender.send(Message::Text(leave_msg.clone()))),
-                    )
-                    .await
-                    .into_iter();
+                    if player_id == host_id.expect("host assigned") {
+                        host_id = None;
+                    }
 
                     if player_ids.is_empty() {
                         let room_tx = room_tx.clone();
@@ -332,7 +324,36 @@ fn spawn_room(id: RoomId, creator_id: PlayerId, room_mgr: RoomMgr) -> Room {
                             sleep(ROOM_INACTIVITY_DURATION).await;
                             room_tx.send(RoomMsg::Delete { request_id }).await.unwrap();
                         });
+                        continue;
                     }
+
+                    let new_host_username = if host_id.is_some() {
+                        None
+                    } else {
+                        let host_index = player_states
+                            .iter()
+                            .enumerate()
+                            .filter(|&(_, &state)| state != PlayerState::NotReady)
+                            .map(|(i, _)| i)
+                            .choose(&mut rand::thread_rng())
+                            .unwrap_or(rand::random::<usize>() % player_ids.len());
+                        host_id = Some(player_ids[host_index]);
+                        Some(&player_usernames[host_index])
+                    };
+
+                    let leave_msg = serde_json::to_string(&ToPlayerMsg::Leave {
+                        leaving_player: &player_username,
+                        new_host: new_host_username,
+                    })
+                    .unwrap();
+
+                    let _ = join_all(
+                        senders
+                            .iter_mut()
+                            .map(|sender| sender.send(Message::Text(leave_msg.clone()))),
+                    )
+                    .await
+                    .into_iter();
                 }
                 RoomMsg::Update {
                     player_id,
@@ -479,10 +500,17 @@ enum ToPlayerMsg<'a> {
     },
 
     /// Sent to players when another player joins the room.
-    Join { joining_player: &'a String },
+    Join {
+        joining_player: &'a String,
+        is_host: bool,
+    },
 
     /// Sent to players when another player leaves the room.
-    Leave { leaving_player: &'a String },
+    Leave {
+        leaving_player: &'a String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        new_host: Option<&'a String>,
+    },
 
     /// Sent to players when another player becomes ready.
     Ready { ready_player: &'a String },
