@@ -35,6 +35,12 @@ pub enum SeededTestParams {
 
 pub type Seed = [i32; 4];
 
+impl From<Vec<u8>> for RandomTestParams {
+    fn from(value: Vec<u8>) -> Self {
+        serde_json::from_slice(value.as_slice()).expect("Well-formed serialization")
+    }
+}
+
 impl From<SeededTestParams> for RandomTestParams {
     fn from(seeded_test_params: SeededTestParams) -> Self {
         match seeded_test_params {
