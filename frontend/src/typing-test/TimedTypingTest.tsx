@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import Diff from "./Diff";
 import Result from "./Result";
 import "./TimedTypingTest.css";
 import VerticalSpacer from "../component/spacing/VerticalSpacer";
@@ -102,7 +101,6 @@ const TimedTypingTest = ({
         progress={progress}
         hide={start === undefined || end !== undefined}
       />
-      <Diff test={test} attempt={attempt} showAllLines={false} />
       <Input
         ref={inputRef}
         enabled={true}
@@ -110,6 +108,7 @@ const TimedTypingTest = ({
         attempt={attempt}
         onAttemptUpdate={handleAttemptUpdate}
         {...inputOptions}
+        showAllLines={false}
       />
       {end && (
         <>

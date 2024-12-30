@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from "react";
-import Diff from "./Diff";
 import Result from "./Result";
 import "./BoundedTypingTest.css";
 import VerticalSpacer from "../component/spacing/VerticalSpacer";
@@ -105,7 +104,6 @@ const BoundedTypingTest = (
       >
         {progress} / {test.length}
       </div>
-      <Diff test={test} attempt={attempt} showAllLines={showAllLines} />
       <Input
         ref={inputRef}
         enabled={true}
@@ -113,6 +111,7 @@ const BoundedTypingTest = (
         attempt={attempt}
         onAttemptUpdate={handleAttemptUpdate}
         {...inputOptions}
+        showAllLines={showAllLines}
       />
       {start && end && (
         <>

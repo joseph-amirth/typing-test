@@ -2,15 +2,14 @@ import { useLayoutEffect, useRef } from "react";
 import { ANTI_CHEAT_PROPS } from "../util/component";
 import "./Diff.css";
 
-const Diff = ({
-  test,
-  attempt,
-  showAllLines,
-}: {
+interface DiffProps {
   test: string[];
   attempt: string[];
   showAllLines: boolean;
-}) => {
+  showCaret: boolean;
+}
+
+const Diff = ({ test, attempt, showAllLines, showCaret }: DiffProps) => {
   const diffWords = getDiffWords(test, attempt);
 
   const diffRef = useRef<HTMLDivElement>(null);
@@ -70,7 +69,7 @@ const Diff = ({
     const diff = diffRef.current!;
     resizeObserver.observe(diff);
     return () => resizeObserver.disconnect();
-  }, [showAllLines, test, attempt]);
+  }, [showAllLines, showCaret, test, attempt]);
 
   const diffWordSpans = diffWords.flatMap(({ letters, skipped }, i) => {
     return [
@@ -83,11 +82,17 @@ const Diff = ({
     ];
   });
 
+  const actualContent = (
+    <>
+      {showCaret && <div ref={caretRef} className="Caret"></div>}
+      {diffWordSpans}
+    </>
+  );
+
   if (showAllLines) {
     return (
       <div className="Diff" ref={diffRef} {...ANTI_CHEAT_PROPS}>
-        <div ref={caretRef} className="Caret"></div>
-        {diffWordSpans}
+        {actualContent}
       </div>
     );
   } else {
@@ -98,8 +103,7 @@ const Diff = ({
         ref={diffRef}
         {...ANTI_CHEAT_PROPS}
       >
-        <div ref={caretRef} className="Caret"></div>
-        {diffWordSpans}
+        {actualContent}
         <div className="EmptyLine" />
         <div className="EmptyLine" />
         <div className="EmptyLine" />
