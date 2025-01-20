@@ -8,7 +8,7 @@ import {
   calculateStats,
   getActualTest,
 } from "./stat";
-import Input, { InputOptions } from "./Input";
+import Input, { InputHandle, InputOptions } from "./Input";
 import { TypingTestCallbacks } from "./props";
 
 interface TimedTypingTestProps extends InputOptions, TypingTestCallbacks {
@@ -90,9 +90,11 @@ const TimedTypingTest = ({
     }
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<InputHandle>(null);
   const handleClick = () => {
-    inputRef.current!.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   return (

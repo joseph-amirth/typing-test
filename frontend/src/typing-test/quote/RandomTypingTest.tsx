@@ -10,6 +10,8 @@ import { useQuotes } from "../../service/staticcontent/hooks";
 import { TestFinishEvent } from "../props";
 import { useService } from "../../service";
 import { ResultsService } from "../../service/results";
+import { REPEATED_TEST_NOTIFICATION } from "../../service/notifications/constants";
+import { NotificationsService } from "../../service/notifications";
 
 function RandomTypingTest({ length }: { length: QuoteModeLength }) {
   const quotes = useQuotes();
@@ -28,6 +30,7 @@ function Inner({
   length: QuoteModeLength;
 }) {
   const resultsService = useService(ResultsService);
+  const notificationsService = useService(NotificationsService);
 
   const [firstQuoteId, firstQuote] = getRandomQuote(quotes, length);
 
@@ -60,6 +63,7 @@ function Inner({
 
   const handleTestFinish = (event: TestFinishEvent) => {
     if (restarted) {
+      notificationsService.addNotification(REPEATED_TEST_NOTIFICATION);
       return;
     }
     const { wpm, rawWpm, accuracy } = event;

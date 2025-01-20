@@ -11,6 +11,8 @@ import { copyTextToClipboard } from "../../util/misc";
 import { TestFinishEvent } from "../props";
 import { useService } from "../../service";
 import { ResultsService } from "../../service/results";
+import { REPEATED_TEST_NOTIFICATION } from "../../service/notifications/constants";
+import { NotificationsService } from "../../service/notifications";
 
 const RandomTypingTest = ({
   language,
@@ -20,6 +22,7 @@ const RandomTypingTest = ({
   duration: number;
 }) => {
   const resultsService = useService(ResultsService);
+  const notificationsService = useService(NotificationsService);
 
   const words = useLanguage(language);
   const [seed, setSeed] = useState(generateSeed());
@@ -55,6 +58,7 @@ const RandomTypingTest = ({
 
   const handleTestFinish = (event: TestFinishEvent) => {
     if (restarted) {
+      notificationsService.addNotification(REPEATED_TEST_NOTIFICATION);
       return;
     }
     const { wpm, rawWpm, accuracy } = event;
