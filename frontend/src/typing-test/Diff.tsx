@@ -91,7 +91,12 @@ const Diff = ({ test, attempt, showAllLines, showCaret }: DiffProps) => {
 
   if (showAllLines) {
     return (
-      <div className="Diff" ref={diffRef} {...ANTI_CHEAT_PROPS}>
+      <div
+        className="Diff"
+        style={{ minHeight: "3lh" }}
+        ref={diffRef}
+        {...ANTI_CHEAT_PROPS}
+      >
         {actualContent}
       </div>
     );
