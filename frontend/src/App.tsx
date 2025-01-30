@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
+import Footer from "./Footer";
 import { NotificationsServiceProvider } from "./service/notifications/Provider";
 import "./App.css";
 import { ThemeProvider } from "@emotion/react";
@@ -37,6 +38,7 @@ const App = () => {
               <div className="Body">
                 <Outlet />
               </div>
+              <Footer />
             </ServerServiceProvider>
           </StaticContentServiceProvider>
         </NotificationsServiceProvider>
