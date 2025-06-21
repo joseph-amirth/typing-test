@@ -1,13 +1,12 @@
 .App {
   min-height: 100vh;
   width: 100%;
-  max-width: 800px;
+  max-width: clamp(800px, 100vw, 1600px);
+  margin: 0 auto;
+  padding: 10px;
 
   display: flex;
   flex-direction: column;
-
-  margin: 0 auto;
-  padding: 10px;
 }
 
 .Body {

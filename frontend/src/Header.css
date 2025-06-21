@@ -5,6 +5,55 @@
   align-items: center;
 }
 
+.NavBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.NavBar a {
+  transition: color 0.2s;
+}
+
+.NavBar a:hover {
+  color: var(--primary);
+}
+
 .Title {
-  margin-left: 10px;
+  color: inherit;
+  text-decoration: inherit;
+
+  padding: 0.5rem;
+  font-size: 1.5rem;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.Title svg {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.Title h1 {
+  font-size: 1em;
+}
+
+.NavBar .Link {
+  color: inherit;
+  text-decoration: inherit;
+
+  padding: 0.5rem;
+  font-size: 1.2rem;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.NavBar .Link svg {
+  height: 1em;
+  width: 1em;
 }

@@ -1,4 +1,11 @@
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("./static/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
 :root {
+  --primary: #00e980;
+
   --success-container: #0c130d;
   --on-success-container: #66bb6a;
   --info-container: #071318;
@@ -7,17 +14,13 @@
   --on-warning-container: #ffa726;
   --error-container: #160b0b;
   --on-error-container: #f44336;
-}
 
-@font-face {
   font-family: "JetBrains Mono";
-  src: url("./static/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-size: clamp(13px, 1vw + 0.5rem, 26px);
 }
 
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  font-family: "JetBrains Mono";
 }

@@ -1,11 +1,13 @@
+import KeyboardIcon from "./static/icons/keyboard.svg?react";
+import SportsScoreIcon from "./static/icons/sports_score.svg?react";
+import LeaderboardIcon from "./static/icons/leaderboard.svg?react";
+import SettingsIcon from "./static/icons/settings.svg?react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
-import KeyboardIcon from "@mui/icons-material/Keyboard";
-import { Button, IconButton } from "@mui/material";
+import { Button } from "@mui/material";
 import { Account, AccountService } from "./service/account";
 import { useService } from "./service";
-import { Leaderboard, Settings, SportsScore } from "@mui/icons-material";
 
 function Header() {
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ function Header() {
 
   return (
     <div className="Header">
-      <NavigationBar />
+      <NavBar />
       {accountState.state !== "signedin" && (
         <div className="Login">
           <Button onClick={() => navigate("/signin")} variant="contained">
@@ -31,23 +33,22 @@ function Header() {
   );
 }
 
-function NavigationBar() {
-  const navigate = useNavigate();
+function NavBar() {
   return (
-    <div className="NavigationBar">
-      <Button onClick={() => navigate("/")}>
+    <div className="NavBar">
+      <Link to="/" className="Title">
         <KeyboardIcon />
-        <h2 className="Title">Typing Test</h2>
-      </Button>
-      <IconButton onClick={() => navigate("/race")}>
-        <SportsScore />
-      </IconButton>
-      <IconButton onClick={() => navigate("/leaderboard")}>
-        <Leaderboard />
-      </IconButton>
-      <IconButton onClick={() => navigate("/settings")}>
-        <Settings />
-      </IconButton>
+        <h1>typingtest</h1>
+      </Link>
+      <Link to="/race" className="Link">
+        <SportsScoreIcon />
+      </Link>
+      <Link to="/leaderboard" className="Link">
+        <LeaderboardIcon />
+      </Link>
+      <Link to="/settings" className="Link">
+        <SettingsIcon />
+      </Link>
     </div>
   );
 }

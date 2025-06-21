@@ -1,19 +1,33 @@
+import { Link } from "react-router-dom";
 import "./Footer.css";
-import { GitHub } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import GithubIcon from "./static/icons/github.svg?react";
 
 function Footer() {
   return (
     <div className="Footer">
-      <Button
-        onClick={() => {
-          window.open("https://github.com/joseph-amirth/typing-test");
-        }}
-        variant="text"
-      >
-        <GitHub /> <span>&nbsp;GitHub</span>
-      </Button>
+      <Social
+        icon={<GithubIcon />}
+        desc="GitHub"
+        url="https://github.com/joseph-amirth/typing-test"
+      />
     </div>
+  );
+}
+
+function Social({
+  icon,
+  desc,
+  url,
+}: {
+  icon: React.ReactNode;
+  desc: string;
+  url: string;
+}) {
+  return (
+    <Link className="Social" to={url} target="_blank">
+      {icon}
+      <span>&nbsp;{desc}</span>
+    </Link>
   );
 }
 

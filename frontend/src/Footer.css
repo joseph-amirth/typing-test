@@ -3,4 +3,31 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  font-size: 0.6rem;
+}
+
+.Social {
+  color: inherit;
+  text-decoration: inherit;
+
+  padding: 0.5em;
+  font-family: inherit;
+  font-size: 1em;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  transition: color 0.2s;
+}
+
+.Social:hover {
+  color: var(--primary);
+}
+
+.Social svg {
+  width: 1.5em;
+  height: 1.5em;
 }
