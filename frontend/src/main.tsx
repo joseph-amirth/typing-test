@@ -14,13 +14,8 @@ import ProfileView from "./view/profile";
 import LeaderboardView from "./view/LeaderboardView";
 import RaceView from "./view/race/RaceView";
 import RoomView from "./view/race/RoomView";
-import VimApp from "./vimapp/VimApp";
 
 const router = createBrowserRouter([
-  {
-    path: "/vim",
-    element: <VimApp />,
-  },
   {
     path: "/",
     element: <App />,
