@@ -2,6 +2,8 @@ import KeyboardIcon from "./static/icons/keyboard.svg?react";
 import SportsScoreIcon from "./static/icons/sports_score.svg?react";
 import LeaderboardIcon from "./static/icons/leaderboard.svg?react";
 import SettingsIcon from "./static/icons/settings.svg?react";
+import PersonIcon from "./static/icons/person.svg?react";
+import PersonAddIcon from "./static/icons/person_add.svg?react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
@@ -18,12 +20,14 @@ function Header() {
       <NavBar />
       {accountState.state !== "signedin" && (
         <div className="Login">
-          <Button onClick={() => navigate("/signin")} variant="contained">
-            Sign in
-          </Button>{" "}
-          <Button onClick={() => navigate("/signup")} variant="contained">
-            Sign up
-          </Button>{" "}
+          <Link to="/signin" className="Link">
+            <PersonIcon />
+            <span>&nbsp;Sign in</span>
+          </Link>
+          <Link to="/signup" className="Link">
+            <PersonAddIcon />
+            <span>&nbsp;Sign up</span>
+          </Link>
         </div>
       )}
       {accountState.state === "signedin" && (

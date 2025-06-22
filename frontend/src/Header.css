@@ -5,6 +5,16 @@
   align-items: center;
 }
 
+.Header a {
+  color: inherit;
+  text-decoration: inherit;
+  transition: color 0.2s;
+}
+
+.Header a:hover {
+  color: var(--primary);
+}
+
 .NavBar {
   display: flex;
   flex-direction: row;
@@ -12,18 +22,7 @@
   align-items: center;
 }
 
-.NavBar a {
-  transition: color 0.2s;
-}
-
-.NavBar a:hover {
-  color: var(--primary);
-}
-
 .Title {
-  color: inherit;
-  text-decoration: inherit;
-
   padding: 0.5rem;
   font-size: 1.5rem;
 
@@ -43,9 +42,6 @@
 }
 
 .NavBar .Link {
-  color: inherit;
-  text-decoration: inherit;
-
   padding: 0.5rem;
   font-size: 1.2rem;
 
@@ -56,4 +52,26 @@
 .NavBar .Link svg {
   height: 1em;
   width: 1em;
+}
+
+.Login {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.Login .Link {
+  padding: 0.5rem;
+  font-size: 0.8rem;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.Login .Link svg {
+  height: 1.5em;
+  width: 1.5em;
 }
