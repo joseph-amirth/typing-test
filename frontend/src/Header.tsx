@@ -2,7 +2,7 @@ import KeyboardIcon from "./static/icons/keyboard.svg?react";
 import SportsScoreIcon from "./static/icons/sports_score.svg?react";
 import LeaderboardIcon from "./static/icons/leaderboard.svg?react";
 import SettingsIcon from "./static/icons/settings.svg?react";
-import PersonIcon from "./static/icons/person.svg?react";
+import LoginIcon from "./static/icons/login.svg?react";
 import PersonAddIcon from "./static/icons/person_add.svg?react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,12 +21,10 @@ function Header() {
       {accountState.state !== "signedin" && (
         <div className="Login">
           <Link to="/signin" className="Link">
-            <PersonIcon />
-            <span>&nbsp;Sign in</span>
+            <LoginIcon />
           </Link>
           <Link to="/signup" className="Link">
             <PersonAddIcon />
-            <span>&nbsp;Sign up</span>
           </Link>
         </div>
       )}

@@ -63,7 +63,7 @@
 
 .Login .Link {
   padding: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
 
   display: flex;
   flex-direction: row;
@@ -72,6 +72,6 @@
 }
 
 .Login .Link svg {
-  height: 1.5em;
-  width: 1.5em;
+  height: 1em;
+  width: 1em;
 }
