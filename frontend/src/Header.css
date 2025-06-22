@@ -15,6 +15,11 @@
   color: var(--primary);
 }
 
+.Header svg {
+  height: 1.2rem;
+  width: 1.2rem;
+}
+
 .NavBar {
   display: flex;
   flex-direction: row;
@@ -49,11 +54,6 @@
   flex-direction: column;
 }
 
-.NavBar .Link svg {
-  height: 1em;
-  width: 1em;
-}
-
 .Login {
   display: flex;
   flex-direction: row;
@@ -71,7 +71,28 @@
   align-items: center;
 }
 
-.Login .Link svg {
-  height: 1em;
-  width: 1em;
+.UserDetails {
+  font-size: 0.8rem;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.UserDetails .Link {
+  padding: 0.5rem;
+}
+
+.UserDetails button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0.5rem;
+
+  transition: color 0.2s;
+}
+
+.UserDetails button:hover {
+  color: var(--primary);
 }
